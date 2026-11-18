@@ -720,6 +720,59 @@
       --bg2:#16345f;
     }
 
+
+    /* ===== Puesta en marcha inicial ===== */
+    .setupIntro{
+      width:min(560px,100%);
+      margin:18px auto 0;
+      padding:18px;
+      border:1px solid rgba(255,255,255,.18);
+      border-radius:18px;
+      background:rgba(7,20,45,.42);
+      text-align:left;
+      box-shadow:0 18px 48px rgba(0,0,0,.18);
+    }
+    .setupIntro h3{margin:0 0 8px;font-size:20px}
+    .setupIntro p{margin:0 0 12px;color:var(--muted);line-height:1.45}
+    .setupIntro .small{font-size:13px;color:var(--muted)}
+    .setupOverlay{
+      position:fixed;inset:0;z-index:10000;
+      display:flex;align-items:center;justify-content:center;
+      padding:18px;
+      background:rgba(3,10,24,.82);
+      backdrop-filter:blur(8px);
+    }
+    .setupOverlay.hidden{display:none!important}
+    .setupPanel{
+      width:min(680px,100%);
+      max-height:92vh;overflow:auto;
+      padding:22px;
+      border-radius:22px;
+      border:1px solid rgba(255,255,255,.18);
+      background:linear-gradient(180deg,rgba(27,63,122,.98),rgba(11,27,58,.98));
+      box-shadow:var(--shadow);
+    }
+    .setupPanel h2{margin:0 0 6px;font-size:26px}
+    .setupPanel .lead{margin:0 0 18px;color:var(--muted);line-height:1.5}
+    .setupGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .setupGrid .full{grid-column:1/-1}
+    .setupPanel label{display:block;font-weight:750;margin-bottom:6px}
+    .setupPanel input,.setupPanel select{
+      width:100%;padding:12px 13px;border-radius:12px;
+      border:1px solid rgba(255,255,255,.20);
+      background:rgba(255,255,255,.09);color:var(--text);
+      font:inherit;outline:none;
+    }
+    .setupPanel select option{color:#0b1b3a;background:white}
+    .setupPanel input:focus,.setupPanel select:focus{box-shadow:var(--focus);border-color:rgba(255,212,122,.55)}
+    .setupNote{
+      margin:16px 0;padding:12px 14px;border-radius:14px;
+      background:rgba(255,212,122,.10);border:1px solid rgba(255,212,122,.22);
+      color:var(--accent2);font-size:14px;line-height:1.45;
+    }
+    .setupActions{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;margin-top:16px}
+    @media (max-width:640px){.setupGrid{grid-template-columns:1fr}.setupGrid .full{grid-column:auto}.setupPanel{padding:18px}}
+
   </style>
 </head>
 
@@ -737,8 +790,66 @@
       <div class="splashTitle">FARO</div>
       <div class="splashSub">Una ayuda sencilla para orientarse cada día</div>
 
-      <button class="btn primary giant splashBtn" id="btnEnter"><span data-i18n="entrarFaro">Entrar</span></button>
-      <button class="btn ghost splashLink" id="btnFamily"><span data-i18n="accesoFamiliar">Área familiar</span></button>
+      <div id="normalSplashActions">
+        <button class="btn primary giant splashBtn" id="btnEnter"><span data-i18n="entrarFaro">Entrar</span></button>
+        <button class="btn ghost splashLink" id="btnFamily"><span data-i18n="accesoFamiliar">Área familiar</span></button>
+      </div>
+
+      <div id="setupSplashActions" class="setupIntro hidden">
+        <h3>Primero, prepara FARO</h3>
+        <p>Antes de que la persona usuaria pueda entrar, un familiar o cuidador debe realizar una configuración inicial.</p>
+        <button class="btn primary giant" id="btnStartSetup" style="width:100%">Configurar FARO</button>
+        <div class="small" style="margin-top:10px">Después podrás añadir rutinas, medicación, citas y recuerdos desde el Área familiar.</div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ===== Configuración inicial del cuidador ===== -->
+  <div class="setupOverlay hidden" id="setupOverlay" role="dialog" aria-modal="true" aria-labelledby="setupTitle">
+    <div class="setupPanel">
+      <h2 id="setupTitle">Configuración inicial de FARO</h2>
+      <p class="lead">Estos datos preparan la experiencia antes del primer uso de la persona usuaria.</p>
+
+      <div class="setupGrid">
+        <div>
+          <label for="setupPatientName">Nombre de la persona</label>
+          <input id="setupPatientName" type="text" placeholder="Ej: María" autocomplete="off" />
+        </div>
+        <div>
+          <label for="setupProfile">Nivel de apoyo</label>
+          <select id="setupProfile">
+            <option value="L1">L1 — Mayor autonomía</option>
+            <option value="L2" selected>L2 — Apoyo intermedio</option>
+            <option value="L3">L3 — Apoyo elevado</option>
+          </select>
+        </div>
+        <div>
+          <label for="setupTrustedName">Persona de confianza</label>
+          <input id="setupTrustedName" type="text" placeholder="Ej: Ana" autocomplete="off" />
+        </div>
+        <div>
+          <label for="setupTrustedPhone">Teléfono de contacto</label>
+          <input id="setupTrustedPhone" type="tel" inputmode="tel" placeholder="Ej: 600123123" autocomplete="tel" />
+        </div>
+        <div>
+          <label for="setupPin">PIN del Área familiar</label>
+          <input id="setupPin" type="password" inputmode="numeric" maxlength="4" placeholder="4 cifras" autocomplete="new-password" />
+        </div>
+        <div>
+          <label for="setupPin2">Repite el PIN</label>
+          <input id="setupPin2" type="password" inputmode="numeric" maxlength="4" placeholder="4 cifras" autocomplete="new-password" />
+        </div>
+      </div>
+
+      <div class="setupNote">
+        FARO generará un código de recuperación para el PIN. Antes de entregar el dispositivo a la persona usuaria, es recomendable completar también las rutinas, medicación, citas y recuerdos desde el Área familiar.
+      </div>
+
+      <div class="setupActions">
+        <button class="btn ghost" id="btnCancelSetup">Volver</button>
+        <button class="btn primary" id="btnActivateFaro">Activar FARO</button>
+      </div>
     </div>
   </div>
 
@@ -1472,6 +1583,8 @@
     };
 
     const defaultState = {
+      setupComplete: false,
+      patientName: "",
       mode: "patient",
       profile: "L2",
       patientView: "simple",
@@ -1750,6 +1863,11 @@
 
     function setMode(mode){
       if("speechSynthesis" in window) window.speechSynthesis.cancel();
+      if(mode === "patient" && !state.setupComplete){
+        showSetupSplash();
+        openInitialSetup();
+        return;
+      }
       if(mode === "care"){
         if(!requireCarePinIfSet()){
           mode = "patient";
@@ -3388,10 +3506,81 @@
     const splash = document.getElementById("splash");
     const btnEnter = document.getElementById("btnEnter");
     const btnFamily = document.getElementById("btnFamily");
+    const normalSplashActions = document.getElementById("normalSplashActions");
+    const setupSplashActions = document.getElementById("setupSplashActions");
+    const setupOverlay = document.getElementById("setupOverlay");
 
     function hideSplash(){
       if(!splash) return;
       splash.style.display = "none";
+    }
+
+    function showSetupSplash(){
+      if(!splash) return;
+      splash.style.display = "flex";
+      normalSplashActions?.classList.add("hidden");
+      setupSplashActions?.classList.remove("hidden");
+    }
+
+    function showNormalSplash(){
+      if(!splash) return;
+      splash.style.display = "flex";
+      normalSplashActions?.classList.remove("hidden");
+      setupSplashActions?.classList.add("hidden");
+    }
+
+    function openInitialSetup(){
+      if(!setupOverlay) return;
+      $("#setupPatientName").value = state.patientName || "";
+      $("#setupTrustedName").value = state.trusted?.name || "";
+      $("#setupTrustedPhone").value = state.trusted?.phone || "";
+      $("#setupProfile").value = state.profile || "L2";
+      $("#setupPin").value = "";
+      $("#setupPin2").value = "";
+      setupOverlay.classList.remove("hidden");
+      setTimeout(()=>$("#setupPatientName")?.focus(),50);
+    }
+
+    function closeInitialSetup(){
+      setupOverlay?.classList.add("hidden");
+    }
+
+    function normalizePhoneForSetup(value){
+      return String(value || "").replace(/[\s().-]/g, "");
+    }
+
+    function activateInitialSetup(){
+      const patientName = $("#setupPatientName").value.trim();
+      const trustedName = $("#setupTrustedName").value.trim();
+      const phoneRaw = $("#setupTrustedPhone").value.trim();
+      const phone = normalizePhoneForSetup(phoneRaw);
+      const profile = $("#setupProfile").value || "L2";
+      const pin = $("#setupPin").value.trim();
+      const pin2 = $("#setupPin2").value.trim();
+
+      if(!patientName){ alert("Indica el nombre de la persona usuaria."); return; }
+      if(!trustedName){ alert("Indica una persona de confianza."); return; }
+      if(!/^\+?\d{9,15}$/.test(phone)){ alert("Introduce un teléfono de contacto válido."); return; }
+      if(!validCarePin(pin)){ alert("El PIN debe tener exactamente 4 cifras."); return; }
+      if(pin !== pin2){ alert("Los PIN no coinciden."); return; }
+
+      state.patientName = patientName;
+      state.profile = profile;
+      state.carePin = pin;
+      state.careRecoveryCode = generateRecoveryCode();
+      state.trusted.name = trustedName;
+      state.trusted.phone = phoneRaw;
+      if(!state.trusted.rel) state.trusted.rel = "Persona de confianza";
+      if(!state.trusted.msg) state.trusted.msg = "Estoy contigo. Vamos paso a paso.";
+      state.allowCall = true;
+      state.setupComplete = true;
+      state.mode = "patient";
+      saveState();
+      applyProfile();
+      renderAll();
+      closeInitialSetup();
+      showNormalSplash();
+      alert(`FARO está preparado para ${patientName}.\n\nCódigo de recuperación: ${state.careRecoveryCode}\n\nGuárdalo fuera de FARO. Puedes completar rutinas, medicación, citas y recuerdos desde el Área familiar.`);
     }
 
     function init(){
@@ -3402,7 +3591,17 @@
       applyProfile();
       renderAll();
       openCareTab("plan");
-      // dejamos la pantalla inicial visible al arrancar
+
+      // Primera puesta en marcha: el paciente no puede entrar hasta completar la configuración mínima.
+      if(state.setupComplete){
+        showNormalSplash();
+      }else{
+        showSetupSplash();
+      }
+
+      $("#btnStartSetup")?.addEventListener("click", openInitialSetup);
+      $("#btnCancelSetup")?.addEventListener("click", closeInitialSetup);
+      $("#btnActivateFaro")?.addEventListener("click", activateInitialSetup);
 
       // Splash actions
       if(btnEnter){
@@ -3414,6 +3613,11 @@
       }
       if(btnFamily){
         btnFamily.addEventListener("click", ()=>{
+          if(!state.setupComplete){
+            showSetupSplash();
+            openInitialSetup();
+            return;
+          }
           hideSplash();
           setMode("care"); // exige PIN y permite recuperación
         });
