@@ -1222,8 +1222,14 @@
                           </select>
                         </div>
                         <div class="field">
-                          <label>PIN modo cuidador (opcional)</label>
-                          <input id="carePinInput" type="text" placeholder="Ej: 1234" inputmode="numeric" />
+                          <label>PIN del Área familiar (4 cifras)</label>
+                          <input id="carePinInput" type="password" maxlength="4" placeholder="••••" inputmode="numeric" autocomplete="off" />
+                          <div class="small" style="margin-top:6px">Protege la configuración frente a accesos accidentales.</div>
+                        </div>
+                        <div class="field">
+                          <label>Código de recuperación</label>
+                          <input id="careRecoveryInput" type="text" readonly placeholder="Se genera al configurar el PIN" />
+                          <div class="small" style="margin-top:6px">Guárdalo fuera de FARO. Permite crear un PIN nuevo si lo olvidas.</div>
                         </div>
                       </div>
 
@@ -1474,6 +1480,7 @@
       profile: "L2",
       patientView: "simple",
       carePin: "",
+      careRecoveryCode: "",
       place: "Casa",
       trusted: {
         name: "",
@@ -1643,14 +1650,96 @@
       syncQuickProfileUI();
     }
 
-    /* ===== PIN cuidador ===== */
+    /* ===== Protección del Área familiar ===== */
+    function validCarePin(pin){
+      return /^\d{4}$/.test(String(pin || "").trim());
+    }
+
+    function generateRecoveryCode(){
+      const nums = new Uint32Array(2);
+      if(window.crypto?.getRandomValues){
+        window.crypto.getRandomValues(nums);
+      }else{
+        nums[0] = Math.floor(Math.random() * 1000000000);
+        nums[1] = Math.floor(Math.random() * 1000000000);
+      }
+      const a = String(nums[0] % 10000).padStart(4, "0");
+      const b = String(nums[1] % 10000).padStart(4, "0");
+      return `FARO-${a}-${b}`;
+    }
+
+    function ensureRecoveryCode(){
+      if(!state.careRecoveryCode){
+        state.careRecoveryCode = generateRecoveryCode();
+        saveState();
+      }
+      return state.careRecoveryCode;
+    }
+
+    function setupCarePin(){
+      alert("El Área familiar contiene ajustes del paciente. Para evitar accesos accidentales, crea un PIN de 4 cifras.");
+      const first = prompt("Crea un PIN de 4 cifras:");
+      if(first === null) return false;
+      if(!validCarePin(first)){
+        alert("El PIN debe tener exactamente 4 cifras.");
+        return false;
+      }
+      const second = prompt("Repite el PIN de 4 cifras:");
+      if(second === null) return false;
+      if(String(first).trim() !== String(second).trim()){
+        alert("Los PIN no coinciden. No se ha realizado ningún cambio.");
+        return false;
+      }
+      state.carePin = String(first).trim();
+      state.careRecoveryCode = generateRecoveryCode();
+      saveState();
+      alert(`PIN configurado.\n\nCódigo de recuperación: ${state.careRecoveryCode}\n\nGuárdalo fuera de FARO. Lo necesitarás si olvidas el PIN.`);
+      return true;
+    }
+
+    function resetCarePin(){
+      const recovery = ensureRecoveryCode();
+      const code = prompt("Introduce tu código de recuperación (formato FARO-0000-0000):");
+      if(code === null) return false;
+      if(String(code).trim().toUpperCase() !== recovery.toUpperCase()){
+        alert("Código de recuperación incorrecto.");
+        return false;
+      }
+      const newPin = prompt("Introduce un nuevo PIN de 4 cifras:");
+      if(newPin === null) return false;
+      if(!validCarePin(newPin)){
+        alert("El PIN debe tener exactamente 4 cifras.");
+        return false;
+      }
+      const repeatPin = prompt("Repite el nuevo PIN:");
+      if(repeatPin === null) return false;
+      if(String(newPin).trim() !== String(repeatPin).trim()){
+        alert("Los PIN no coinciden. No se ha realizado ningún cambio.");
+        return false;
+      }
+      state.carePin = String(newPin).trim();
+      saveState();
+      alert("PIN actualizado correctamente.");
+      return true;
+    }
+
     function requireCarePinIfSet(){
-      const pin = (state.carePin || "").trim();
-      if(!pin) return true;
-      const input = prompt("Introduce PIN para entrar en acceso familiar:");
+      let pin = (state.carePin || "").trim();
+      if(!pin){
+        return setupCarePin();
+      }
+
+      // Los estados antiguos con PIN reciben un código de recuperación al actualizar.
+      ensureRecoveryCode();
+
+      const input = prompt("Introduce el PIN de 4 cifras para entrar en Área familiar.\n\nSi lo has olvidado, escribe RECUPERAR.");
       if(input === null) return false;
-      if(String(input).trim() === pin) return true;
+      const value = String(input).trim();
+      if(value === pin) return true;
+      if(value.toUpperCase() === "RECUPERAR") return resetCarePin();
+
       toast("PIN incorrecto.");
+      alert("PIN incorrecto. Puedes intentarlo de nuevo o escribir RECUPERAR para restablecerlo.");
       return false;
     }
 
@@ -2808,6 +2897,7 @@
     function fillPatientSettingsForm(){
       $("#profileSelect").value = state.profile || "L2";
       $("#carePinInput").value = state.carePin || "";
+      if($("#careRecoveryInput")) $("#careRecoveryInput").value = state.careRecoveryCode || "";
       $("#trustedNameInput").value = state.trusted.name || "";
       $("#trustedRelInput").value = state.trusted.rel || "";
       $("#trustedMsgInput").value = state.trusted.msg || "";
@@ -2879,7 +2969,14 @@
 
     $("#btnSaveTrusted")?.addEventListener("click", async ()=>{
       state.profile = $("#profileSelect").value || "L2";
-      state.carePin = ($("#carePinInput").value || "").trim();
+      const carePinCandidate = ($("#carePinInput").value || "").trim();
+      if(!validCarePin(carePinCandidate)){
+        alert("El PIN del Área familiar debe tener exactamente 4 cifras.");
+        return;
+      }
+      state.carePin = carePinCandidate;
+      ensureRecoveryCode();
+      if($("#careRecoveryInput")) $("#careRecoveryInput").value = state.careRecoveryCode || "";
 
       state.trusted.name = $("#trustedNameInput").value.trim() || state.trusted.name;
       state.trusted.rel  = $("#trustedRelInput").value.trim() || state.trusted.rel;
@@ -3265,7 +3362,7 @@
       if(btnFamily){
         btnFamily.addEventListener("click", ()=>{
           hideSplash();
-          setMode("care"); // respeta PIN si está configurado
+          setMode("care"); // exige PIN y permite recuperación
         });
       }
     }
