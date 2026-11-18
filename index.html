@@ -1,0 +1,3361 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0b1b3a">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="icon" href="icon-192.png" type="image/png">
+  <title>FARO — Alzheimer (Paciente + Cuidador)</title>
+
+  <style>
+    :root{
+      /* ===== Tema “BOCETO” (azul profundo + luz cálida) ===== */
+      --bg0:#0b1b3a;     /* azul muy oscuro */
+      --bg1:#132e5d;     /* azul medio */
+      --bg2:#1b3f7a;     /* azul superior suave */
+
+      --card: rgba(255,255,255,.08);
+      --card2: rgba(255,255,255,.12);
+
+      --text:#f6fbff;
+      --muted: rgba(246,251,255,.72);
+      --line: rgba(246,251,255,.14);
+
+      --accent:#ffd47a;
+      --accent2:#fff3cf;
+      --danger:#ff7a7a;
+      --ok:#7dffb6;
+
+      --shadow: 0 26px 80px rgba(0,0,0,.35);
+      --radius:22px;
+      --radius2:16px;
+      --focus:0 0 0 3px rgba(255,212,122,.38);
+
+      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue";
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+
+    body{
+      margin:0;
+      font-family:var(--font);
+      color:var(--text);
+
+      /* Fondo tipo boceto: halo + profundidad */
+      background:
+        radial-gradient(480px 480px at 50% 32%,
+          rgba(255,212,122,.18) 0%,
+          rgba(255,255,255,.10) 18%,
+          rgba(255,255,255,.00) 58%
+        ),
+        radial-gradient(1200px 700px at 50% 12%,
+          rgba(255,255,255,.06) 0%,
+          rgba(0,0,0,0) 60%
+        ),
+        linear-gradient(180deg, var(--bg2) 0%, var(--bg1) 40%, var(--bg0) 100%);
+    }
+
+    .wrap{max-width:1180px;margin:0 auto;padding:18px}
+
+    header{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:14px; padding:14px 14px; border-radius:var(--radius);
+      background:linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.06));
+      border:1px solid var(--line);
+      box-shadow:var(--shadow);
+      backdrop-filter: blur(10px);
+      flex-wrap:wrap;
+    }
+    @media (max-width:600px){
+      header{ flex-direction:column; align-items:flex-start; gap:10px; }
+      .seg{ justify-content:flex-start; width:100%; }
+      .brand{ min-width:unset; width:100%; }
+    }
+
+    .brand{display:flex; align-items:center; gap:14px; min-width:280px;}
+    .logo{
+      width:62px;height:62px;border-radius:14px;
+      overflow:hidden; flex:0 0 auto;
+      background:transparent;
+      display:grid; place-items:center;
+    }
+    .logo img{width:100%;height:100%;object-fit:cover}
+    .brand h1{margin:0; font-size:18px; letter-spacing:.14em; font-weight:600}
+    .brand .sub{font-size:12px; color:var(--muted); margin-top:2px}
+
+    .seg{display:flex; gap:8px; flex-wrap:wrap; align-items:center; justify-content:flex-end;}
+    .pill{
+      display:flex; align-items:center; gap:10px;
+      padding:10px 12px; border-radius:999px;
+      background:rgba(0,0,0,.14); border:1px solid var(--line);
+      color:var(--muted); font-size:12px;
+      backdrop-filter: blur(8px);
+    }
+
+    .toggle{
+      display:flex; background:rgba(0,0,0,.16); border:1px solid var(--line);
+      border-radius:999px; overflow:hidden;
+      backdrop-filter: blur(8px);
+    }
+    .toggle button{
+      appearance:none; border:0; background:transparent; color:var(--muted);
+      padding:10px 14px; font-weight:700; letter-spacing:.04em; cursor:pointer;
+      font-size:12px;
+    }
+    .toggle button.active{
+      background:linear-gradient(180deg, rgba(255,212,122,.35), rgba(255,212,122,.16));
+      color:var(--text);
+    }
+    .toggle button:focus{outline:none; box-shadow:var(--focus)}
+
+    main{margin-top:14px}
+    .grid{display:grid; grid-template-columns: 1.1fr .9fr; gap:14px;}
+    @media (max-width: 980px){ .grid{grid-template-columns:1fr} .brand{min-width:unset} }
+
+    /* ===== Cards (más “boceto/glass”) ===== */
+    .card{
+      border-radius:var(--radius);
+      background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.06));
+      border:1px solid var(--line);
+      box-shadow:var(--shadow);
+      backdrop-filter: blur(10px);
+      overflow:hidden;
+    }
+    .card .hd{
+      padding:14px 16px;
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      border-bottom:1px solid var(--line);
+      background:linear-gradient(180deg, rgba(0,0,0,.22), rgba(0,0,0,0));
+    }
+    .card .hd h2{margin:0; font-size:14px; letter-spacing:.10em; text-transform:uppercase}
+    .card .bd{padding:14px 16px}
+
+    .bigtime{
+      display:flex; flex-direction:column; gap:6px;
+      padding:14px 16px; border-radius:var(--radius2);
+      background:rgba(0,0,0,.16); border:1px solid var(--line);
+      backdrop-filter: blur(8px);
+    }
+    .time{font-size:46px; font-weight:800; letter-spacing:.02em; line-height:1}
+    .date{font-size:14px; color:rgba(246,251,255,.90)}
+    .mini{font-size:12px; color:rgba(246,251,255,.86)}
+
+    .who{
+      display:grid; grid-template-columns:88px 1fr; gap:12px; align-items:center;
+      padding:12px; border-radius:var(--radius2);
+      background:rgba(0,0,0,.16); border:1px solid var(--line);
+      margin-top:12px;
+      backdrop-filter: blur(8px);
+    }
+    .avatar{
+      width:88px; height:88px; border-radius:18px;
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.18);
+      overflow:hidden; display:grid; place-items:center;
+      font-size:34px;
+    }
+    .avatar img{width:100%;height:100%;object-fit:cover}
+    .who .title{font-size:12px; color:rgba(246,251,255,.86); letter-spacing:.12em; text-transform:uppercase}
+    .who .name{font-size:22px; font-weight:800; margin-top:2px}
+    .who .desc{color:rgba(246,251,255,.86); font-size:13px; margin-top:4px; line-height:1.35}
+
+    .btnrow{display:flex; gap:10px; flex-wrap:wrap; margin-top:12px}
+    button, input, select, textarea{font-family:inherit}
+
+    /* ===== Botones (CTA FARO con glow) ===== */
+    .btn{
+      border:0; cursor:pointer; font-weight:850;
+      padding:12px 14px; border-radius:14px;
+      background:linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.08));
+      color:var(--text); border:1px solid var(--line);
+      backdrop-filter: blur(8px);
+      transition: transform .12s ease, filter .12s ease;
+    }
+    .btn:focus{outline:none; box-shadow:var(--focus)}
+    .btn:hover{transform: translateY(-1px); filter: brightness(1.03);}
+
+    .btn.primary{
+      background: linear-gradient(180deg, rgba(255,212,122,.40), rgba(255,212,122,.18));
+      border: 1px solid rgba(255,212,122,.40);
+      box-shadow: 0 14px 40px rgba(255,212,122,.10);
+    }
+    .btn.ghost{background:rgba(0,0,0,.14)}
+    .btn.danger{
+      background:linear-gradient(180deg, rgba(255,122,122,.30), rgba(255,122,122,.12));
+      border:1px solid rgba(255,122,122,.55);
+    }
+    .btn.small{padding:8px 10px; border-radius:12px; font-size:12px; font-weight:850}
+    .btn.big{
+      width:100%;
+      padding:16px 16px;
+      border-radius:18px;
+      font-size:16px;
+      letter-spacing:.02em;
+    }
+    .btn.giant{
+      width:100%;
+      padding:18px 18px;
+      border-radius:20px;
+      font-size:18px;
+      font-weight:900;
+    }
+
+    .list{display:flex; flex-direction:column; gap:10px;}
+    .item{
+      padding:12px; border-radius:16px;
+      background:rgba(0,0,0,.16); border:1px solid var(--line);
+      display:flex; align-items:flex-start; justify-content:space-between; gap:10px;
+      backdrop-filter: blur(8px);
+    }
+    .item .meta{display:flex; flex-direction:column; gap:2px}
+    .item .k{font-size:12px; color:rgba(246,251,255,.86); letter-spacing:.08em; text-transform:uppercase}
+    .item .v{font-size:15px; font-weight:850}
+    .item .s{font-size:13px; color:rgba(246,251,255,.86); line-height:1.35}
+
+    .badge{
+      padding:6px 10px; border-radius:999px; font-size:12px; font-weight:900;
+      background:rgba(0,0,0,.18); border:1px solid var(--line); color:rgba(246,251,255,.86);
+      white-space:nowrap;
+      backdrop-filter: blur(8px);
+    }
+    .badge.ok{color:#0e3; border-color:rgba(125,255,182,.45); background:rgba(125,255,182,.14)}
+    .badge.warn{color:#ffd47a; border-color:rgba(255,212,122,.45); background:rgba(255,212,122,.12)}
+    .badge.danger{color:#ffb3b3; border-color:rgba(255,122,122,.55); background:rgba(255,122,122,.12)}
+
+    .split{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+    @media (max-width: 520px){ .split{grid-template-columns:1fr} }
+
+    .field{display:flex; flex-direction:column; gap:6px;}
+    label{font-size:12px; color:rgba(246,251,255,.86); letter-spacing:.08em; text-transform:uppercase}
+    input[type="text"], input[type="time"], input[type="date"], textarea, select{
+      width:100%;
+      padding:12px 12px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background:rgba(0,0,0,.18);
+      color:var(--text);
+      outline:none;
+      backdrop-filter: blur(8px);
+    }
+    textarea{min-height:92px; resize:vertical}
+    input:focus, textarea:focus, select:focus{box-shadow:var(--focus)}
+
+    .tabs{
+      display:flex; gap:8px; flex-wrap:wrap;
+      padding:10px; border-radius:18px;
+      background:rgba(0,0,0,.14); border:1px solid var(--line);
+      backdrop-filter: blur(8px);
+    }
+    .tabbtn{
+      padding:10px 12px; border-radius:14px; border:1px solid transparent;
+      background:transparent; color:rgba(246,251,255,.86); cursor:pointer; font-weight:900;
+      letter-spacing:.05em; font-size:12px;
+    }
+    .tabbtn.active{
+      color:var(--text);
+      background:rgba(255,255,255,.08);
+      border-color:var(--line);
+    }
+
+    /* Colores específicos para pestañas del cuidador */
+    .care-tabs .tabbtn{
+      color:var(--text);
+      border-color:rgba(255,255,255,.10);
+    }
+    .care-tabs .tabbtn.care-tab-plan{background:rgba(107, 208, 220, .18);}
+    .care-tabs .tabbtn.care-tab-diary{background:rgba(103, 155, 255, .18);}
+    .care-tabs .tabbtn.care-tab-patient{background:rgba(122, 210, 160, .18);}
+    .care-tabs .tabbtn.care-tab-games{background:rgba(255, 184, 107, .20);}
+    .care-tabs .tabbtn.care-tab-knowledge{background:rgba(186, 132, 255, .20);}
+
+    .care-tabs .tabbtn.care-tab-plan.active{background:linear-gradient(180deg, rgba(107, 208, 220, .42), rgba(107, 208, 220, .22)); border-color:rgba(107, 208, 220, .48);}
+    .care-tabs .tabbtn.care-tab-diary.active{background:linear-gradient(180deg, rgba(103, 155, 255, .42), rgba(103, 155, 255, .22)); border-color:rgba(103, 155, 255, .48);}
+    .care-tabs .tabbtn.care-tab-patient.active{background:linear-gradient(180deg, rgba(122, 210, 160, .42), rgba(122, 210, 160, .22)); border-color:rgba(122, 210, 160, .48);}
+    .care-tabs .tabbtn.care-tab-games.active{background:linear-gradient(180deg, rgba(255, 184, 107, .44), rgba(255, 184, 107, .24)); border-color:rgba(255, 184, 107, .52);}
+    .care-tabs .tabbtn.care-tab-knowledge.active{background:linear-gradient(180deg, rgba(186, 132, 255, .44), rgba(186, 132, 255, .24)); border-color:rgba(186, 132, 255, .52);}
+    .tabbtn:focus{outline:none; box-shadow:var(--focus)}
+    .hidden{display:none !important}
+    body[data-mode="patient"] .care-only{display:none !important}
+    body[data-mode="care"] .patient-only{display:none !important}
+
+    .patient-home-stack{display:flex;flex-direction:column;gap:12px}
+    .patient-big-help{margin-top:12px}
+    .patient-simple-step{margin-top:12px}
+
+    /* ===== Ajustes finales pensando en el uso real del paciente ===== */
+    body[data-mode="patient"] .wrap{max-width:760px}
+    body[data-mode="patient"] header{
+      justify-content:center;
+      padding:12px 16px;
+    }
+    body[data-mode="patient"] .brand{
+      min-width:unset;
+      justify-content:center;
+      text-align:center;
+      width:100%;
+    }
+    body[data-mode="patient"] .brand .sub{
+      max-width:24ch;
+      margin:4px auto 0;
+    }
+    body[data-mode="patient"] .seg{display:none}
+    body[data-mode="patient"] .grid{grid-template-columns:1fr}
+    body[data-mode="patient"] #screenPatient .card{
+      box-shadow:0 18px 48px rgba(0,0,0,.24);
+    }
+    body[data-mode="patient"] #screenPatient .hd{
+      padding:12px 14px;
+    }
+    body[data-mode="patient"] #screenPatient .hd h2{
+      font-size:13px;
+      letter-spacing:.08em;
+    }
+    body[data-mode="patient"] #screenPatient .bd{
+      padding:12px;
+    }
+    body[data-mode="patient"] .bigtime{
+      padding:18px 18px 16px;
+    }
+    body[data-mode="patient"] .time{
+      font-size:54px;
+    }
+    body[data-mode="patient"] .who{
+      grid-template-columns:76px 1fr;
+      padding:14px;
+    }
+    body[data-mode="patient"] .avatar{
+      width:76px;
+      height:76px;
+      border-radius:16px;
+    }
+    body[data-mode="patient"] #patientSimple .item{
+      padding:14px;
+    }
+    body[data-mode="patient"] .btn.big,
+    body[data-mode="patient"] .btn.giant{
+      min-height:58px;
+    }
+    .patient-access-row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:12px;
+    }
+    .patient-access-row .btn{
+      flex:1 1 220px;
+    }
+    .patient-home-note{
+      margin-top:10px;
+      padding:12px 14px;
+      border-radius:16px;
+      background:rgba(0,0,0,.12);
+      border:1px dashed rgba(246,251,255,.18);
+      color:rgba(246,251,255,.86);
+      font-size:13px;
+      line-height:1.4;
+    }
+    .family-entry{
+      display:flex;
+      justify-content:center;
+      margin-top:12px;
+    }
+
+
+    .note{
+      font-size:13px; color:rgba(246,251,255,.86); line-height:1.45;
+      padding:12px; border-radius:16px; border:1px dashed rgba(246,251,255,.22);
+      background:rgba(0,0,0,.12);
+      backdrop-filter: blur(8px);
+    }
+    .hr{height:1px;background:var(--line);margin:12px 0}
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size:12px; padding:2px 6px; border-radius:8px;
+      border:1px solid var(--line); background:rgba(0,0,0,.18);
+      backdrop-filter: blur(8px);
+    }
+
+    .toast{
+      position:fixed; left:50%; bottom:16px; transform:translateX(-50%);
+      background:rgba(0,0,0,.56); color:var(--text);
+      border:1px solid rgba(255,255,255,.16);
+      padding:12px 14px; border-radius:16px;
+      box-shadow:var(--shadow);
+      max-width:min(560px, calc(100vw - 22px));
+      display:none;
+      z-index:9999;
+      backdrop-filter: blur(10px);
+    }
+    .toast.show{display:block}
+
+    /* ===== Modo Calma (reduce carga visual) ===== */
+    body.calm .calm-hide{display:none !important}
+    body.calm .calm-focus{
+      border-color: rgba(255,212,122,.40);
+      background: linear-gradient(180deg, rgba(255,212,122,.12), rgba(0,0,0,.10));
+    }
+
+    /* =========================================================
+       PERFILES CLÍNICOS (L1 / L2 / L3)
+       ========================================================= */
+    body[data-profile="L1"] .only-l2,
+    body[data-profile="L1"] .only-l3 { display:none !important; }
+
+    body[data-profile="L2"] .only-l1,
+    body[data-profile="L2"] .only-l3 { display:none !important; }
+
+    body[data-profile="L3"] .only-l1,
+    body[data-profile="L3"] .only-l2 { display:none !important; }
+
+    body[data-profile="L3"] header .pill .view-label { display:none; }
+    body[data-profile="L3"] .calm-hide { display:none !important; }
+
+    .show-l1-l2{display:block}
+    body[data-profile="L3"] .show-l1-l2{display:none !important;}
+    .l3-hide{display:block}
+    body[data-profile="L3"] .l3-hide{display:none !important;}
+    body[data-profile="L3"] .l3-secondary{display:none !important;}
+
+
+
+    /* ===== Colores por modo y nivel ===== */
+    body[data-profile="L1"]{
+      --bg0:#123e79;
+      --bg1:#1e5da8;
+      --bg2:#3d84d6;
+    }
+    body[data-profile="L2"]{
+      --bg0:#0b1b3a;
+      --bg1:#132e5d;
+      --bg2:#1b3f7a;
+    }
+    body[data-profile="L3"]{
+      --bg0:#081629;
+      --bg1:#0e2543;
+      --bg2:#18385f;
+    }
+    body[data-mode="care"]{
+      --bg0:#143238;
+      --bg1:#1d5058;
+      --bg2:#2f6f79;
+    }
+
+    body[data-profile="L1"] header,
+    body[data-profile="L1"] .card{
+      border-color:rgba(168,214,255,.22);
+    }
+    body[data-profile="L2"] header,
+    body[data-profile="L2"] .card{
+      border-color:rgba(246,251,255,.14);
+    }
+    body[data-profile="L3"] header,
+    body[data-profile="L3"] .card{
+      border-color:rgba(185,215,255,.12);
+    }
+    body[data-mode="care"] header,
+    body[data-mode="care"] .card{
+      border-color:rgba(173,237,222,.18);
+    }
+
+    body[data-profile="L1"] .badge.warn{background:rgba(109,185,255,.18); border-color:rgba(109,185,255,.42);}
+    body[data-profile="L3"] .badge.warn{background:rgba(160,196,255,.10); border-color:rgba(160,196,255,.26);}
+    body[data-mode="care"] .badge.warn{background:rgba(129,223,204,.12); border-color:rgba(129,223,204,.34);}
+    body[data-mode="care"] .btn.primary{
+      background:linear-gradient(180deg, rgba(129,223,204,.30), rgba(129,223,204,.12));
+      border:1px solid rgba(129,223,204,.34);
+      box-shadow:0 14px 40px rgba(129,223,204,.10);
+    }
+
+    /* ===== Radar + mapa ===== */
+    .radarWrap{
+      display:grid;
+      grid-template-columns: 180px 1fr;
+      gap:12px;
+      align-items:stretch;
+    }
+    @media (max-width:560px){
+      .radarWrap{grid-template-columns:1fr}
+    }
+    .radarCanvas{
+      width:180px;height:180px;
+      border-radius:22px;
+      background:rgba(0,0,0,.16);
+      border:1px solid var(--line);
+      overflow:hidden;
+      backdrop-filter: blur(8px);
+    }
+    .mapBox{
+      height:180px;
+      border-radius:22px;
+      background:rgba(0,0,0,.16);
+      border:1px solid var(--line);
+      overflow:hidden;
+      display:grid;
+      place-items:center;
+      color:rgba(246,251,255,.86);
+      font-size:13px;
+      position:relative;
+      backdrop-filter: blur(8px);
+    }
+    .mapBox iframe{
+      width:100%;
+      height:100%;
+      border:0;
+      filter: saturate(0.85) contrast(1.05);
+    }
+    .mapOverlayPill{
+      position:absolute;
+      left:10px; top:10px;
+      background:rgba(0,0,0,.46);
+      border:1px solid rgba(255,255,255,.18);
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:12px;
+      color:var(--text);
+      backdrop-filter: blur(10px);
+      z-index:2;
+    }
+
+    /* ===== Pantalla L3 (contención) ===== */
+    .containment{
+      min-height: 520px;
+      display:grid;
+      grid-template-rows: auto auto 1fr auto;
+      gap:12px;
+      padding:14px;
+      border-radius:var(--radius2);
+      background:rgba(0,0,0,.16);
+      border:1px solid var(--line);
+      backdrop-filter: blur(8px);
+    }
+    .containment .hero{
+      display:grid;
+      grid-template-columns: 120px 1fr;
+      gap:12px;
+      align-items:center;
+      padding:12px;
+      border-radius:18px;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(246,251,255,.14);
+    }
+    @media (max-width:520px){
+      .containment .hero{grid-template-columns:1fr}
+    }
+    .containment .hero .big{
+      font-size:22px;
+      font-weight:900;
+      letter-spacing:.02em;
+    }
+    .containment .hero .small{
+      color:rgba(246,251,255,.86);
+      line-height:1.35;
+      margin-top:6px;
+    }
+    .containment .photo{
+      width:120px;height:120px;border-radius:22px;
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.16);
+      overflow:hidden;
+      display:grid; place-items:center;
+      font-size:44px;
+    }
+    .containment .photo img{width:100%;height:100%;object-fit:cover}
+
+    /* ===== Ajuste rápido Cuidador: el select se alinea mejor dentro de .item ===== */
+    .item .rightCol{display:flex; flex-direction:column; gap:10px; align-items:flex-end; min-width:260px;}
+    @media (max-width: 680px){
+      .item{flex-direction:column}
+      .item .rightCol{align-items:stretch; min-width:unset; width:100%;}
+    }
+
+    /* =========================
+       SPLASH (pantalla boceto)
+       ========================= */
+    .splash{
+      position:fixed; inset:0;
+      display:grid; place-items:center;
+      padding:24px;
+      z-index:99999;
+      background:
+        radial-gradient(520px 520px at 50% 34%,
+          rgba(255,212,122,.22) 0%,
+          rgba(255,255,255,.10) 18%,
+          rgba(255,255,255,0) 60%
+        ),
+        radial-gradient(1200px 700px at 50% 10%,
+          rgba(255,255,255,.06) 0%,
+          rgba(0,0,0,0) 60%
+        ),
+        linear-gradient(180deg, var(--bg2) 0%, var(--bg1) 45%, var(--bg0) 100%);
+    }
+    .splashInner{
+      width:min(520px, 100%);
+      text-align:center;
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+      align-items:center;
+    }
+    .faroMark{
+      width:110px; height:110px;
+      position:relative;
+      border-radius:999px;
+    }
+    .faroGlow{
+      position:absolute; inset:0;
+      border-radius:999px;
+      background:
+        radial-gradient(circle at 50% 50%,
+          rgba(255,212,122,.55) 0%,
+          rgba(255,212,122,.22) 35%,
+          rgba(255,255,255,0) 70%);
+      filter: blur(0.2px);
+    }
+    .faroCore{
+      position:absolute; left:50%; top:50%;
+      width:52px; height:52px;
+      transform:translate(-50%,-50%);
+      border-radius:999px;
+      background: #fffaf0;
+      box-shadow: 0 0 0 10px rgba(255,212,122,.14);
+    }
+    .splashTitle{
+      font-size:34px;
+      letter-spacing:.38em;
+      font-weight:700;
+      margin-top:6px;
+    }
+    .splashSub{
+      font-size:12px;
+      letter-spacing:.14em;
+      color:var(--muted);
+      margin-top:-8px;
+    }
+    .splashBtn{
+      margin-top:18px;
+      width:min(360px, 100%);
+    }
+    .splashLink{
+      background: transparent;
+      border: 1px solid rgba(246,251,255,.18);
+      width:min(240px, 100%);
+      opacity:.88;
+    }
+
+    /* ===== Ajustes de empatía y acceso ===== */
+    .splashBtn{
+      font-size:20px;
+      min-height:64px;
+    }
+    .splashLink{
+      width:min(200px, 100%);
+      font-size:13px;
+      padding:10px 14px;
+      opacity:.78;
+    }
+    .family-entry-soft{
+      display:flex;
+      justify-content:flex-end;
+      margin-top:8px;
+    }
+    .family-entry-soft .btn{
+      width:auto;
+      min-height:auto;
+      padding:10px 14px;
+      font-size:13px;
+      opacity:.82;
+    }
+    .help-primary{
+      box-shadow: 0 18px 48px rgba(255,122,122,.18);
+      border-width:2px;
+    }
+    .knowledge-list a{
+      color: var(--accent2);
+    }
+
+    .l3-minimal{
+      grid-template-rows:auto auto 1fr auto;
+    }
+    .l3-minimal .hero{
+      padding:14px;
+    }
+    .l3-minimal .big{
+      font-size:24px;
+    }
+    .l3-minimal .small{
+      font-size:15px;
+    }
+    body[data-profile="L3"] .patient-home-note,
+    body[data-profile="L3"] .patient-access-row,
+    body[data-profile="L3"] .family-entry-soft{
+      display:none !important;
+    }
+
+  
+    /* ===== Temas por nivel / modo ===== */
+    body[data-profile="L1"]{
+      --bg0:#12366b;
+      --bg1:#214d93;
+      --bg2:#3e6eb6;
+    }
+    body[data-profile="L2"]{
+      --bg0:#0b1b3a;
+      --bg1:#132e5d;
+      --bg2:#1b3f7a;
+    }
+    body[data-profile="L3"]{
+      --bg0:#081427;
+      --bg1:#0d2342;
+      --bg2:#16345f;
+    }
+    body[data-mode="care"]{
+      --bg0:#0b1b3a;
+      --bg1:#0d2342;
+      --bg2:#16345f;
+    }
+
+  </style>
+</head>
+
+
+<body>
+
+  <!-- ===== Pantalla inicial estilo “boceto” ===== -->
+  <div class="splash" id="splash">
+    <div class="splashInner">
+      <div class="faroMark" aria-hidden="true">
+        <div class="faroGlow"></div>
+        <div class="faroCore"></div>
+      </div>
+
+      <div class="splashTitle">FARO</div>
+      <div class="splashSub">Una ayuda sencilla para orientarse cada día</div>
+
+      <button class="btn primary giant splashBtn" id="btnEnter"><span data-i18n="entrarFaro">Entrar a Mi Faro</span></button>
+      <button class="btn ghost splashLink" id="btnFamily"><span data-i18n="accesoFamiliar">Acceso familiar</span></button>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="logo" aria-hidden="true" title="FARO">
+          <img src="icon-192.png" alt="Logo FARO" />
+        </div>
+        <div>
+          <h1>FARO</h1>
+          <div class="sub">Apoyo diario para la persona y su entorno — prototipo</div>
+        </div>
+      </div>
+
+      <div class="seg">
+        <div class="pill care-only" id="statusPill">
+          <span data-i18n="modoLabel">Modo:</span> <strong id="modeName" data-i18n-before="modoLabel" style="margin-left:6px;color:var(--text)">Paciente</strong>
+          <span style="opacity:.7">·</span>
+          <span data-i18n="perfilLabel">Perfil:</span> <strong id="profileName" style="margin-left:6px;color:var(--text)">Guía</strong>
+          <span class="view-label" style="opacity:.7">·</span>
+          <span class="view-label"><span data-i18n="vistaLabel">Vista:</span> <strong id="patientViewName" style="margin-left:6px;color:var(--text)">Simple</strong></span>
+        </div>
+
+        <button class="btn small hidden care-only" id="btnInstall">Instalar app</button>
+        <span class="pill care-only" id="netStatus">Online</span>
+
+        <div class="toggle care-only" role="tablist" aria-label="Cambiar modo">
+          <button id="btnModePatient" class="active" role="tab" aria-selected="true">Mi Faro</button>
+          <button id="btnModeCare" role="tab" aria-selected="false">Familiar</button>
+        </div>
+
+        <!-- Botón volver al modo cuidador visible solo en modo paciente -->
+        <button class="btn small patient-only" id="btnBackToCare"
+          style="background:rgba(255,212,122,.18);border:1px solid rgba(255,212,122,.35);color:var(--text);padding:8px 14px;border-radius:999px;font-size:12px;font-weight:700;">
+          ⚙ Modo cuidador
+        </button>
+
+        <!-- Botón idioma -->
+        <button id="btnLang"
+          style="background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.20);color:var(--text);padding:8px 14px;border-radius:999px;font-size:12px;font-weight:700;cursor:pointer;">
+          🌐 EN
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <!-- ================= PACIENTE ================= -->
+      <section id="screenPatient">
+        <div class="grid">
+          <div class="card">
+            <div class="hd">
+              <h2 data-i18n="miMomento">Mi momento</h2>
+              <span class="badge warn" id="orientationBadge" data-i18n="pasoPaso">Paso a paso</span>
+            </div>
+            <div class="bd">
+              <div class="patient-home-stack">
+                <div class="bigtime calm-focus l3-hide" aria-live="polite">
+                  <div class="time" id="clock">--:--</div>
+                  <div class="date" id="dateLine">--</div>
+                  <div class="mini" id="placeLine"><span data-i18n="estasEn">Estás en:</span> <strong id="placeName">Casa</strong></div>
+                </div>
+
+                <div class="item calm-focus l3-hide">
+                  <div class="meta">
+                    <div class="k" data-i18n="ahora">Ahora</div>
+                    <div class="v" id="currentMomentTitle" data-i18n="manana">Mañana</div>
+                    <div class="s" id="currentMomentText" data-i18n="buenMomento">Es buen momento para seguir la rutina con calma.</div>
+                  </div>
+                </div>
+
+                <div class="item calm-focus">
+                  <div class="meta">
+                    <div class="k" data-i18n="despues">Después</div>
+                    <div class="v" id="nextEventTitle" data-i18n="medicacion">Medicación</div>
+                    <div class="s" id="nextEventText" data-i18n="previsto">Previsto para más tarde.</div>
+                  </div>
+                </div>
+
+                <div class="patient-big-help show-l1-l2">
+                  <button class="btn danger giant help-primary" id="btnPatientMainHelp" data-i18n="necesitaAyuda">Necesito ayuda</button>
+                </div>
+
+                <!-- Botón SOS familiar - aparece si el cuidador lo activa -->
+                <div id="sosAlertBlock" class="hidden" style="margin-top:10px">
+                  <button class="btn giant" id="btnSosAlert"
+                    style="width:100%;background:linear-gradient(180deg,rgba(255,80,80,.55),rgba(200,30,30,.40));border:1px solid rgba(255,100,100,.5);font-size:18px;font-weight:800;letter-spacing:.04em;padding:18px;"
+                    data-i18n="sosAvisar">
+                    🆘 Avisar a mi familia
+                  </button>
+                </div>
+
+                <div class="who calm-focus l3-hide">
+                  <div class="avatar" id="whoAvatar" aria-hidden="true">👤</div>
+                  <div>
+                    <div class="title" data-i18n="personaConfianza">Persona de confianza</div>
+                    <div class="name" id="trustedName">—</div>
+                    <div class="desc" id="trustedDesc">—</div>
+                    <div class="btnrow">
+                      <button class="btn primary" id="btnSpeakWho" data-i18n="escuchar">Escuchar</button>
+                      <button class="btn ghost" id="btnCallCaregiver" data-i18n="llamar">Llamar</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="patient-home-note calm-focus l3-hide" data-i18n="notaPatient">
+                  Esta pantalla intenta enseñar solo lo importante: qué momento es, qué toca ahora y a quién pedir ayuda.
+                </div>
+
+                <div class="patient-access-row l3-hide">
+                  <button class="btn big" id="btnPatientReadToday">Escuchar mi día</button>
+                </div>
+                <div class="family-entry-soft l3-hide">
+                  <button class="btn ghost" id="btnPatientFamilyAccess">Acceso familiar</button>
+                </div>
+              </div>
+
+              <!-- L1/L2: SIMPLE -->
+              <div id="patientSimple" class="show-l1-l2 patient-simple-step">
+                <div class="item calm-focus l3-hide">
+                  <div class="meta">
+                    <div class="k">Mi siguiente paso</div>
+                    <div class="v" id="simpleStepTitle">—</div>
+                    <div class="s" id="simpleStepHint">—</div>
+                  </div>
+                  <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
+                    <span class="badge" id="simpleProgress">0/0</span>
+                    <button class="btn small" id="btnSimpleRepeat">Repetir</button>
+                  </div>
+                </div>
+
+                <div class="btnrow" style="margin-top:10px">
+                  <button class="btn primary big" id="btnSimpleNextStep">Hecho, siguiente</button>
+                </div>
+
+                <div class="btnrow show-l1-l2" style="margin-top:10px">
+                  <button class="btn big" id="btnPatientMore">Más opciones</button>
+                </div>
+
+                <div class="btnrow hidden" style="margin-top:10px">
+                  <button class="btn big" id="btnPatientMoreL2">Más opciones</button>
+                </div>
+              </div>
+
+              <!-- L1/L2: FULL -->
+              <div id="patientFull" class="hidden show-l1-l2 calm-hide" style="margin-top:12px">
+                <div class="tabs" role="tablist" aria-label="Secciones del paciente">
+                  <button class="tabbtn active" data-ptab="routine" role="tab" aria-selected="true">Rutina</button>
+                  <button class="tabbtn" data-ptab="reminders" role="tab" aria-selected="false">Recordatorios</button>
+                  <button class="tabbtn" data-ptab="album" role="tab" aria-selected="false" data-i18n="album">Álbum</button>
+                  <button class="tabbtn" data-ptab="cognitive" role="tab" aria-selected="false">Ejercicios</button>
+                  <button class="tabbtn" id="btnPatientLess" role="tab" aria-selected="false">Volver</button>
+                </div>
+
+                <div style="margin-top:12px">
+                  <div id="ptab_routine">
+                    <div class="note">Haz una cosa a la vez. Pulsa <span class="kbd" data-i18n="siguiente">Siguiente</span> cuando termines.</div>
+                    <div style="margin-top:10px" class="item">
+                      <div class="meta">
+                        <div class="k" data-i18n="pasoActual">Paso actual</div>
+                        <div class="v" id="routineStepTitle">—</div>
+                        <div class="s" id="routineStepHint">—</div>
+                      </div>
+                      <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
+                        <span class="badge" id="routineProgress">0/0</span>
+                        <button class="btn small primary" id="btnRoutineNext" data-i18n="siguiente">Siguiente</button>
+                        <button class="btn small" id="btnRoutineRepeat" data-i18n="repetir">Repetir</button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div id="ptab_reminders" class="hidden">
+                    <div class="note" data-i18n="aquiVeras">Aquí verás lo importante de hoy.</div>
+                    <div class="list" style="margin-top:10px" id="patientRemindersList"></div>
+                  </div>
+
+                  <div id="ptab_album" class="hidden">
+                    <div class="note">Fotos y mensajes. Pulsa <span class="kbd" data-i18n="escuchar">Escuchar</span> para oír el mensaje.</div>
+                    <div class="list" style="margin-top:10px" id="albumList"></div>
+                  </div>
+
+                  <div id="ptab_cognitive" class="hidden">
+                    <div class="note">Ejercicio breve y amable. Sin “errores”: solo intentos.</div>
+                    <div style="margin-top:10px" class="card" style="box-shadow:none">
+                      <div class="bd">
+                        <div class="split">
+                          <div class="field">
+                            <label>Elige una pregunta</label>
+                            <select id="quizSelect"></select>
+                          </div>
+                          <div class="field">
+                            <label>Tu respuesta</label>
+                            <input id="quizAnswer" type="text" placeholder="Escribe aquí..." />
+                          </div>
+                        </div>
+                        <div class="btnrow">
+                          <button class="btn primary" id="btnQuizCheck">Comprobar</button>
+                          <button class="btn" id="btnQuizHint">Pista</button>
+                          <button class="btn" id="btnQuizSpeak">Escuchar pregunta</button>
+                        </div>
+                        <div class="note" id="quizFeedback" style="margin-top:10px">—</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="btnrow" style="margin-top:12px">
+                  <button class="btn danger big" id="btnFullHelp" data-i18n="necesitaAyuda">Necesito ayuda</button>
+                </div>
+              </div>
+
+              <!-- L3: CONTENCIÓN -->
+              <div id="containmentScreen" class="only-l3" style="margin-top:12px">
+                <div class="containment calm-focus l3-minimal">
+                  <div class="hero calm-focus">
+                    <div class="photo" id="containmentPhoto" aria-hidden="true">👤</div>
+                    <div>
+                      <div class="big" id="containmentTitle">Estoy contigo</div>
+                      <div class="small" id="containmentSubtitle">
+                        <span data-i18n="pulsaRecuerdo">Pulsa el recuerdo o llama a tu persona de confianza.</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <button class="btn primary giant" id="btnContainmentMemory" data-i18n="mensajeVoz">▶ Mensaje de voz</button>
+
+                  <div id="l3MemoryBox" class="note calm-focus" style="margin:0">
+                    <strong data-i18n="videoRecuerdo">🎬 Vídeo recuerdo</strong><br>
+                    <span data-i18n="familiaAnyadir">Aquí aparecerá el vídeo o audio que haya guardado la familia.</span>
+                  </div>
+
+                  <div id="sosAlertBlockL3" class="hidden" style="margin-top:10px">
+                    <button class="btn giant" id="btnSosAlertL3"
+                      style="width:100%;background:linear-gradient(180deg,rgba(255,80,80,.55),rgba(200,30,30,.40));border:1px solid rgba(255,100,100,.5);font-size:18px;font-weight:800;letter-spacing:.04em;padding:18px;">
+                      <span data-i18n="sosAvisar">🆘 Avisar a mi familia</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Ayuda rápida (L1/L2) -->
+          <div class="card show-l1-l2 hidden" id="quickHelpCard">
+            <div class="hd">
+              <h2 data-i18n="ayudaRapida">Ayuda rápida</h2>
+              <span class="badge ok" id="safetyBadge" data-i18n="seguro">Seguro</span>
+            </div>
+            <div class="bd">
+              <div class="list">
+                <div class="item">
+                  <div class="meta">
+                    <div class="k">Respirar</div>
+                    <div class="v">1 minuto de calma</div>
+                    <div class="s">Te guío con una voz suave: inhalar, exhalar.</div>
+                  </div>
+                  <button class="btn small primary" id="btnBreath">Empezar</button>
+                </div>
+
+                <div class="item calm-hide">
+                  <div class="meta">
+                    <div class="k">Mensaje</div>
+                    <div class="v">Estoy bien / necesito ayuda</div>
+                    <div class="s">Envía un aviso (se guarda en el panel del cuidador).</div>
+                  </div>
+                  <button class="btn small" id="btnImOk">Estoy bien</button>
+                  <button class="btn small danger" id="btnNeedHelp">Necesito ayuda</button>
+                </div>
+
+                <div class="item calm-hide">
+                  <div class="meta">
+                    <div class="k">Asistente</div>
+                    <div class="v">Hablar y escuchar</div>
+                    <div class="s">Puede leer recordatorios y rutina en voz alta.</div>
+                  </div>
+                  <button class="btn small" id="btnSpeakToday">Leer hoy</button>
+                </div>
+
+                <div class="note calm-hide">
+                  <strong>Nota:</strong> prototipo. En una app real integrarías llamadas reales, geolocalización y notificaciones del sistema.
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ================= CUIDADOR ================= -->
+      <section id="screenCare" class="hidden">
+        <div class="grid">
+
+          <div class="card">
+            <div class="hd">
+              <h2 data-i18n="panelCuidador">Panel del cuidador</h2>
+              <span class="badge" id="careStatusBadge">Normal</span>
+            </div>
+
+            <div class="bd">
+              <!-- ✅ AJUSTE RÁPIDO SIEMPRE VISIBLE -->
+              <div class="item calm-focus" style="align-items:stretch">
+                <div class="meta">
+                  <div class="k" data-i18n="ajusteRapido">Ajuste rápido</div>
+                  <div class="v" data-i18n="perfilPaciente">Perfil del paciente</div>
+                  <div class="s">
+                    <span data-i18n="cambiaSegun">Cambia el nivel según el día. Si hay confusión o ansiedad, baja a </span><strong data-i18n="contencion">Contención</strong>.
+                  </div>
+                </div>
+                <div class="rightCol">
+                  <div class="field" style="width:100%">
+                    <label data-i18n="perfilCognitivo">Perfil cognitivo</label>
+                    <select id="profileSelectQuick">
+                      <option value="L1" data-i18n="l1opt">L1 — Inicio (más autonomía)</option>
+                      <option value="L2" data-i18n="l2opt">L2 — Guía (recomendado)</option>
+                      <option value="L3" data-i18n="l3opt">L3 — Contención (seguridad)</option>
+                    </select>
+                  </div>
+                  <button class="btn primary" id="btnGoPatientSettings" style="width:100%" data-i18n="masAjustes">Más ajustes del paciente</button>
+                </div>
+              </div>
+
+              <div class="split" style="margin-top:12px">
+                <div class="item">
+                  <div class="meta">
+                    <div class="k" data-i18n="ultimoAviso">Último aviso</div>
+                    <div class="v" id="lastSignal">—</div>
+                    <div class="s" id="lastSignalTime">—</div>
+                  </div>
+                  <button class="btn small" id="btnClearSignal" data-i18n="limpiar">Limpiar</button>
+                </div>
+                <div class="item">
+                  <div class="meta">
+                    <div class="k" data-i18n="usoHoy">Uso de hoy</div>
+                    <div class="v" id="todayUse">—</div>
+                    <div class="s" data-i18n="aperturas">Aperturas / secciones usadas.</div>
+                  </div>
+                  <button class="btn small" id="btnResetUse" data-i18n="reiniciar">Reiniciar</button>
+                </div>
+              </div>
+
+              <div class="hr"></div>
+
+              <div class="hr"></div>
+
+              <div class="tabs care-tabs" role="tablist" aria-label="Secciones del cuidador">
+                <button class="tabbtn care-tab-plan active" data-ctab="plan" role="tab" aria-selected="true">Plan</button>
+                <button class="tabbtn care-tab-diary" data-ctab="diary" role="tab" aria-selected="false">Diario</button>
+                <button class="tabbtn care-tab-patient" data-ctab="patient" role="tab" aria-selected="false">Paciente</button>
+                <button class="tabbtn care-tab-games" data-ctab="games" role="tab" aria-selected="false">Ejercicios</button>
+                <button class="tabbtn care-tab-knowledge" data-ctab="knowledge" role="tab" aria-selected="false">Recursos</button>
+              </div>
+
+              <div style="margin-top:12px">
+                <!-- Plan -->
+                <div id="ctab_plan">
+                  <div class="note" data-i18n="anyadeMed">Añade medicación, citas y rutinas. El paciente lo verá adaptado a su perfil.</div>
+
+                  <div style="margin-top:10px" class="card" style="box-shadow:none">
+                    <div class="bd">
+                      <div class="split">
+                        <div class="field">
+                          <label data-i18n="labelMedNombre">Medicación (nombre)</label>
+                          <input id="medName" type="text" placeholder="Ej: Donepezilo" />
+                        </div>
+                        <div class="field">
+                          <label data-i18n="labelHora">Hora</label>
+                          <input id="medTime" type="time" />
+                        </div>
+                      </div>
+                      <div class="split" style="margin-top:10px">
+                        <div class="field">
+                          <label data-i18n="labelInstruccion">Instrucción amable</label>
+                          <input id="medNote" type="text" placeholder="Ej: con agua, después de desayunar" />
+                        </div>
+                        <div class="field" style="align-self:end">
+                          <button class="btn primary" id="btnAddMed" data-i18n="anyadirMed">Añadir medicación</button>
+                        </div>
+                      </div>
+                      <div class="list" style="margin-top:10px" id="medList"></div>
+                    </div>
+                  </div>
+
+                  <div style="margin-top:12px" class="card" style="box-shadow:none">
+                    <div class="bd">
+                      <div class="split">
+                        <div class="field">
+                          <label data-i18n="labelCita">Cita (qué)</label>
+                          <input id="apptTitle" type="text" placeholder="Ej: Neurólogo" />
+                        </div>
+                        <div class="field">
+                          <label data-i18n="labelFecha">Fecha</label>
+                          <input id="apptDate" type="date" />
+                        </div>
+                      </div>
+                      <div class="split" style="margin-top:10px">
+                        <div class="field">
+                          <label data-i18n="labelHora">Hora</label>
+                          <input id="apptTime" type="time" />
+                        </div>
+                        <div class="field">
+                          <label data-i18n="labelNota">Nota</label>
+                          <input id="apptNote" type="text" placeholder="Ej: llevar informe" />
+                        </div>
+                      </div>
+                      <div class="btnrow">
+                        <button class="btn primary" id="btnAddAppt" data-i18n="anyadirCita">Añadir cita</button>
+                      </div>
+                      <div class="list" style="margin-top:10px" id="apptList"></div>
+                    </div>
+                  </div>
+
+                  <div style="margin-top:12px" class="card" style="box-shadow:none">
+                    <div class="bd">
+                      <div class="field">
+                        <label data-i18n="labelRutina">Rutina (un paso por línea)</label>
+                        <textarea id="routineEditor" placeholder="Ej:
+1) Beber agua
+2) Desayunar
+3) Cepillarse los dientes"></textarea>
+                      </div>
+                      <div class="btnrow">
+                        <button class="btn primary" id="btnSaveRoutine" data-i18n="guardarRutina">Guardar rutina</button>
+                        <button class="btn" id="btnLoadSampleRoutine" data-i18n="cargarEjemplo">Cargar ejemplo</button>
+                      </div>
+                      <div class="mini" style="margin-top:6px; font-size:12px; color:rgba(246,251,255,.86)">
+                        <span data-i18n="consejo">Consejo: frases cortas y positivas (“Ahora vamos a…”).</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Diario -->
+                <div id="ctab_diary" class="hidden">
+                  <div class="note">Registro rápido para compartir con el médico (guardado localmente).</div>
+                  <div class="split" style="margin-top:10px">
+                    <div class="field">
+                      <label>Sueño</label>
+                      <select id="sleepSel">
+                        <option value="bien">Bien</option>
+                        <option value="regular">Regular</option>
+                        <option value="mal">Mal</option>
+                      </select>
+                    </div>
+                    <div class="field">
+                      <label>Ánimo</label>
+                      <select id="moodSel">
+                        <option value="tranquilo">Tranquilo</option>
+                        <option value="ansioso">Ansioso</option>
+                        <option value="triste">Triste</option>
+                        <option value="irritable">Irritable</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="field" style="margin-top:10px">
+                    <label>Notas</label>
+                    <textarea id="diaryNote" placeholder="Ej: se desorientó por la tarde, mejor con música."></textarea>
+                  </div>
+                  <div class="btnrow">
+                    <button class="btn primary" id="btnAddDiary">Guardar entrada</button>
+                    <button class="btn" id="btnClearDiary">Borrar todo</button>
+                  </div>
+                  <div class="list" id="diaryList" style="margin-top:10px"></div>
+                </div>
+
+                <!-- Paciente -->
+                <div id="ctab_patient" class="hidden">
+                  <div class="note">
+                    Ajustes del paciente (solo cuidador). Aquí cambias el perfil, la persona de confianza, el álbum y ejercicios.
+                  </div>
+
+                  <div style="margin-top:10px" class="card" style="box-shadow:none">
+                    <div class="bd">
+                      <div class="split">
+                        <div class="field">
+                          <label>Perfil del paciente</label>
+                          <select id="profileSelect">
+                            <option value="L1">L1 — Inicio (más autonomía)</option>
+                            <option value="L2">L2 — Guía (recomendado)</option>
+                            <option value="L3">L3 — Contención (seguridad)</option>
+                          </select>
+                        </div>
+                        <div class="field">
+                          <label>PIN modo cuidador (opcional)</label>
+                          <input id="carePinInput" type="text" placeholder="Ej: 1234" inputmode="numeric" />
+                        </div>
+                      </div>
+
+                      <div class="split" style="margin-top:10px">
+                        <div class="field">
+                          <label data-i18n="labelNombreConfianza">Nombre de persona de confianza</label>
+                          <input id="trustedNameInput" type="text" placeholder="Ej: Ana" />
+                        </div>
+                        <div class="field">
+                          <label data-i18n="labelRelacion">Relación</label>
+                          <input id="trustedRelInput" type="text" placeholder="Ej: Tu hija" />
+                        </div>
+                      </div>
+
+                      <div class="field" style="margin-top:10px">
+                        <label>Mensaje tranquilizador (se leerá en voz alta)</label>
+                        <textarea id="trustedMsgInput" placeholder="Ej: Estás a salvo. Estoy contigo. Vamos paso a paso."></textarea>
+                      </div>
+
+                      <div class="split" style="margin-top:10px">
+                        <div class="field">
+                          <label>Lugar principal</label>
+                          <input id="placeInput" type="text" placeholder="Ej: Casa" />
+                        </div>
+                        <div class="field">
+                          <label data-i18n="labelTelefono">Teléfono de confianza</label>
+                          <input id="trustedPhoneInput" type="text" placeholder="Ej: 600123123" inputmode="tel" />
+                        </div>
+                      </div>
+
+                      <div class="field" style="margin-top:10px">
+                        <label data-i18n="labelFoto">Foto (opcional)</label>
+                        <input id="trustedPhotoInput" type="file" accept="image/*" />
+                      </div>
+
+                      <div class="split" style="margin-top:10px">
+                        <div class="field">
+                          <label data-i18n="labelVideo">Vídeo recuerdo (opcional)</label>
+                          <input id="memoryVideoInput" type="file" accept="video/*" />
+                        </div>
+                        <div class="field">
+                          <label>Mensaje de voz (grabar o subir archivo)</label>
+                          <div style="display:flex;flex-direction:column;gap:8px;margin-top:6px">
+                            <div style="display:flex;gap:8px;flex-wrap:wrap">
+                              <button class="btn small primary" id="btnStartRec" data-i18n="grabar">🎙 Grabar</button>
+                              <button class="btn small" id="btnStopRec" disabled data-i18n="parar">⏹ Parar</button>
+                              <button class="btn small" id="btnPlayRec" disabled data-i18n="escucharRec">▶ Escuchar</button>
+                            </div>
+                            <div id="recStatus" style="font-size:12px;color:rgba(246,251,255,.60)" data-i18n="sinGrabacion">Sin grabación</div>
+                            <div style="font-size:12px;color:rgba(246,251,255,.50)">O sube un archivo:</div>
+                            <input id="memoryAudioInput" type="file" accept="audio/*" />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="field" style="margin-top:10px">
+                        <label data-i18n="labelTitulo">Título del recuerdo</label>
+                        <input id="memoryTitleInput" type="text" placeholder="Ej: Videorecuerdo" />
+                      </div>
+
+                      <div class="btnrow">
+                        <button class="btn primary" id="btnSaveTrusted" data-i18n="guardar">Guardar</button>
+                        <button class="btn" id="btnResetTrusted" data-i18n="restablecer">Restablecer</button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style="margin-top:12px" class="card" style="box-shadow:none">
+                    <div class="bd">
+                      <div class="split">
+                        <div class="field">
+                          <label data-i18n="labelAlbumNombre">Álbum: nombre</label>
+                          <input id="albumName" type="text" placeholder="Ej: Nieto — Leo" />
+                        </div>
+                        <div class="field">
+                          <label data-i18n="labelAlbumFoto">Álbum: foto</label>
+                          <input id="albumPhoto" type="file" accept="image/*" />
+                        </div>
+                      </div>
+                      <div class="field" style="margin-top:10px">
+                        <label>Mensaje (texto que la app leerá)</label>
+                        <input id="albumMsg" type="text" placeholder="Ej: Hola, te quiero mucho. Nos vemos hoy." />
+                      </div>
+                      <div class="btnrow">
+                        <button class="btn primary" id="btnAddAlbum">Añadir al álbum</button>
+                      </div>
+                      <div class="list" id="albumAdminList" style="margin-top:10px"></div>
+                    </div>
+                  </div>
+
+                </div>
+
+
+                <!-- Ejercicios -->
+                <div id="ctab_games" class="hidden">
+                  <div class="note">Juegos externos de memoria. Pulsa para abrirlos.</div>
+                  <div style="margin-top:12px; display:flex; flex-direction:column; gap:10px;">
+                    <a class="btn primary giant" href="https://www.memo-juegos.com/juegos-de-memoria-online/para-todos/memory-con-emoticones" target="_blank" rel="noopener noreferrer">🧩 Memory con emoticonos</a>
+                    <a class="btn primary giant" href="https://www.memo-juegos.com/juegos-de-memoria-online/para-todos/erramientas-de-bricolaje" target="_blank" rel="noopener noreferrer">🔧 Herramientas de bricolaje</a>
+                    <a class="btn primary giant" href="https://poki.com/es/g/connect-puzzle" target="_blank" rel="noopener noreferrer">🔗 Connect Puzzle</a>
+                  </div>
+                </div>
+
+                <!-- Recursos -->
+                <div id="ctab_knowledge" class="hidden">
+                  <div class="note">Pequeño repositorio de apoyo para la familia: materiales básicos, asociaciones y recursos para entender mejor la enfermedad.</div>
+
+                  <div style="margin-top:12px" class="card">
+                    <div class="bd knowledge-list">
+                      <div class="list">
+                        <div class="item">
+                          <div class="meta">
+                            <div class="k">Comprender la enfermedad</div>
+                            <div class="v">Qué es el Alzheimer</div>
+                            <div class="s">Material introductorio para entender síntomas, evolución y necesidades de apoyo.</div>
+                          </div>
+                          <a class="btn small" href="https://www.alz.org/espanol/alzheimer-demencia/que-es-la-enfermedad-de-alzheimer" target="_blank" rel="noopener noreferrer">Abrir</a>
+                        </div>
+
+                        <div class="item">
+                          <div class="meta">
+                            <div class="k">Asociaciones</div>
+                            <div class="v">CEAFA</div>
+                            <div class="s">Confederación Española de Alzheimer con recursos, asociaciones y apoyo a familias.</div>
+                          </div>
+                          <a class="btn small" href="https://www.ceafa.es/" target="_blank" rel="noopener noreferrer">Abrir</a>
+                        </div>
+
+                        <div class="item">
+                          <div class="meta">
+                            <div class="k">Información clínica</div>
+                            <div class="v">Alzheimer's Association</div>
+                            <div class="s">Consejos prácticos sobre comunicación, etapas y cuidado diario.</div>
+                          </div>
+                          <a class="btn small" href="https://www.alz.org/help-support/caregiving" target="_blank" rel="noopener noreferrer">Abrir</a>
+                        </div>
+
+                        <div class="item">
+                          <div class="meta">
+                            <div class="k">Investigación</div>
+                            <div class="v">National Institute on Aging</div>
+                            <div class="s">Información divulgativa y actualizada sobre Alzheimer y envejecimiento.</div>
+                          </div>
+                          <a class="btn small" href="https://www.nia.nih.gov/health/alzheimers" target="_blank" rel="noopener noreferrer">Abrir</a>
+                        </div>
+
+                        <div class="item">
+                          <div class="meta">
+                            <div class="k">Consejos para el día a día</div>
+                            <div class="v">Comunicación y rutinas</div>
+                            <div class="s">Ideas sencillas para hablar con calma, acompañar y reducir la ansiedad.</div>
+                          </div>
+                          <button class="btn small primary" id="btnKnowledgeSummary">Leer resumen</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+
+              </div>
+
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="hd">
+              <h2 data-i18n="revisionRapida">Revisión rápida</h2>
+              <span class="badge ok" data-i18n="recomendado">Recomendado</span>
+            </div>
+            <div class="bd">
+              <div class="list">
+                <div class="item">
+                  <div class="meta">
+                    <div class="k" data-i18n="kBtnLlamada">Botón de llamada</div>
+                    <div class="v" data-i18n="vBtnLlamada">Llamada de emergencia al familiar</div>
+                    <div class="s" data-i18n="sBtnLlamada">Si está activado, el paciente verá el botón 🆘 y al pulsarlo llamará al teléfono configurado.</div>
+                  </div>
+                  <button class="btn small" id="btnToggleCall">Activar</button>
+                </div>
+                <div class="item">
+                  <div class="meta">
+                    <div class="k" data-i18n="kBtnSms">Botón de SMS</div>
+                    <div class="v" data-i18n="vBtnSms">Mensaje de aviso al familiar</div>
+                    <div class="s" data-i18n="sBtnSms">Si está activado, el paciente verá el botón 🆘 y al pulsarlo enviará un SMS de aviso.</div>
+                  </div>
+                  <button class="btn small" id="btnToggleSms">Activar</button>
+                </div>
+                <div class="item">
+                  <div class="meta">
+                    <div class="k" data-i18n="kVoz">Voz</div>
+                    <div class="v" data-i18n="vVoz">Lectura en voz alta</div>
+                    <div class="s" data-i18n="sVoz">Usa la voz del dispositivo (Web Speech API).</div>
+                  </div>
+                  <button class="btn small hidden" id="btnTestVoice">Probar voz</button>
+                </div>
+                <div class="note">
+                  <span data-i18n="recPractica">Recomendación práctica: deja el perfil en </span><strong>L2</strong><span data-i18n="recPractica2">. Usa </span><strong>L3</strong><span data-i18n="recPractica3"> en días malos o si prima seguridad.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    /* ======================
+       Estado + almacenamiento
+       ====================== */
+    const KEY = "faro_prototype_v4_best";
+    const nowISO = () => new Date().toISOString();
+    const fmtTime = (d=new Date()) => d.toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"});
+    const fmtDate = (d=new Date()) => d.toLocaleDateString([], {weekday:"long", year:"numeric", month:"long", day:"numeric"});
+    const toDateInputValue = (d) => {
+      const pad = n => String(n).padStart(2,"0");
+      return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+    };
+    function cryptoRandomId(){
+      try { return crypto.getRandomValues(new Uint32Array(1))[0].toString(16); }
+      catch { return Math.random().toString(16).slice(2); }
+    }
+    function deepMerge(base, incoming){
+      if(typeof base !== "object" || base === null) return incoming;
+      if(typeof incoming !== "object" || incoming === null) return base;
+      for(const k of Object.keys(incoming)){
+        if(k in base) base[k] = deepMerge(base[k], incoming[k]);
+        else base[k] = incoming[k];
+      }
+      return base;
+    }
+    function structuredCloneSafe(x){
+      try { return structuredClone(x); } catch { return JSON.parse(JSON.stringify(x)); }
+    }
+
+    const PROFILE_RULES = {
+      L1: { name:"Inicio",     defaultView:"full",   calmDefault:false },
+      L2: { name:"Guía",       defaultView:"simple", calmDefault:true  },
+      L3: { name:"Contención", defaultView:"l3",     calmDefault:true  }
+    };
+
+    const defaultState = {
+      mode: "patient",
+      profile: "L2",
+      patientView: "simple",
+      carePin: "",
+      place: "Casa",
+      trusted: {
+        name: "",
+        rel: "",
+        msg: "",
+        photoDataUrl: "",
+        phone: "",
+        memoryTitle: "Vídeo recuerdo",
+        memoryVideoDataUrl: "",
+        memoryAudioDataUrl: ""
+      },
+      meds: [],
+      appts: [],
+      routine: [],
+      routineIndex: 0,
+      album: [],
+      quiz: [],
+      signals: { last: null },
+      allowCall: false,
+      allowSms: false,
+      usage: { date: toDateInputValue(new Date()), opens: 0, sections: {} },
+      diary: [],
+      location: {
+        enabled: false,
+        source: "none",
+        lat: null,
+        lon: null,
+        accuracy: null,
+        updatedAt: null,
+        baseLat: 40.4168,
+        baseLon: -3.7038,
+        simulateAngle: 0
+      }
+    };
+
+    function loadState(){
+      const raw = localStorage.getItem(KEY);
+      if(!raw) return structuredCloneSafe(defaultState);
+      try{
+        return deepMerge(structuredCloneSafe(defaultState), JSON.parse(raw));
+      }catch{
+        return structuredCloneSafe(defaultState);
+      }
+    }
+    let state = loadState();
+    document.body.dataset.mode = state.mode || "patient";
+    function saveState(){ localStorage.setItem(KEY, JSON.stringify(state)); }
+
+    /* ==========
+       UI helpers
+       ========== */
+    const $ = (sel, root=document) => root.querySelector(sel);
+    const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+    function toast(msg){
+      const el = $("#toast");
+      el.textContent = msg;
+      el.classList.add("show");
+      clearTimeout(toast._t);
+      toast._t = setTimeout(()=>el.classList.remove("show"), 2400);
+    }
+    function escapeHtml(s){
+      return String(s ?? "")
+        .replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;").replaceAll("'","&#039;");
+    }
+    function capitalize(s){ return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
+    function normalize(s){
+      return (s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+        .replace(/\s+/g," ").trim();
+    }
+
+    /* ===== Voz ===== */
+    function speak(text){
+      if(!("speechSynthesis" in window)){
+        toast("Este dispositivo no soporta voz.");
+        return;
+      }
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = "es-ES";
+      u.rate = 0.92;
+      u.pitch = 0.85;
+      const voices = window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
+      const preferred = voices.find(v => /es/i.test(v.lang) && /(google|microsoft|jorge|alvaro|raul|pablo|diego)/i.test(v.name)) || voices.find(v => /es/i.test(v.lang));
+      if(preferred) u.voice = preferred;
+      window.speechSynthesis.speak(u);
+    }
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.onvoiceschanged = () => {};
+      // Workaround para Android: la síntesis se pausa sola, hay que reanudarla
+      setInterval(() => {
+        if(window.speechSynthesis.speaking && !window.speechSynthesis.paused){
+          window.speechSynthesis.pause();
+          window.speechSynthesis.resume();
+        }
+      }, 10000);
+      // Cancelar al salir de la app o poner en segundo plano
+      document.addEventListener("visibilitychange", () => {
+        if(document.hidden) window.speechSynthesis.cancel();
+      });
+    }
+
+    /* ===== Notificaciones ===== */
+    async function ensureNotifications(){
+      if(!("Notification" in window)){
+        toast("Notificaciones no disponibles aquí.");
+        return false;
+      }
+      if(Notification.permission === "granted") return true;
+      const p = await Notification.requestPermission();
+      if(p === "granted"){ toast("Notificaciones activadas."); return true; }
+      toast("Permiso denegado.");
+      return false;
+    }
+    async function notify(title, body){
+      const ok = await ensureNotifications();
+      if(!ok) return;
+      try{ new Notification(title, {body}); }catch{}
+    }
+
+    /* ===== Uso local ===== */
+    function bumpUsage(key){
+      const today = toDateInputValue(new Date());
+      if(state.usage.date !== today){
+        state.usage = { date: today, opens: state.usage.opens || 0, sections: {} };
+      }
+      state.usage.sections[key] = (state.usage.sections[key] || 0) + 1;
+      saveState();
+    }
+
+    function bumpOpen(){
+      const today = toDateInputValue(new Date());
+      if(state.usage.date !== today){
+        state.usage = { date: today, opens: 0, sections: {} };
+      }
+      state.usage.opens += 1;
+      saveState();
+    }
+
+    /* ===== Calma ===== */
+    function setCalmMode(on){
+      document.body.classList.toggle("calm", !!on);
+    }
+
+    /* ======================
+       Perfil (L1/L2/L3)
+       ====================== */
+    function applyProfile(){
+      const p = state.profile in PROFILE_RULES ? state.profile : "L2";
+      state.profile = p;
+      document.body.dataset.profile = p;
+      $("#profileName").textContent = PROFILE_RULES[p].name;
+
+      if(p === "L3"){
+        state.patientView = "l3";
+        setCalmMode(true);
+      }else{
+        const rules = PROFILE_RULES[p];
+        if(state.patientView !== "simple" && state.patientView !== "full"){
+          state.patientView = rules.defaultView;
+        }
+        setCalmMode(!!rules.calmDefault && state.patientView === "simple");
+      }
+      saveState();
+      renderPatientView();
+      renderContainment();
+      syncQuickProfileUI();
+    }
+
+    /* ===== PIN cuidador ===== */
+    function requireCarePinIfSet(){
+      const pin = (state.carePin || "").trim();
+      if(!pin) return true;
+      const input = prompt("Introduce PIN para entrar en acceso familiar:");
+      if(input === null) return false;
+      if(String(input).trim() === pin) return true;
+      toast("PIN incorrecto.");
+      return false;
+    }
+
+    /* ======================
+       Cambio modo Paciente/Cuidador
+       ====================== */
+    const screenPatient = $("#screenPatient");
+    const screenCare = $("#screenCare");
+    const btnModePatient = $("#btnModePatient");
+    const btnModeCare = $("#btnModeCare");
+    const modeName = $("#modeName");
+
+    function setMode(mode){
+      if("speechSynthesis" in window) window.speechSynthesis.cancel();
+      if(mode === "care"){
+        if(!requireCarePinIfSet()){
+          mode = "patient";
+        }
+      }
+      state.mode = mode;
+      document.body.dataset.mode = mode;
+      saveState();
+
+      const isPatient = mode === "patient";
+      screenPatient.classList.toggle("hidden", !isPatient);
+      screenCare.classList.toggle("hidden", isPatient);
+
+      btnModePatient.classList.toggle("active", isPatient);
+      btnModePatient.setAttribute("aria-selected", isPatient ? "true":"false");
+      btnModeCare.classList.toggle("active", !isPatient);
+      btnModeCare.setAttribute("aria-selected", !isPatient ? "true":"false");
+
+      modeName.textContent = isPatient ? "Mi Faro" : "Familiar";
+      const splash = $("#splash");
+      if(splash) splash.classList.add("hidden");
+      window.scrollTo({top:0, behavior:"smooth"});
+
+      renderAll();
+      if(mode === "patient" && state.profile === "L3"){
+        setTimeout(()=>playL3Memory(true), 250);
+      }
+    }
+    btnModePatient.addEventListener("click", ()=>setMode("patient"));
+    btnModeCare.addEventListener("click", ()=>setMode("care"));
+    // ===== SISTEMA DE IDIOMAS =====
+    const TRANSLATIONS = {
+      es: {
+        appSub: "Apoyo diario para la persona y su entorno — prototipo",
+        miFaro: "Mi Faro", familiar: "Familiar",
+        modoCuidador: "⚙ Modo cuidador",
+        miMomento: "Mi momento", pasoPaso: "Paso a paso",
+        ahora: "Ahora", despues: "Después",
+        estasEn: "Estás en:", manana: "Mañana",
+        buenMomento: "Es buen momento para seguir la rutina con calma.",
+        medicacion: "Medicación", previsto: "Previsto para más tarde.",
+        escuchar: "Escuchar", llamar: "Llamar",
+        necesitaAyuda: "Necesito ayuda",
+        sosAvisar: "🆘 Avisar a mi familia",
+        personaConfianza: "Persona de confianza",
+        notaPatient: "Esta pantalla intenta enseñar solo lo importante: qué momento es, qué toca ahora y a quién pedir ayuda.",
+        pasoActual: "Paso actual", siguiente: "Siguiente", repetir: "Repetir",
+        aquiVeras: "Aquí verás lo importante de hoy.",
+        fotosAlbum: "Fotos y mensajes. Pulsa Escuchar para oír el mensaje.",
+        pulsaRecuerdo: "Pulsa el recuerdo o llama a tu persona de confianza.",
+        mensajeVoz: "▶ Mensaje de voz",
+        videoRecuerdo: "🎬 Vídeo recuerdo",
+        familiaAnyadir: "Aquí aparecerá el vídeo o audio que haya guardado la familia.",
+        pulsarVideo: "▶ Pulsar para ver el vídeo",
+        panelCuidador: "Panel del cuidador",
+        ayudaRapida: "Ayuda rápida", revisionRapida: "Revisión rápida",
+        plan: "Plan", diario: "Diario", paciente: "Paciente",
+        ejercicios: "Ejercicios", recursos: "Recursos",
+        cambiaSegun: "Cambia el nivel según el día. Si hay confusión o ansiedad, baja a ",
+        contencion: "Contención",
+        entrarFaro: "Entrar a Mi Faro", accesoFamiliar: "Acceso familiar",
+        seguro: "Seguro", guardar: "Guardar", restablecer: "Restablecer",
+        grabar: "🎙 Grabar", parar: "⏹ Parar", escucharRec: "▶ Escuchar",
+        sinGrabacion: "Sin grabación", grabando: "🔴 Grabando...",
+        grabacionLista: "✅ Grabación lista. Escucha para revisar y luego pulsa Guardar.",
+        activar: "Activar", desactivar: "Desactivar",
+        online: "Online", offline: "Sin conexión", instalar: "Instalar app",
+        llamarAhora: "📞 Llamar ahora",
+        ajusteRapido: "Ajuste rápido", perfilPaciente: "Perfil del paciente",
+        masAjustes: "Más ajustes del paciente",
+        perfilCognitivo: "Perfil cognitivo",
+        l1opt: "L1 — Inicio (más autonomía)",
+        l2opt: "L2 — Guía (recomendado)",
+        l3opt: "L3 — Contención (seguridad)",
+        ultimoAviso: "Último aviso", usoHoy: "Uso de hoy",
+        aperturas: "Aperturas / secciones usadas.",
+        limpiar: "Limpiar", reiniciar: "Reiniciar",
+        anyadeMed: "Añade medicación, citas y rutinas. El paciente lo verá adaptado a su perfil.",
+        anyadirMed: "Añadir medicación",
+        guardarRutina: "Guardar rutina", cargarEjemplo: "Cargar ejemplo",
+        recomendado: "Recomendado",
+        recPractica: "Recomendación práctica: deja el perfil en ",
+        recPractica2: ". Usa ", recPractica3: " en días malos o si prima seguridad.",
+        modoLabel: "Modo:", perfilLabel: "Perfil:", vistaLabel: "Vista:",
+        sinAvisos: "Sin avisos recientes.",
+        // Formularios
+        labelMedNombre: "Medicación (nombre)", labelHora: "Hora",
+        labelInstruccion: "Instrucción amable", labelCita: "Cita (qué)",
+        labelFecha: "Fecha", labelNota: "Nota",
+        anyadirCita: "Añadir cita", labelRutina: "Rutina (un paso por línea)",
+        consejo: 'Consejo: frases cortas y positivas ("Ahora vamos a…").',
+        // Notificaciones
+        kBtnLlamada: "Botón de llamada", vBtnLlamada: "Llamada de emergencia al familiar",
+        sBtnLlamada: "Si está activado, el paciente verá el botón 🆘 y al pulsarlo llamará al teléfono configurado.",
+        kBtnSms: "Botón de SMS", vBtnSms: "Mensaje de aviso al familiar",
+        sBtnSms: "Si está activado, el paciente verá el botón 🆘 y al pulsarlo enviará un SMS de aviso.",
+        kVoz: "Voz", vVoz: "Lectura en voz alta", sVoz: "Usa la voz del dispositivo (Web Speech API).",
+        // Ajustes paciente
+        labelNombreConfianza: "Nombre de persona de confianza", labelRelacion: "Relación",
+        labelTelefono: "Teléfono de confianza", labelFoto: "Foto (opcional)",
+        labelVideo: "Vídeo recuerdo (opcional)", labelTitulo: "Título del recuerdo",
+        labelAlbumNombre: "Álbum: nombre", labelAlbumFoto: "Álbum: foto",
+        album: "Álbum",
+        // Mensaje de grabación
+        orSubeArchivo: "O sube un archivo:",
+      },
+      en: {
+        appSub: "Daily support for the person and their family — prototype",
+        miFaro: "My Faro", familiar: "Family",
+        modoCuidador: "⚙ Caregiver mode",
+        miMomento: "My moment", pasoPaso: "Step by step",
+        ahora: "Now", despues: "Next",
+        estasEn: "You are at:", manana: "Tomorrow",
+        buenMomento: "Good time to follow the routine calmly.",
+        medicacion: "Medication", previsto: "Scheduled for later.",
+        escuchar: "Listen", llamar: "Call",
+        necesitaAyuda: "I need help",
+        sosAvisar: "🆘 Alert my family",
+        personaConfianza: "Trusted person",
+        notaPatient: "This screen shows only what matters: what time it is, what to do now, and who to ask for help.",
+        pasoActual: "Current step", siguiente: "Next", repetir: "Repeat",
+        aquiVeras: "Here you will see what's important today.",
+        fotosAlbum: "Photos and messages. Press Listen to hear the message.",
+        pulsaRecuerdo: "Press the memory or call your trusted person.",
+        mensajeVoz: "▶ Voice message",
+        videoRecuerdo: "🎬 Memory video",
+        familiaAnyadir: "The family can add a video or audio here.",
+        pulsarVideo: "▶ Tap to watch the video",
+        panelCuidador: "Caregiver panel",
+        ayudaRapida: "Quick help", revisionRapida: "Quick review",
+        plan: "Plan", diario: "Diary", paciente: "Patient",
+        ejercicios: "Exercises", recursos: "Resources",
+        cambiaSegun: "Change the level depending on the day. If confused or anxious, switch to ",
+        contencion: "Containment",
+        entrarFaro: "Enter My Faro", accesoFamiliar: "Family access",
+        seguro: "Safe", guardar: "Save", restablecer: "Reset",
+        grabar: "🎙 Record", parar: "⏹ Stop", escucharRec: "▶ Listen",
+        sinGrabacion: "No recording", grabando: "🔴 Recording...",
+        grabacionLista: "✅ Recording ready. Listen to review, then press Save.",
+        activar: "Enable", desactivar: "Disable",
+        online: "Online", offline: "Offline", instalar: "Install app",
+        llamarAhora: "📞 Call now",
+        ajusteRapido: "Quick settings", perfilPaciente: "Patient profile",
+        masAjustes: "More patient settings",
+        perfilCognitivo: "Cognitive profile",
+        l1opt: "L1 — Start (more autonomy)",
+        l2opt: "L2 — Guide (recommended)",
+        l3opt: "L3 — Containment (safety)",
+        ultimoAviso: "Last alert", usoHoy: "Today's usage",
+        aperturas: "Opens / sections used.",
+        limpiar: "Clear", reiniciar: "Reset",
+        anyadeMed: "Add medication, appointments and routines. The patient will see it adapted to their profile.",
+        anyadirMed: "Add medication",
+        guardarRutina: "Save routine", cargarEjemplo: "Load example",
+        recomendado: "Recommended",
+        recPractica: "Practical tip: keep the profile at ",
+        recPractica2: ". Use ", recPractica3: " on bad days or when safety is a priority.",
+        modoLabel: "Mode:", perfilLabel: "Profile:", vistaLabel: "View:",
+        sinAvisos: "No recent alerts.",
+        // Forms
+        labelMedNombre: "Medication (name)", labelHora: "Time",
+        labelInstruccion: "Kind instruction", labelCita: "Appointment (what)",
+        labelFecha: "Date", labelNota: "Note",
+        anyadirCita: "Add appointment", labelRutina: "Routine (one step per line)",
+        consejo: 'Tip: short and positive phrases ("Now let\'s…").',
+        // Notifications
+        kBtnLlamada: "Call button", vBtnLlamada: "Emergency call to family",
+        sBtnLlamada: "If enabled, the patient will see the 🆘 button and pressing it will call the configured phone.",
+        kBtnSms: "SMS button", vBtnSms: "Alert message to family",
+        sBtnSms: "If enabled, the patient will see the 🆘 button and pressing it will send an alert SMS.",
+        kVoz: "Voice", vVoz: "Text to speech", sVoz: "Uses the device voice (Web Speech API).",
+        // Patient settings
+        labelNombreConfianza: "Trusted person's name", labelRelacion: "Relationship",
+        labelTelefono: "Trusted phone", labelFoto: "Photo (optional)",
+        labelVideo: "Memory video (optional)", labelTitulo: "Memory title",
+        labelAlbumNombre: "Album: name", labelAlbumFoto: "Album: photo",
+        album: "Album",
+        orSubeArchivo: "Or upload a file:",
+      }
+    };
+
+    let currentLang = localStorage.getItem("faroLang") || "es";
+    function t(key){ return TRANSLATIONS[currentLang][key] || TRANSLATIONS["es"][key] || key; }
+
+    function applyTranslations(){
+      const es = currentLang === "es";
+      const tx = (id, key) => { const el=$(id); if(el) el.textContent=t(key); };
+      const tq = (sel, key) => { const el=document.querySelector(sel); if(el) el.textContent=t(key); };
+      const tAll = (sel, key) => document.querySelectorAll(sel).forEach(el=>el.textContent=t(key));
+
+      // Botón idioma
+      $("#btnLang") && ($("#btnLang").textContent = es ? "🌐 EN" : "🌐 ES");
+
+      // Header
+      tq(".brand .sub", "appSub");
+      tx("#btnModePatient", "miFaro");
+      tx("#btnModeCare", "familiar");
+      tx("#btnBackToCare", "modoCuidador");
+      tx("#btnInstall", "instalar");
+      tx("#netStatus", navigator.onLine ? "online" : "offline");
+
+      // Splash
+      tq("#btnEnter span, #btnEnter", "entrarFaro");
+      tq("#btnFamily span, #btnFamily", "accesoFamiliar");
+
+      // Pantalla paciente — momento
+      tq("#screenPatient .card:first-child .hd h2", "miMomento");
+      tx("#orientationBadge", "pasoPaso");
+
+      // Ahora / Después
+      document.querySelectorAll(".k").forEach(el => {
+        if(el.textContent.trim()==="Ahora" || el.textContent.trim()==="Now") el.textContent=t("ahora");
+        if(el.textContent.trim()==="Después" || el.textContent.trim()==="Next") el.textContent=t("despues");
+        if(el.textContent.trim()==="Paso actual" || el.textContent.trim()==="Current step") el.textContent=t("pasoActual");
+      });
+
+      // Persona de confianza
+      tq(".who .title", "personaConfianza");
+      tx("#btnSpeakWho", "escuchar");
+      tx("#btnCallCaregiver", "llamar");
+
+      // Botones ayuda paciente
+      tx("#btnPatientMainHelp", "necesitaAyuda");
+      tx("#btnFullHelp", "necesitaAyuda");
+      tx("#btnSosAlert", "sosAvisar");
+      tx("#btnSosAlertL3", "sosAvisar");
+
+      // Rutina
+      tx("#btnRoutineNext", "siguiente");
+      tx("#btnRoutineRepeat", "repetir");
+
+      // L3 contención
+      tx("#btnContainmentMemory", "mensajeVoz");
+      tq("#containmentSubtitle span, #containmentSubtitle", "pulsaRecuerdo");
+
+      // Nota paciente
+      tq(".patient-home-note", "notaPatient");
+
+      // Tabs notas
+      tq("#ptab_reminders .note", "aquiVeras");
+
+      // Cuidador panel
+      tq("#screenCare .hd h2", "panelCuidador");
+      tq("#quickHelpCard .hd h2", "ayudaRapida");
+
+      // Tabs cuidador
+      const tabKeys=["plan","diario","paciente","ejercicios","recursos"];
+      document.querySelectorAll(".care-tabs .tabbtn").forEach((btn,i)=>{
+        if(tabKeys[i]) btn.textContent=t(tabKeys[i]);
+      });
+
+      // Ajuste rápido
+      tq(".quickProfile .k", "ajusteRapido");
+      tq(".quickProfile .v", "perfilPaciente");
+      tq("#btnMorePatientSettings", "masAjustes");
+
+      // Guardar / Restablecer
+      tx("#btnSaveTrusted", "guardar");
+      tx("#btnResetTrusted", "restablecer");
+
+      // Grabación
+      if($("#btnStartRec") && !$("#btnStartRec").disabled) tx("#btnStartRec","grabar");
+      if($("#btnStopRec")) $("#btnStopRec").textContent = t("parar");
+      if($("#btnPlayRec")) $("#btnPlayRec").textContent = t("escucharRec");
+      const recSt = $("#recStatus");
+      if(recSt && (recSt.textContent==="Sin grabación"||recSt.textContent==="No recording")) recSt.textContent=t("sinGrabacion");
+
+      // Badges
+      tx("#safetyBadge","seguro");
+
+      // Llamar ahora L3
+      tAll(".btn.danger.giant.help-primary","necesitaAyuda");
+
+      // data-i18n fallback
+      document.querySelectorAll("[data-i18n]").forEach(el=>{
+        const key=el.getAttribute("data-i18n");
+        const val=t(key);
+        if(val) el.textContent=val;
+      });
+
+      document.documentElement.lang = currentLang;
+    }
+
+    $("#btnLang")?.addEventListener("click", ()=>{
+      currentLang = currentLang === "es" ? "en" : "es";
+      localStorage.setItem("faroLang", currentLang);
+      applyTranslations();
+    });
+
+    // ===== Toggles de llamada y SMS =====
+    function renderSosToggles(){
+      const btnCall = $("#btnToggleCall");
+      const btnSms  = $("#btnToggleSms");
+      if(btnCall){
+        btnCall.textContent = state.allowCall ? t("desactivar") : t("activar");
+        btnCall.classList.toggle("primary", state.allowCall);
+      }
+      if(btnSms){
+        btnSms.textContent = state.allowSms ? t("desactivar") : t("activar");
+        btnSms.classList.toggle("primary", state.allowSms);
+      }
+      // Mostrar/ocultar botón SOS en pantalla paciente
+      const sosVisible = state.allowCall || state.allowSms;
+      ["#sosAlertBlock","#sosAlertBlockL3"].forEach(id=>{
+        const el = $(id);
+        if(el) el.classList.toggle("hidden", !sosVisible);
+      });
+    }
+
+    $("#btnToggleCall")?.addEventListener("click", ()=>{
+      state.allowCall = !state.allowCall;
+      saveState(); renderSosToggles();
+      toast(state.allowCall ? (currentLang==="es" ? "Botón de llamada activado." : "Call button enabled.") : (currentLang==="es" ? "Botón de llamada desactivado." : "Call button disabled."));
+    });
+    $("#btnToggleSms")?.addEventListener("click", ()=>{
+      state.allowSms = !state.allowSms;
+      saveState(); renderSosToggles();
+      toast(state.allowSms ? (currentLang==="es" ? "Botón de SMS activado." : "SMS button enabled.") : (currentLang==="es" ? "Botón de SMS desactivado." : "SMS button disabled."));
+    });
+
+    function handleSosAlert(){
+      const phone = (state.trusted?.phone || "").trim();
+      if(!phone){
+        toast("No hay teléfono configurado. Ve a ajustes del paciente.");
+        return;
+      }
+
+      // Obtener GPS en el momento de pulsar
+      function sendWithLocation(lat, lon){
+        if(state.allowCall){
+          window.location.href = "tel:" + phone;
+        }
+        if(state.allowSms){
+          let locationText = "";
+          if(lat && lon){
+            locationText = " Mi ubicación: https://maps.google.com/?q=" + lat + "," + lon;
+          }
+          const msg = encodeURIComponent("🆘 " + (state.trusted?.name || "Tu familiar") + " necesita ayuda. Por favor contáctale." + locationText);
+          window.open("sms:" + phone + "?body=" + msg, "_blank");
+        }
+      }
+
+      if(navigator.geolocation){
+        navigator.geolocation.getCurrentPosition(
+          pos => sendWithLocation(pos.coords.latitude.toFixed(5), pos.coords.longitude.toFixed(5)),
+          ()  => sendWithLocation(null, null),
+          { timeout: 4000, maximumAge: 30000 }
+        );
+      } else {
+        sendWithLocation(null, null);
+      }
+    }
+
+    $("#btnSosAlert")?.addEventListener("click", ()=>{
+      bumpUsage("patient_action:sos_alert");
+      handleSosAlert();
+    });
+    $("#btnSosAlertL3")?.addEventListener("click", ()=>{
+      bumpUsage("patient_action:sos_alert_l3");
+      handleSosAlert();
+    });
+
+    /* ===== Reloj ===== */
+    function tick(){
+      $("#clock").textContent = fmtTime();
+      $("#dateLine").textContent = capitalize(fmtDate());
+      $("#placeName").textContent = state.place || "Casa";
+      setTimeout(tick, 1000);
+    }
+
+    function getMomentOfDay(){
+      const h = new Date().getHours();
+      if(h < 6) return { title:"Madrugada", text:"Es momento de descansar con tranquilidad." };
+      if(h < 12) return { title:"Mañana", text:"Es buen momento para seguir la rutina con calma." };
+      if(h < 15) return { title:"Mediodía", text:"Ahora conviene ir despacio y mantener una referencia clara." };
+      if(h < 20) return { title:"Tarde", text:"Puedes continuar el día paso a paso, sin prisa." };
+      return { title:"Noche", text:"Ahora toca ir cerrando el día con calma." };
+    }
+
+    function getNextSupportItem(){
+      const now = new Date();
+      const today = toDateInputValue(now);
+      const currentMinutes = now.getHours()*60 + now.getMinutes();
+      const candidates = [];
+
+      (state.meds || []).forEach(m => {
+        if(!m.time) return;
+        const [hh, mm] = m.time.split(":").map(Number);
+        const minutes = (hh||0)*60 + (mm||0);
+        candidates.push({
+          when: minutes,
+          title: `Medicación: ${m.name}`,
+          text: `Previsto para las ${m.time}. ${m.note || "Con calma."}`
+        });
+      });
+
+      (state.appts || []).filter(a => !a.date || a.date === today).forEach(a => {
+        const time = a.time || "";
+        const [hh, mm] = time.split(":").map(Number);
+        const minutes = time ? (hh||0)*60 + (mm||0) : 9999;
+        candidates.push({
+          when: minutes,
+          title: `Cita: ${a.title}`,
+          text: time ? `Previsto para las ${time}. ${a.note || ""}` : (a.note || "Pendiente de hora.")
+        });
+      });
+
+      const next = candidates.filter(c => c.when >= currentMinutes).sort((a,b)=>a.when-b.when)[0];
+      if(next) return next;
+
+      const step = (state.routine || [])[state.routineIndex || 0];
+      if(step){
+        return { title: step.title || "Rutina", text: step.hint || "Haz una cosa a la vez." };
+      }
+
+      return { title:"Descanso", text:"No hay nada urgente ahora. Puedes seguir con calma." };
+    }
+
+    function renderPatientOrientation(){
+      const moment = getMomentOfDay();
+      $("#currentMomentTitle").textContent = moment.title;
+      $("#currentMomentText").textContent = moment.text;
+
+      const next = getNextSupportItem();
+      $("#nextEventTitle").textContent = next.title;
+      $("#nextEventText").textContent = next.text;
+    }
+
+    /* =====================
+       Persona de confianza
+       ===================== */
+    function buildWhoText(){
+      const t = state.trusted;
+      return `Hola. Soy ${t.name || "tu persona de confianza"}. ${t.rel ? "Soy " + t.rel + "." : ""} ${t.msg || ""}`;
+    }
+    function trustedAudioCandidates(){
+      const current = state?.trusted?.memoryAudioDataUrl || "";
+      return [current].filter(Boolean);
+    }
+
+    function trustedVideoCandidates(){
+      const current = state?.trusted?.memoryVideoDataUrl || "";
+      return [current].filter(Boolean);
+    }
+
+    function playTrustedAudio(){
+      const audioEl = $("#l3AudioPlayer");
+      const candidates = trustedAudioCandidates();
+
+      if(audioEl){
+        const source = audioEl.querySelector("source");
+        if(source){ source.src = candidates[0]; }
+        audioEl.src = candidates[0];
+        audioEl.load();
+        audioEl.currentTime = 0;
+        return audioEl.play().then(()=>true).catch(async ()=>{
+          for(const src of candidates.slice(1)){
+            try{
+              audioEl.src = src;
+              if(source){ source.src = src; }
+              audioEl.load();
+              audioEl.currentTime = 0;
+              await audioEl.play();
+              return true;
+            }catch(e){}
+          }
+          throw new Error("audio");
+        });
+      }
+
+      return new Promise(async (resolve, reject)=>{
+        for(const src of candidates){
+          try{
+            const a = new Audio(src);
+            a.preload = "auto";
+            a.currentTime = 0;
+            await a.play();
+            window.__faroTrustedAudio = a;
+            resolve(true);
+            return;
+          }catch(e){}
+        }
+        reject(new Error("audio"));
+      });
+    }
+
+    $("#btnSpeakWho")?.addEventListener("click", ()=>{
+      bumpUsage("patient_action:speak_who");
+      playTrustedAudio().catch(()=>speak(buildWhoText()));
+    });
+    $("#btnCallCaregiver")?.addEventListener("click", ()=>{
+      bumpUsage("patient_action:call");
+      const phone = (state.trusted.phone || "").trim();
+      speak("Voy a avisar a tu persona de confianza.");
+      state.signals.last = { type:"call_request", text:"Solicitud de llamada", at: nowISO() };
+      saveState(); renderCarePanel();
+      if(phone){
+        window.location.href = "tel:" + phone;
+      }else{
+        toast("Añade un teléfono en modo cuidador.");
+      }
+    });
+    $("#btnReassure")?.addEventListener("click", ()=>{
+      bumpUsage("patient_action:reassure");
+      if(state.profile !== "L3"){
+        state.patientView = "simple";
+      }
+      setCalmMode(true);
+      $("#orientationBadge").textContent = "Acompañado";
+      $("#orientationBadge").className = "badge warn";
+      speak(state.trusted.msg || "Estoy contigo. Todo está bien.");
+      toast("Mensaje calmante.");
+      saveState();
+      renderPatientView();
+      renderContainment();
+    });
+
+    /* ======================
+       Vista paciente
+       ====================== */
+    function renderPatientView(){
+      const p = state.profile;
+      if(p === "L3"){
+        $("#patientViewName").textContent = "Contención";
+        $("#patientSimple").classList.add("hidden");
+        $("#patientFull").classList.add("hidden");
+        $("#quickHelpCard").classList.add("hidden");
+        setTimeout(()=>playL3Memory(true), 250);
+        return;
+      }
+      const view = state.patientView === "full" ? "full" : "simple";
+      state.patientView = view;
+      $("#patientViewName").textContent = (view === "full") ? "Completo" : "Simple";
+
+      const simple = view !== "full";
+      $("#patientSimple").classList.toggle("hidden", !simple);
+      $("#patientFull").classList.toggle("hidden", simple);
+      $("#quickHelpCard").classList.toggle("hidden", simple);
+
+      const rules = PROFILE_RULES[p] || PROFILE_RULES.L2;
+      if(simple && rules.calmDefault) setCalmMode(true);
+      if(!simple) setCalmMode(false);
+
+      renderSimpleStep();
+      renderPatientOrientation();
+      saveState();
+    }
+
+    $("#btnPatientMore")?.addEventListener("click", ()=>{
+      bumpUsage("patient_action:more");
+      if(state.profile === "L3") return;
+      state.patientView = "full";
+      setCalmMode(false);
+      renderPatientView();
+      toast("Vista completa.");
+    });
+    $("#btnPatientMoreL2")?.addEventListener("click", ()=>{
+      bumpUsage("patient_action:more");
+      if(state.profile === "L3") return;
+      state.patientView = "full";
+      setCalmMode(false);
+      renderPatientView();
+      toast("Vista completa.");
+    });
+    $("#btnPatientLess")?.addEventListener("click", ()=>{
+      bumpUsage("patient_action:less");
+      if(state.profile === "L3") return;
+      state.patientView = "simple";
+      setCalmMode(true);
+      renderPatientView();
+      toast("Vista simple.");
+    });
+
+    /* ===== Tabs paciente ===== */
+    $$(".tabbtn[data-ptab]").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        if(state.profile === "L3") return;
+        const tab = btn.dataset.ptab;
+        $$(".tabbtn[data-ptab]").forEach(b=>{
+          b.classList.toggle("active", b===btn);
+          b.setAttribute("aria-selected", b===btn ? "true":"false");
+        });
+        ["routine","reminders","album","cognitive"].forEach(k=>{
+          $("#ptab_"+k).classList.toggle("hidden", k!==tab);
+        });
+        bumpUsage("patient_tab:" + tab);
+      });
+    });
+
+    /* ===== Tabs cuidador ===== */
+    function openCareTab(tab){
+      if("speechSynthesis" in window) window.speechSynthesis.cancel();
+      $$(".tabbtn[data-ctab]").forEach(b=>{
+        const active = b.dataset.ctab === tab;
+        b.classList.toggle("active", active);
+        b.setAttribute("aria-selected", active ? "true":"false");
+      });
+      ["plan","diary","patient","games","knowledge"].forEach(k=>{
+        $("#ctab_"+k).classList.toggle("hidden", k!==tab);
+      });
+      bumpUsage("care_tab:" + tab);
+    }
+    $$(".tabbtn[data-ctab]").forEach(btn=>{
+      btn.addEventListener("click", ()=> openCareTab(btn.dataset.ctab));
+    });
+
+    /* ======================
+       Rutina
+       ====================== */
+    function speakCurrentRoutine(){
+      const step = state.routine[state.routineIndex];
+      if(!step) return;
+      speak(`Ahora: ${step.title}. ${step.hint || ""}`);
+    }
+    function renderRoutine(){
+      const steps = state.routine || [];
+      const n = steps.length;
+      if(!n){
+        $("#routineStepTitle").textContent = "Sin rutina";
+        $("#routineStepHint").textContent = "El cuidador puede crear una rutina simple.";
+        $("#routineProgress").textContent = "0/0";
+        return;
+      }
+      const idx = Math.min(state.routineIndex || 0, n-1);
+      state.routineIndex = idx;
+      const step = steps[idx];
+      $("#routineStepTitle").textContent = step.title || "Paso";
+      $("#routineStepHint").textContent = step.hint || "Hazlo con calma.";
+      $("#routineProgress").textContent = `${idx+1}/${n}`;
+      saveState();
+    }
+    function renderSimpleStep(){
+      const steps = state.routine || [];
+      const n = steps.length;
+      if(!n){
+        $("#simpleStepTitle").textContent = "Sin rutina";
+        $("#simpleStepHint").textContent = "El cuidador puede crear una rutina.";
+        $("#simpleProgress").textContent = "0/0";
+        return;
+      }
+      const idx = Math.min(state.routineIndex || 0, n-1);
+      const step = steps[idx];
+      $("#simpleStepTitle").textContent = step.title || "Paso";
+      $("#simpleStepHint").textContent = step.hint || "Hazlo con calma.";
+      $("#simpleProgress").textContent = `${idx+1}/${n}`;
+    }
+    function nextRoutine(){
+      const n = state.routine?.length || 0;
+      if(!n){ toast("No hay rutina guardada."); return; }
+      state.routineIndex = (state.routineIndex + 1) % n;
+      saveState();
+      renderRoutine();
+      renderSimpleStep();
+    }
+    $("#btnRoutineNext")?.addEventListener("click", ()=>{
+      bumpUsage("patient_action:routine_next");
+      nextRoutine();
+      speakCurrentRoutine();
+    });
+    $("#btnRoutineRepeat")?.addEventListener("click", ()=>{
+      bumpUsage("patient_action:routine_repeat");
+      speakCurrentRoutine();
+    });
+    $("#btnSimpleNextStep")?.addEventListener("click", ()=>{
+      bumpUsage("patient_action:simple_next");
+      nextRoutine();
+      speakCurrentRoutine();
+      toast("Siguiente paso.");
+    });
+    $("#btnSimpleRepeat")?.addEventListener("click", ()=>{
+      bumpUsage("patient_action:simple_repeat");
+      speakCurrentRoutine();
+    });
+
+    /* ======================
+       Señales / ayuda
+       ====================== */
+    function sendSignal(type, text){
+      state.signals.last = { type, text, at: nowISO() };
+      saveState();
+      renderCarePanel();
+    }
+
+    $("#btnImOk")?.addEventListener("click", ()=>{
+      bumpUsage("patient_action:im_ok");
+      sendSignal("ok","Estoy bien");
+      toast("Aviso enviado.");
+      speak("Perfecto. Gracias por avisar.");
+    });
+    $("#btnNeedHelp")?.addEventListener("click", async ()=>{
+      bumpUsage("patient_action:need_help");
+      sendSignal("help","Necesito ayuda");
+      toast("Aviso de ayuda enviado.");
+      speak("Está bien. Voy a avisar ahora.");
+      await notify("FARO: Necesita ayuda", "El paciente pulsó 'Necesito ayuda'.");
+    });
+    if($("#btnSimpleHelp")) $("#btnSimpleHelp").addEventListener("click", async ()=>{
+      bumpUsage("patient_action:simple_help");
+      sendSignal("help","Necesito ayuda");
+      setCalmMode(true);
+      toast("Aviso enviado.");
+      speak("Ya está. He avisado. Quédate conmigo.");
+      await notify("FARO: Necesita ayuda", "El paciente pulsó 'Necesito ayuda' (modo simple).");
+    });
+    $("#btnPatientMainHelp")?.addEventListener("click", async ()=>{
+      bumpUsage("patient_action:main_help");
+      sendSignal("help","Necesito ayuda");
+      setCalmMode(true);
+      toast("Aviso enviado.");
+      speak("Ya está. He avisado. Quédate conmigo.");
+      await notify("FARO: Necesita ayuda", "El paciente pulsó el botón principal de ayuda.");
+    });
+    $("#btnFullHelp")?.addEventListener("click", async ()=>{
+      bumpUsage("patient_action:full_help");
+      sendSignal("help","Necesito ayuda");
+      toast("Aviso enviado.");
+      speak("He avisado. Respira conmigo.");
+      await notify("FARO: Necesita ayuda", "El paciente pulsó 'Necesito ayuda' (modo completo).");
+    });
+
+    function doBreath(){
+      setCalmMode(true);
+      const script = "Vamos a respirar juntos. Inhala... dos... tres... cuatro... Exhala... dos... tres... cuatro... Muy bien. Otra vez. Inhala... y exhala.";
+      speak(script);
+      toast("Respiración guiada.");
+    }
+    $("#btnBreath")?.addEventListener("click", ()=>{ bumpUsage("patient_action:breath"); doBreath(); });
+    $("#btnL3Breath")?.addEventListener("click", ()=>{ bumpUsage("patient_action:l3_breath"); doBreath(); });
+
+    /* ===== Leer “hoy” ===== */
+    $("#btnSpeakToday")?.addEventListener("click", ()=>{
+      bumpUsage("patient_action:speak_today");
+      speak(compilePatientToday());
+      toast("Leyendo recordatorios.");
+    });
+    $("#btnPatientReadToday")?.addEventListener("click", ()=>{
+      bumpUsage("patient_action:read_today_home");
+      speak(compilePatientToday());
+      toast("Leyendo tu día.");
+    });
+    $("#btnPatientFamilyAccess")?.addEventListener("click", ()=>{
+      bumpUsage("patient_action:family_access");
+      setMode("care");
+    });
+    $("#btnL3ListenToday")?.addEventListener("click", ()=>{
+      bumpUsage("patient_action:l3_listen");
+      speak(buildWhoText());
+      toast("Escuchando.");
+    });
+
+    /* ======================
+       Recordatorios
+       ====================== */
+    function upcomingMedsToday(){
+      return (state.meds||[]).slice().sort((a,b)=>(a.time||"").localeCompare(b.time||""));
+    }
+    function upcomingAppts(){
+      return (state.appts||[]).slice().sort((a,b)=>{
+        const da = (a.date||"") + " " + (a.time||"");
+        const db = (b.date||"") + " " + (b.time||"");
+        return da.localeCompare(db);
+      });
+    }
+    function compilePatientToday(){
+      const meds = upcomingMedsToday().slice(0,4).map(m=>`Medicación: ${m.name} a las ${m.time}. ${m.note || ""}`);
+      const appts = upcomingAppts().slice(0,3).map(a=>`Cita: ${a.title} el ${a.date} a las ${a.time || ""}. ${a.note || ""}`);
+      const r = state.routine?.[state.routineIndex];
+      const routine = r ? `Siguiente paso: ${r.title}.` : "";
+      const who = `Tu persona de confianza es ${state.trusted.name || ""}.`;
+      return [who, routine, ...meds, ...appts].filter(Boolean).join(" ");
+    }
+    function makeNoteItem(text){
+      const d = document.createElement("div");
+      d.className = "note";
+      d.textContent = text;
+      return d;
+    }
+    function renderPatientReminders(){
+      const list = $("#patientRemindersList");
+      if(!list) return;
+      list.innerHTML = "";
+
+      const meds = upcomingMedsToday();
+      const appts = upcomingAppts().slice(0,6);
+      const today = toDateInputValue(new Date());
+      const apptsToday = appts.filter(a=>a.date===today);
+
+      const blocks = [];
+      meds.forEach(m=> blocks.push({k:"Medicación", v:`${m.name} — ${m.time}`, s:m.note||"—", badge:"Hoy"}));
+      apptsToday.forEach(a=> blocks.push({k:"Cita", v:`${a.title} — ${a.time || "hora por confirmar"}`, s:a.note||"—", badge:"Hoy"}));
+
+      if(!blocks.length){
+        list.appendChild(makeNoteItem("No hay recordatorios para hoy. Puedes descansar."));
+        return;
+      }
+      for(const b of blocks){
+        const el = document.createElement("div");
+        el.className = "item";
+        el.innerHTML = `
+          <div class="meta">
+            <div class="k">${escapeHtml(b.k)}</div>
+            <div class="v">${escapeHtml(b.v)}</div>
+            <div class="s">${escapeHtml(b.s)}</div>
+          </div>
+          <span class="badge ok">${escapeHtml(b.badge)}</span>
+        `;
+        list.appendChild(el);
+      }
+    }
+
+    /* ======================
+       Álbum
+       ====================== */
+    function renderAlbum(){
+      const list = $("#albumList");
+      if(!list) return;
+      list.innerHTML = "";
+      const items = state.album || [];
+      if(!items.length){
+        list.appendChild(makeNoteItem("El álbum está vacío. El cuidador puede añadir fotos y mensajes."));
+        return;
+      }
+      items.slice(0,10).forEach(it=>{
+        const el = document.createElement("div");
+        el.className = "item";
+
+        const left = document.createElement("div");
+        left.className = "meta";
+        left.innerHTML = `
+          <div class="k">Álbum</div>
+          <div class="v">${escapeHtml(it.name)}</div>
+          <div class="s">${escapeHtml(it.msg)}</div>
+        `;
+
+        const right = document.createElement("div");
+        right.style.display="flex";
+        right.style.flexDirection="column";
+        right.style.gap="8px";
+        right.style.alignItems="flex-end";
+
+        const photo = document.createElement("div");
+        photo.className="avatar";
+        photo.style.width="64px"; photo.style.height="64px"; photo.style.borderRadius="16px";
+        if(it.photoDataUrl){
+          const img=document.createElement("img");
+          img.src=it.photoDataUrl; img.alt="Foto álbum";
+          photo.appendChild(img);
+        }else{
+          photo.textContent="🖼️";
+        }
+
+        const btn = document.createElement("button");
+        btn.className="btn small primary";
+        btn.textContent="Escuchar";
+        btn.addEventListener("click", ()=>{
+          bumpUsage("patient_action:album_speak");
+          speak(it.msg);
+        });
+
+        right.appendChild(photo);
+        right.appendChild(btn);
+
+        el.appendChild(left);
+        el.appendChild(right);
+        list.appendChild(el);
+      });
+    }
+    function renderAlbumAdmin(){
+      const list = $("#albumAdminList");
+      list.innerHTML = "";
+      const items = state.album || [];
+      if(!items.length){
+        list.appendChild(makeNoteItem("Sin elementos en el álbum."));
+        return;
+      }
+      items.forEach(it=>{
+        const el = document.createElement("div");
+        el.className="item";
+        el.innerHTML = `
+          <div class="meta">
+            <div class="k">Álbum</div>
+            <div class="v">${escapeHtml(it.name)}</div>
+            <div class="s">${escapeHtml(it.msg)}</div>
+          </div>
+          <button class="btn small danger" data-delalb="${it.id}">Borrar</button>
+        `;
+        list.appendChild(el);
+      });
+      $$("[data-delalb]").forEach(btn=>{
+        btn.addEventListener("click", ()=>{
+          const id = btn.dataset.delalb;
+          state.album = (state.album||[]).filter(x=>x.id!==id);
+          saveState();
+          renderAlbum(); renderAlbumAdmin();
+          toast("Elemento borrado.");
+        });
+      });
+    }
+
+    /* ======================
+       Quiz
+       ====================== */
+    function renderQuiz(){
+      const sel = $("#quizSelect");
+      if(!sel) return;
+      sel.innerHTML = "";
+      (state.quiz||[]).forEach((it, idx)=>{
+        const opt = document.createElement("option");
+        opt.value = String(idx);
+        opt.textContent = it.q;
+        sel.appendChild(opt);
+      });
+      $("#quizAnswer").value = "";
+      $("#quizFeedback").textContent = "—";
+    }
+    $("#btnQuizSpeak")?.addEventListener("click", ()=>{
+      bumpUsage("patient_action:quiz_speak");
+      const it = state.quiz[Number($("#quizSelect").value)];
+      if(it) speak(it.q);
+    });
+    $("#btnQuizHint")?.addEventListener("click", ()=>{
+      bumpUsage("patient_action:quiz_hint");
+      const it = state.quiz[Number($("#quizSelect").value)];
+      const msg = it?.h ? ("Pista: " + it.h) : "Pista: Respira y mira la pantalla.";
+      $("#quizFeedback").textContent = msg;
+      speak(msg);
+    });
+    $("#btnQuizCheck")?.addEventListener("click", ()=>{
+      bumpUsage("patient_action:quiz_check");
+      const it = state.quiz[Number($("#quizSelect").value)];
+      const ans = ($("#quizAnswer").value || "").trim().toLowerCase();
+      if(!it){ $("#quizFeedback").textContent = "—"; return; }
+      if(!ans){
+        $("#quizFeedback").textContent = "Está bien. Puedes intentarlo cuando quieras.";
+        speak($("#quizFeedback").textContent);
+        return;
+      }
+      const ok = normalize(ans).includes(normalize(it.a));
+      if(ok){
+        $("#quizFeedback").textContent = "¡Muy bien! 👍";
+        speak("Muy bien.");
+      }else{
+        $("#quizFeedback").textContent = "Gracias por intentarlo. Mira la pista si lo necesitas.";
+        speak("Gracias por intentarlo.");
+      }
+    });
+
+    /* ======================
+       Cuidador: Plan
+       ====================== */
+    function renderMeds(){
+      const list = $("#medList");
+      list.innerHTML = "";
+      const meds = upcomingMedsToday();
+      if(!meds.length){
+        list.appendChild(makeNoteItem("Sin medicación registrada."));
+        return;
+      }
+      meds.forEach(m=>{
+        const el = document.createElement("div");
+        el.className = "item";
+        el.innerHTML = `
+          <div class="meta">
+            <div class="k">Medicación</div>
+            <div class="v">${escapeHtml(m.name)} — ${escapeHtml(m.time)}</div>
+            <div class="s">${escapeHtml(m.note || "—")}</div>
+          </div>
+          <button class="btn small danger" data-delmed="${m.id}">Borrar</button>
+        `;
+        list.appendChild(el);
+      });
+      $$("[data-delmed]").forEach(btn=>{
+        btn.addEventListener("click", ()=>{
+          const id = btn.dataset.delmed;
+          state.meds = (state.meds||[]).filter(x=>x.id!==id);
+          saveState();
+          renderMeds(); renderPatientReminders();
+          toast("Medicación borrada.");
+        });
+      });
+    }
+    function renderAppts(){
+      const list = $("#apptList");
+      list.innerHTML = "";
+      const appts = upcomingAppts();
+      if(!appts.length){
+        list.appendChild(makeNoteItem("Sin citas registradas."));
+        return;
+      }
+      appts.forEach(a=>{
+        const el = document.createElement("div");
+        el.className = "item";
+        el.innerHTML = `
+          <div class="meta">
+            <div class="k">Cita</div>
+            <div class="v">${escapeHtml(a.title)} — ${escapeHtml(a.date)} ${escapeHtml(a.time || "")}</div>
+            <div class="s">${escapeHtml(a.note || "—")}</div>
+          </div>
+          <button class="btn small danger" data-delappt="${a.id}">Borrar</button>
+        `;
+        list.appendChild(el);
+      });
+      $$("[data-delappt]").forEach(btn=>{
+        btn.addEventListener("click", ()=>{
+          const id = btn.dataset.delappt;
+          state.appts = (state.appts||[]).filter(x=>x.id!==id);
+          saveState();
+          renderAppts(); renderPatientReminders();
+          toast("Cita borrada.");
+        });
+      });
+    }
+    $("#btnAddMed")?.addEventListener("click", ()=>{
+      const name = $("#medName").value.trim();
+      const time = $("#medTime").value;
+      const note = $("#medNote").value.trim();
+      if(!name || !time){ toast("Pon nombre y hora."); return; }
+      state.meds.unshift({id:cryptoRandomId(), name, time, note, createdAt: nowISO()});
+      $("#medName").value=""; $("#medTime").value=""; $("#medNote").value="";
+      saveState(); renderMeds(); renderPatientReminders();
+      toast("Medicación añadida.");
+    });
+    $("#btnAddAppt")?.addEventListener("click", ()=>{
+      const title = $("#apptTitle").value.trim();
+      const date = $("#apptDate").value;
+      const time = $("#apptTime").value;
+      const note = $("#apptNote").value.trim();
+      if(!title || !date){ toast("Pon título y fecha."); return; }
+      state.appts.unshift({id:cryptoRandomId(), title, date, time, note, createdAt: nowISO()});
+      $("#apptTitle").value=""; $("#apptDate").value=""; $("#apptTime").value=""; $("#apptNote").value="";
+      saveState(); renderAppts(); renderPatientReminders();
+      toast("Cita añadida.");
+    });
+    $("#btnSaveRoutine")?.addEventListener("click", ()=>{
+      const raw = $("#routineEditor").value.trim();
+      const steps = raw.split("\n").map(s=>s.trim()).filter(Boolean).map(line=>{
+        const cleaned = line.replace(/^\d+\s*[\)\.\-:]\s*/,"").trim();
+        return { title: cleaned, hint:"" };
+      });
+      if(!steps.length){ toast("Escribe al menos un paso."); return; }
+      state.routine = steps;
+      state.routineIndex = 0;
+      saveState();
+      renderRoutine(); renderSimpleStep();
+      toast("Rutina guardada.");
+    });
+    $("#btnLoadSampleRoutine")?.addEventListener("click", ()=>{
+      $("#routineEditor").value = "1) Beber agua\n2) Desayunar\n3) Cepillarse los dientes\n4) Música tranquila (5 min)\n5) Paseo corto";
+      toast("Ejemplo cargado.");
+    });
+
+    /* ======================
+       Diario
+       ====================== */
+    function renderDiary(){
+      const list = $("#diaryList");
+      list.innerHTML = "";
+      const items = state.diary || [];
+      if(!items.length){
+        list.appendChild(makeNoteItem("No hay entradas aún."));
+        return;
+      }
+      items.slice(0,20).forEach(e=>{
+        const d = new Date(e.at);
+        const el = document.createElement("div");
+        el.className="item";
+        el.innerHTML = `
+          <div class="meta">
+            <div class="k">${escapeHtml(d.toLocaleString())}</div>
+            <div class="v">Sueño: ${escapeHtml(e.sleep)} · Ánimo: ${escapeHtml(e.mood)}</div>
+            <div class="s">${escapeHtml(e.note || "—")}</div>
+          </div>
+          <button class="btn small danger" data-deldiary="${e.id}">Borrar</button>
+        `;
+        list.appendChild(el);
+      });
+      $$("[data-deldiary]").forEach(btn=>{
+        btn.addEventListener("click", ()=>{
+          const id = btn.dataset.deldiary;
+          state.diary = (state.diary||[]).filter(x=>x.id!==id);
+          saveState(); renderDiary();
+          toast("Entrada borrada.");
+        });
+      });
+    }
+    $("#btnAddDiary")?.addEventListener("click", ()=>{
+      const entry = {
+        id: cryptoRandomId(),
+        at: nowISO(),
+        sleep: $("#sleepSel").value,
+        mood: $("#moodSel").value,
+        note: $("#diaryNote").value.trim()
+      };
+      state.diary.unshift(entry);
+      $("#diaryNote").value="";
+      saveState();
+      renderDiary();
+      toast("Entrada guardada.");
+    });
+    $("#btnClearDiary")?.addEventListener("click", ()=>{
+      if(!confirm("¿Borrar todo el diario?")) return;
+      state.diary = [];
+      saveState();
+      renderDiary();
+      toast("Diario borrado.");
+    });
+
+    /* ======================
+       Personalización (Paciente)
+       ====================== */
+    function fileToDataUrl(file){
+      return new Promise((resolve, reject)=>{
+        const r = new FileReader();
+        r.onload = () => resolve(r.result);
+        r.onerror = reject;
+        r.readAsDataURL(file);
+      });
+    }
+
+    function renderWho(){
+      $("#trustedName").textContent = state.trusted.name || "—";
+      $("#trustedDesc").textContent = [state.trusted.rel, state.trusted.msg].filter(Boolean).join(". ") || "—";
+      $("#placeName").textContent = state.place || "Casa";
+
+      const av = $("#whoAvatar");
+      av.innerHTML = "";
+      if(state.trusted.photoDataUrl){
+        const img = document.createElement("img");
+        img.src = state.trusted.photoDataUrl;
+        img.alt = "Foto persona de confianza";
+        av.appendChild(img);
+      }else{
+        av.textContent = "👤";
+      }
+      av.style.cursor = "pointer";
+      av.title = "Escuchar mensaje de Ignacio";
+      av.onclick = ()=> playTrustedAudio().catch(()=>speak(buildWhoText()));
+      renderContainment();
+    }
+
+    function fillPatientSettingsForm(){
+      $("#profileSelect").value = state.profile || "L2";
+      $("#carePinInput").value = state.carePin || "";
+      $("#trustedNameInput").value = state.trusted.name || "";
+      $("#trustedRelInput").value = state.trusted.rel || "";
+      $("#trustedMsgInput").value = state.trusted.msg || "";
+      $("#placeInput").value = state.place || "Casa";
+      $("#trustedPhoneInput").value = state.trusted.phone || "";
+      $("#trustedPhotoInput").value = "";
+      $("#memoryVideoInput").value = "";
+      $("#memoryAudioInput").value = "";
+      $("#memoryTitleInput").value = state.trusted.memoryTitle || "";
+      syncQuickProfileUI();
+    }
+
+    // ===== Grabador de audio =====
+    let mediaRecorder = null;
+    let audioChunks = [];
+    let recordedAudioBlob = null;
+    let recordedAudioUrl = null;
+
+    $("#btnStartRec")?.addEventListener("click", async ()=>{
+      try{
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        audioChunks = [];
+        mediaRecorder = new MediaRecorder(stream);
+        mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+        mediaRecorder.onstop = ()=>{
+          recordedAudioBlob = new Blob(audioChunks, { type: "audio/webm" });
+          recordedAudioUrl = URL.createObjectURL(recordedAudioBlob);
+          $("#btnPlayRec").disabled = false;
+          $("#recStatus").textContent = "✅ Grabación lista. Escucha para revisar y luego pulsa Guardar.";
+          stream.getTracks().forEach(t => t.stop());
+        };
+        mediaRecorder.start();
+        $("#btnStartRec").disabled = true;
+        $("#btnStopRec").disabled = false;
+        $("#btnPlayRec").disabled = true;
+        $("#recStatus").textContent = "🔴 Grabando...";
+      } catch(e){
+        toast("No se pudo acceder al micrófono.");
+      }
+    });
+
+    $("#btnStopRec")?.addEventListener("click", ()=>{
+      if(mediaRecorder && mediaRecorder.state !== "inactive"){
+        mediaRecorder.stop();
+        $("#btnStartRec").disabled = false;
+        $("#btnStopRec").disabled = true;
+      }
+    });
+
+    $("#btnPlayRec")?.addEventListener("click", ()=>{
+      if(recordedAudioUrl){
+        new Audio(recordedAudioUrl).play().catch(()=> toast("No se pudo reproducir."));
+      }
+    });
+
+    async function getRecordedAudioDataUrl(){
+      const fileInput = $("#memoryAudioInput");
+      if(fileInput?.files?.[0]) return await fileToDataUrl(fileInput.files[0]);
+      if(recordedAudioBlob){
+        return await new Promise((res, rej)=>{
+          const reader = new FileReader();
+          reader.onload = ()=> res(reader.result);
+          reader.onerror = rej;
+          reader.readAsDataURL(recordedAudioBlob);
+        });
+      }
+      return null;
+    }
+
+    $("#btnSaveTrusted")?.addEventListener("click", async ()=>{
+      state.profile = $("#profileSelect").value || "L2";
+      state.carePin = ($("#carePinInput").value || "").trim();
+
+      state.trusted.name = $("#trustedNameInput").value.trim() || state.trusted.name;
+      state.trusted.rel  = $("#trustedRelInput").value.trim() || state.trusted.rel;
+      state.trusted.msg  = $("#trustedMsgInput").value.trim() || state.trusted.msg;
+      state.trusted.phone = $("#trustedPhoneInput").value.trim();
+      state.place = $("#placeInput").value.trim() || state.place;
+
+      const f = $("#trustedPhotoInput").files?.[0];
+      if(f) state.trusted.photoDataUrl = await fileToDataUrl(f);
+
+      const fv = $("#memoryVideoInput").files?.[0];
+      if(fv) state.trusted.memoryVideoDataUrl = await fileToDataUrl(fv);
+
+      const audioDataUrl = await getRecordedAudioDataUrl();
+      if(audioDataUrl) state.trusted.memoryAudioDataUrl = audioDataUrl;
+
+      state.trusted.memoryTitle = $("#memoryTitleInput").value.trim() || state.trusted.memoryTitle || "Videorecuerdo";
+
+      saveState();
+      applyProfile();
+      renderWho();
+      toast("Guardado.");
+    });
+
+    $("#btnResetTrusted")?.addEventListener("click", ()=>{
+      if(!confirm("¿Restablecer datos?")) return;
+      localStorage.removeItem(KEY);
+      state = loadState();
+      saveState();
+      applyProfile();
+      renderAll();
+      toast("Restablecido.");
+    });
+
+    $("#btnAddAlbum")?.addEventListener("click", async ()=>{
+      const name = $("#albumName").value.trim();
+      const msg = $("#albumMsg").value.trim();
+      const f = $("#albumPhoto").files?.[0];
+      if(!name || !msg){ toast("Pon nombre y mensaje."); return; }
+      const photoDataUrl = f ? await fileToDataUrl(f) : null;
+      state.album.unshift({id:cryptoRandomId(), name, msg, photoDataUrl, createdAt: nowISO()});
+      $("#albumName").value=""; $("#albumMsg").value=""; $("#albumPhoto").value="";
+      saveState();
+      renderAlbum(); renderAlbumAdmin();
+      toast("Añadido al álbum.");
+    });
+
+    /* ======================
+       Export / Import
+       ====================== */
+    $("#btnExport")?.addEventListener("click", ()=>{
+      const txt = JSON.stringify(state, null, 2);
+      $("#exportBox").textContent = txt;
+
+      const blob = new Blob([txt], {type:"application/json"});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "faro_export.json";
+      a.click();
+      setTimeout(()=>URL.revokeObjectURL(url), 600);
+      toast("Exportado.");
+    });
+
+    $("#btnImport")?.addEventListener("click", ()=> $("#importFile")?.click());
+    $("#importFile")?.addEventListener("change", async (e)=>{
+      const f = e.target.files?.[0];
+      if(!f) return;
+      try{
+        const txt = await f.text();
+        const obj = JSON.parse(txt);
+        state = deepMerge(structuredCloneSafe(defaultState), obj);
+        saveState();
+        applyProfile();
+        renderAll();
+        toast("Importación OK.");
+      }catch{
+        toast("JSON inválido.");
+      }finally{
+        e.target.value="";
+      }
+    });
+
+    $("#btnWipe")?.addEventListener("click", ()=>{
+      if(!confirm("¿Borrar TODOS los datos locales?")) return;
+      localStorage.removeItem(KEY);
+      state = loadState();
+      saveState();
+      applyProfile();
+      renderAll();
+      toast("Datos borrados.");
+    });
+
+    /* ======================
+       Panel cuidador
+       ====================== */
+    function renderCarePanel(){
+      const last = state.signals.last;
+      if(!last){
+        $("#lastSignal").textContent = "—";
+        $("#lastSignalTime").textContent = t("sinAvisos");
+        $("#careStatusBadge").textContent = "Normal";
+        $("#careStatusBadge").className = "badge";
+      }else{
+        const d = new Date(last.at);
+        $("#lastSignal").textContent = last.text;
+        $("#lastSignalTime").textContent = d.toLocaleString();
+        if(last.type === "help"){
+          $("#careStatusBadge").textContent = "Alerta";
+          $("#careStatusBadge").className = "badge danger";
+        }else{
+          $("#careStatusBadge").textContent = "Aviso";
+          $("#careStatusBadge").className = "badge warn";
+        }
+      }
+
+      const today = toDateInputValue(new Date());
+      if(state.usage.date !== today){
+        state.usage = { date: today, opens: 0, sections: {} };
+        saveState();
+      }
+      $("#todayUse").textContent = `${state.usage.opens} aperturas`;
+    }
+    $("#btnClearSignal")?.addEventListener("click", ()=>{
+      state.signals.last = null;
+      saveState();
+      renderCarePanel();
+      toast("Señal limpiada.");
+    });
+    $("#btnResetUse")?.addEventListener("click", ()=>{
+      state.usage = { date: toDateInputValue(new Date()), opens: 0, sections: {} };
+      saveState();
+      renderCarePanel();
+      toast("Uso reiniciado.");
+    });
+
+    /* ======================
+       Quick profile selector
+       ====================== */
+    function syncQuickProfileUI(){
+      const q = $("#profileSelectQuick");
+      if(q) q.value = state.profile || "L2";
+    }
+    $("#profileSelectQuick")?.addEventListener("change", ()=>{
+      state.profile = $("#profileSelectQuick").value || "L2";
+      saveState();
+      applyProfile();
+      toast("Perfil actualizado.");
+    });
+
+    $("#btnGoPatientSettings")?.addEventListener("click", ()=>{
+      openCareTab("patient");
+      fillPatientSettingsForm();
+      toast("Ajustes del paciente.");
+    });
+
+    /* ======================
+       Ubicación: Radar + mapa
+       ====================== */
+    /* ======================
+       Contención (L3)
+       ====================== */
+    function playTrustedVideoIn(player, poster=null, auto=false){
+      if(!player) return Promise.reject(new Error("video"));
+      const candidates = trustedVideoCandidates();
+      const source = player.querySelector("source");
+
+      const tryPlay = async (src, muted)=>{
+        if(source){ source.src = src; }
+        player.src = src;
+        player.style.display = "block";
+        player.muted = !!muted;
+        player.currentTime = 0;
+        player.load();
+        poster && (poster.style.display = "none");
+        await player.play();
+        return true;
+      };
+
+      return tryPlay(candidates[0], auto).catch(async ()=>{
+        for(const src of candidates.slice(1)){
+          try{
+            return await tryPlay(src, auto);
+          }catch(e){}
+        }
+        throw new Error("video");
+      });
+    }
+
+    function playL3Memory(auto=false){
+      const video = $("#l3VideoPlayer") || $("#l3MemoryBox video");
+      const audio = $("#l3AudioPlayer") || $("#l3MemoryBox audio");
+      const poster = $("#memoryPoster");
+
+      if(video){
+        playTrustedVideoIn(video, poster, auto).catch(()=>{
+          if(!auto && audio){
+            playTrustedAudio().catch(()=>toast("No se pudo reproducir el vídeo ni el audio."));
+            return;
+          }
+          if(!auto){
+            toast("No se pudo reproducir el vídeo.");
+          }
+        });
+        return true;
+      }
+      if(!auto && audio){
+        playTrustedAudio().catch(()=>toast("No se pudo reproducir el audio."));
+        return true;
+      }
+      if(!auto){
+        speak(buildWhoText());
+      }
+      return false;
+    }
+
+    function renderContainment(){
+      const photo = $("#containmentPhoto");
+      const t = state.trusted;
+
+      photo.innerHTML = "";
+      if(t.photoDataUrl){
+        const img = document.createElement("img");
+        img.src = t.photoDataUrl;
+        img.alt = "Foto persona de confianza";
+        photo.appendChild(img);
+      }else{
+        photo.textContent = "👤";
+      }
+
+      $("#containmentTitle").textContent = t.name ? `${t.name} está contigo` : "Estoy contigo";
+      $("#containmentSubtitle").textContent = "Pulsa la foto para escuchar su voz o abre el videorecuerdo.";
+
+      const box = $("#l3MemoryBox");
+      if(box){
+        const title = t.memoryTitle || "Videorecuerdo";
+        const hasVideo = !!t.memoryVideoDataUrl;
+        const hasAudio = !!t.memoryAudioDataUrl;
+        const posterSrc = "archivos/travel-storytelling-couple (2).jpg";
+
+        if(hasVideo){
+          box.innerHTML = `
+            <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:8px">🎬 Vídeo recuerdo</div>
+            <div id="memoryPoster" style="cursor:pointer;border-radius:14px;overflow:hidden;border:1px solid rgba(231,200,122,.35);background:rgba(0,0,0,.30)">
+              <img src="${posterSrc}" alt="Ver vídeo" style="width:100%;display:block;aspect-ratio:16/9;object-fit:cover;opacity:.85">
+              <div style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text);font-size:14px">▶ Pulsar para ver el vídeo</div>
+            </div>
+            <video id="l3VideoPlayer" playsinline controls style="display:none;width:100%;margin-top:10px;border-radius:14px;background:rgba(0,0,0,.25)">
+              <source src="${t.memoryVideoDataUrl}">
+            </video>
+            ${hasAudio ? `<audio id="l3AudioPlayer" preload="auto" style="display:none"><source src="${t.memoryAudioDataUrl}"></audio>` : ''}
+          `;
+        }else if(hasAudio){
+          box.innerHTML = `
+            <audio id="l3AudioPlayer" preload="auto" style="display:none">
+              <source src="${t.memoryAudioDataUrl}">
+            </audio>
+          `;
+        }else{
+          box.innerHTML = `🎬 Vídeo recuerdo<br><span style="opacity:.7;font-size:13px">La familia puede añadir aquí un vídeo.</span>`;
+        }
+      }
+
+      const memoryBtn = $("#btnContainmentMemory");
+      if(memoryBtn){
+        memoryBtn.textContent = "▶ Mensaje de voz";
+      }
+
+      photo.style.cursor = "pointer";
+      photo.title = "Escuchar mensaje de Ignacio";
+      photo.onclick = () => {
+        playTrustedAudio().catch(()=>speak(buildWhoText()));
+      };
+
+      // El poster se acaba de crear en box.innerHTML, ahora sí existe en el DOM
+      const poster = $("#memoryPoster");
+      if(poster){
+        poster.onclick = () => {
+          poster.style.display = "none";
+          const videoEl = $("#l3VideoPlayer");
+          if(videoEl){
+            videoEl.style.display = "block";
+            videoEl.play().catch(()=>toast("No se pudo reproducir el vídeo."));
+          }
+        };
+      }
+
+      const callBtn = $("#btnContainmentCall");
+      if(callBtn){
+        callBtn.textContent = t.name ? `☎ Llamar a ${t.name}` : "☎ Llamar ahora";
+      }
+    }
+
+    $("#btnContainmentMemory").addEventListener("click", ()=>{
+      bumpUsage("patient_action:l3_memory");
+      const src = state?.trusted?.memoryAudioDataUrl;
+      if(!src){
+        toast("El cuidador aún no ha añadido un mensaje de voz.");
+        return;
+      }
+      const a = new Audio(src);
+      a.play().catch(()=> toast("No se pudo reproducir el audio."));
+    });
+    $("#btnContainmentCall")?.addEventListener("click", ()=>{
+      bumpUsage("patient_action:l3_call");
+      const phone = (state.trusted.phone || "").trim();
+      speak("Voy a avisar ahora.");
+      state.signals.last = { type:"call_request", text:"Solicitud de llamada (L3)", at: nowISO() };
+      saveState();
+      renderCarePanel();
+      if(phone){
+        window.location.href = "tel:" + phone;
+      }else{
+        toast("Añade un teléfono en modo familiar.");
+      }
+    });
+
+    /* ===== Checklist ===== */
+    $("#btnAskNotif")?.addEventListener("click", ensureNotifications);
+    $("#btnTestVoice")?.addEventListener("click", ()=>{
+      speak("Hola. Esta es una prueba de voz de Faro.");
+      toast("Prueba de voz.");
+    });
+
+
+    const btnKnowledgeSummary = document.getElementById("btnKnowledgeSummary");
+    btnKnowledgeSummary?.addEventListener("click", ()=>{
+      speak("Consejos básicos. Habla despacio. Usa frases cortas. Mantén rutinas estables. Evita discutir cuando haya confusión. Prioriza calma, seguridad y acompañamiento.");
+      toast("Resumen leído.");
+    });
+
+    /* ======================
+       Render general
+       ====================== */
+    function renderAll(){
+      renderWho();
+      renderRoutine();
+      renderSimpleStep();
+      renderPatientReminders();
+      renderAlbum();
+      renderAlbumAdmin();
+      renderDiary();
+      renderCarePanel();
+      fillPatientSettingsForm();
+      $("#routineEditor").value = (state.routine||[]).map((s,i)=> `${i+1}) ${s.title}`).join("\n");
+      if($("#exportBox")) $("#exportBox").textContent = "—";
+      renderPatientOrientation();
+      renderPatientView();
+      renderContainment();
+      syncQuickProfileUI();
+      renderSosToggles();
+      applyTranslations();
+    }
+    $("#apptDate").value = toDateInputValue(new Date());
+
+    const splash = document.getElementById("splash");
+    const btnEnter = document.getElementById("btnEnter");
+    const btnFamily = document.getElementById("btnFamily");
+
+    function hideSplash(){
+      if(!splash) return;
+      splash.style.display = "none";
+    }
+
+    function init(){
+      $("#safetyBadge").textContent = "Seguro";
+      $("#safetyBadge").className = "badge ok";
+
+      tick();
+      applyProfile();
+      renderAll();
+      openCareTab("plan");
+      // dejamos la pantalla inicial visible al arrancar
+
+      // Splash actions
+      if(btnEnter){
+        btnEnter.addEventListener("click", ()=>{
+          hideSplash();
+          bumpOpen();
+          setMode("patient");
+        });
+      }
+      if(btnFamily){
+        btnFamily.addEventListener("click", ()=>{
+          hideSplash();
+          setMode("care"); // respeta PIN si está configurado
+        });
+      }
+    }
+    try { init(); } catch (err) { console.error("Error iniciando FARO:", err); }
+    if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./service-worker.js")
+      .then(() => console.log("Service Worker registrado"))
+      .catch(err => console.error("Error registrando SW:", err));
+  });
+}
+let deferredPrompt = null;
+const btnInstall = document.getElementById("btnInstall");
+const netStatus = document.getElementById("netStatus");
+
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  btnInstall.classList.remove("hidden");
+});
+
+btnInstall?.addEventListener("click", async () => {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  await deferredPrompt.userChoice;
+  deferredPrompt = null;
+  btnInstall.classList.add("hidden");
+});
+
+function updateNetworkStatus() {
+  if (navigator.onLine) {
+    netStatus.textContent = "Online";
+    netStatus.className = "pill";
+  } else {
+    netStatus.textContent = "Sin conexión";
+    netStatus.className = "pill";
+  }
+}
+
+window.addEventListener("online", updateNetworkStatus);
+window.addEventListener("offline", updateNetworkStatus);
+updateNetworkStatus();
+  </script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+  // BOTÓN AYUDA
+  document.querySelectorAll(".btn-ayuda").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const aviso = document.createElement("div");
+      aviso.innerText = "Avisando a tu persona de confianza...";
+      aviso.style.position = "fixed";
+      aviso.style.bottom = "20px";
+      aviso.style.left = "50%";
+      aviso.style.transform = "translateX(-50%)";
+      aviso.style.background = "#0b1b3a";
+      aviso.style.color = "white";
+      aviso.style.padding = "12px 20px";
+      aviso.style.borderRadius = "10px";
+      document.body.appendChild(aviso);
+      setTimeout(() => aviso.remove(), 3000);
+    });
+  });
+
+  // ESCUCHAR MI DÍA
+  const btnEscuchar = document.querySelector("#btnEscuchar");
+  if (btnEscuchar) {
+    btnEscuchar.addEventListener("click", () => {
+      alert("Hoy tienes: rutina, medicación y descanso.");
+    });
+  }
+
+  // BOTÓN SIGUIENTE
+  document.querySelectorAll(".btn-siguiente").forEach(btn => {
+    btn.addEventListener("click", () => {
+      btn.innerText = "Completado ✔";
+      btn.style.background = "#4CAF50";
+    });
+  });
+
+  // RESPUESTAS
+  document.querySelectorAll(".btn-respuesta").forEach(btn => {
+    btn.addEventListener("click", () => {
+      alert("Respuesta enviada al cuidador");
+    });
+  });
+
+});
+</script>
+
+</body>
+</html>
