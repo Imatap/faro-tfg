@@ -805,16 +805,16 @@
                 <div class="item calm-focus l3-hide">
                   <div class="meta">
                     <div class="k" data-i18n="ahora">Ahora</div>
-                    <div class="v" id="currentMomentTitle" data-i18n="manana">Mañana</div>
-                    <div class="s" id="currentMomentText" data-i18n="buenMomento">Es buen momento para seguir la rutina con calma.</div>
+                    <div class="v" id="currentMomentTitle">—</div>
+                    <div class="s" id="currentMomentText">—</div>
                   </div>
                 </div>
 
                 <div class="item calm-focus">
                   <div class="meta">
                     <div class="k" data-i18n="despues">Después</div>
-                    <div class="v" id="nextEventTitle" data-i18n="medicacion">Medicación</div>
-                    <div class="s" id="nextEventText" data-i18n="previsto">Previsto para más tarde.</div>
+                    <div class="v" id="nextEventTitle">—</div>
+                    <div class="s" id="nextEventText">—</div>
                   </div>
                 </div>
 
@@ -831,7 +831,7 @@
                   </button>
                 </div>
 
-                <div class="who calm-focus l3-hide">
+                <div class="who calm-focus l3-hide" id="trustedPersonCard">
                   <div class="avatar" id="whoAvatar" aria-hidden="true">👤</div>
                   <div>
                     <div class="title" data-i18n="personaConfianza">Persona de confianza</div>
@@ -844,15 +844,11 @@
                   </div>
                 </div>
 
-                <div class="patient-home-note calm-focus l3-hide" data-i18n="notaPatient">
-                  Esta pantalla intenta enseñar solo lo importante: qué momento es, qué toca ahora y a quién pedir ayuda.
-                </div>
-
                 <div class="patient-access-row l3-hide">
                   <button class="btn big" id="btnPatientReadToday">Escuchar mi día</button>
                 </div>
                 <div class="family-entry-soft l3-hide">
-                  <button class="btn ghost" id="btnPatientFamilyAccess">Acceso familiar</button>
+                  <button class="btn ghost" id="btnPatientFamilyAccess" data-i18n="accesoFamiliar">Área familiar</button>
                 </div>
               </div>
 
@@ -864,13 +860,13 @@
                     <div class="v" id="simpleStepTitle">—</div>
                     <div class="s" id="simpleStepHint">—</div>
                   </div>
-                  <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
+                  <div id="simpleStepActions" style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
                     <span class="badge" id="simpleProgress">0/0</span>
                     <button class="btn small" id="btnSimpleRepeat">Repetir</button>
                   </div>
                 </div>
 
-                <div class="btnrow" style="margin-top:10px">
+                <div class="btnrow" id="simpleNextRow" style="margin-top:10px">
                   <button class="btn primary big" id="btnSimpleNextStep">Hecho, siguiente</button>
                 </div>
 
@@ -902,7 +898,7 @@
                         <div class="v" id="routineStepTitle">—</div>
                         <div class="s" id="routineStepHint">—</div>
                       </div>
-                      <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
+                      <div id="routineStepActions" style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
                         <span class="badge" id="routineProgress">0/0</span>
                         <button class="btn small primary" id="btnRoutineNext" data-i18n="siguiente">Siguiente</button>
                         <button class="btn small" id="btnRoutineRepeat" data-i18n="repetir">Repetir</button>
@@ -2035,6 +2031,13 @@
       });
 
       document.documentElement.lang = currentLang;
+
+      // Los contenidos dinámicos se calculan después de aplicar las traducciones
+      // para evitar que textos estáticos sobrescriban el estado real de FARO.
+      renderPatientOrientation();
+      renderSimpleStep();
+      renderRoutine();
+      renderWho();
     }
 
     $("#btnLang")?.addEventListener("click", ()=>{
@@ -2126,11 +2129,27 @@
 
     function getMomentOfDay(){
       const h = new Date().getHours();
-      if(h < 6) return { title:"Madrugada", text:"Es momento de descansar con tranquilidad." };
-      if(h < 12) return { title:"Mañana", text:"Es buen momento para seguir la rutina con calma." };
-      if(h < 15) return { title:"Mediodía", text:"Ahora conviene ir despacio y mantener una referencia clara." };
-      if(h < 20) return { title:"Tarde", text:"Puedes continuar el día paso a paso, sin prisa." };
-      return { title:"Noche", text:"Ahora toca ir cerrando el día con calma." };
+      const es = currentLang === "es";
+      const hasRoutine = (state.routine || []).length > 0;
+
+      let title;
+      if(h < 6) title = es ? "De madrugada" : "Early morning";
+      else if(h < 12) title = es ? "Por la mañana" : "Morning";
+      else if(h < 15) title = es ? "Al mediodía" : "Midday";
+      else if(h < 20) title = es ? "Por la tarde" : "Afternoon";
+      else title = es ? "Por la noche" : "Evening";
+
+      if(!hasRoutine){
+        return {
+          title,
+          text: es ? "No tienes ninguna actividad preparada ahora." : "You do not have an activity planned right now."
+        };
+      }
+
+      return {
+        title,
+        text: es ? "Puedes seguir tu rutina con calma." : "You can continue your routine calmly."
+      };
     }
 
     function getNextSupportItem(){
@@ -2138,6 +2157,7 @@
       const today = toDateInputValue(now);
       const currentMinutes = now.getHours()*60 + now.getMinutes();
       const candidates = [];
+      const es = currentLang === "es";
 
       (state.meds || []).forEach(m => {
         if(!m.time) return;
@@ -2145,8 +2165,10 @@
         const minutes = (hh||0)*60 + (mm||0);
         candidates.push({
           when: minutes,
-          title: `Medicación: ${m.name}`,
-          text: `Previsto para las ${m.time}. ${m.note || "Con calma."}`
+          title: es ? `Medicación: ${m.name}` : `Medication: ${m.name}`,
+          text: es
+            ? `Previsto para las ${m.time}. ${m.note || ""}`.trim()
+            : `Scheduled for ${m.time}. ${m.note || ""}`.trim()
         });
       });
 
@@ -2156,20 +2178,20 @@
         const minutes = time ? (hh||0)*60 + (mm||0) : 9999;
         candidates.push({
           when: minutes,
-          title: `Cita: ${a.title}`,
-          text: time ? `Previsto para las ${time}. ${a.note || ""}` : (a.note || "Pendiente de hora.")
+          title: es ? `Cita: ${a.title}` : `Appointment: ${a.title}`,
+          text: time
+            ? (es ? `Previsto para las ${time}. ${a.note || ""}`.trim() : `Scheduled for ${time}. ${a.note || ""}`.trim())
+            : (a.note || (es ? "Hora pendiente de confirmar." : "Time to be confirmed."))
         });
       });
 
       const next = candidates.filter(c => c.when >= currentMinutes).sort((a,b)=>a.when-b.when)[0];
       if(next) return next;
 
-      const step = (state.routine || [])[state.routineIndex || 0];
-      if(step){
-        return { title: step.title || "Rutina", text: step.hint || "Haz una cosa a la vez." };
-      }
-
-      return { title:"Descanso", text:"No hay nada urgente ahora. Puedes seguir con calma." };
+      return {
+        title: es ? "No hay nada pendiente" : "Nothing pending",
+        text: es ? "Puedes continuar con calma." : "You can continue calmly."
+      };
     }
 
     function renderPatientOrientation(){
@@ -2371,33 +2393,49 @@
     function renderRoutine(){
       const steps = state.routine || [];
       const n = steps.length;
+      const es = currentLang === "es";
+      const actions = $("#routineStepActions");
+
       if(!n){
-        $("#routineStepTitle").textContent = "Sin rutina";
-        $("#routineStepHint").textContent = "El cuidador puede crear una rutina simple.";
-        $("#routineProgress").textContent = "0/0";
+        $("#routineStepTitle").textContent = es ? "No hay una rutina preparada" : "No routine has been prepared";
+        $("#routineStepHint").textContent = es ? "Tu familiar puede prepararla desde el Área familiar." : "Your family can prepare one from the Family area.";
+        $("#routineProgress").textContent = "";
+        actions?.classList.add("hidden");
         return;
       }
+
+      actions?.classList.remove("hidden");
       const idx = Math.min(state.routineIndex || 0, n-1);
       state.routineIndex = idx;
       const step = steps[idx];
-      $("#routineStepTitle").textContent = step.title || "Paso";
-      $("#routineStepHint").textContent = step.hint || "Hazlo con calma.";
+      $("#routineStepTitle").textContent = step.title || (es ? "Paso" : "Step");
+      $("#routineStepHint").textContent = step.hint || (es ? "Hazlo con calma." : "Take your time.");
       $("#routineProgress").textContent = `${idx+1}/${n}`;
       saveState();
     }
+
     function renderSimpleStep(){
       const steps = state.routine || [];
       const n = steps.length;
+      const es = currentLang === "es";
+      const actions = $("#simpleStepActions");
+      const nextRow = $("#simpleNextRow");
+
       if(!n){
-        $("#simpleStepTitle").textContent = "Sin rutina";
-        $("#simpleStepHint").textContent = "El cuidador puede crear una rutina.";
-        $("#simpleProgress").textContent = "0/0";
+        $("#simpleStepTitle").textContent = es ? "No hay una rutina preparada" : "No routine has been prepared";
+        $("#simpleStepHint").textContent = es ? "Tu familiar puede prepararla desde el Área familiar." : "Your family can prepare one from the Family area.";
+        $("#simpleProgress").textContent = "";
+        actions?.classList.add("hidden");
+        nextRow?.classList.add("hidden");
         return;
       }
+
+      actions?.classList.remove("hidden");
+      nextRow?.classList.remove("hidden");
       const idx = Math.min(state.routineIndex || 0, n-1);
       const step = steps[idx];
-      $("#simpleStepTitle").textContent = step.title || "Paso";
-      $("#simpleStepHint").textContent = step.hint || "Hazlo con calma.";
+      $("#simpleStepTitle").textContent = step.title || (es ? "Paso" : "Step");
+      $("#simpleStepHint").textContent = step.hint || (es ? "Hazlo con calma." : "Take your time.");
       $("#simpleProgress").textContent = `${idx+1}/${n}`;
     }
     function nextRoutine(){
@@ -2518,12 +2556,19 @@
       });
     }
     function compilePatientToday(){
-      const meds = upcomingMedsToday().slice(0,4).map(m=>`Medicación: ${m.name} a las ${m.time}. ${m.note || ""}`);
-      const appts = upcomingAppts().slice(0,3).map(a=>`Cita: ${a.title} el ${a.date} a las ${a.time || ""}. ${a.note || ""}`);
+      const es = currentLang === "es";
+      const meds = upcomingMedsToday().slice(0,4).map(m=>
+        es ? `Medicación: ${m.name} a las ${m.time}. ${m.note || ""}` : `Medication: ${m.name} at ${m.time}. ${m.note || ""}`
+      );
+      const appts = upcomingAppts().slice(0,3).map(a=>
+        es ? `Cita: ${a.title} el ${a.date} a las ${a.time || ""}. ${a.note || ""}` : `Appointment: ${a.title} on ${a.date} at ${a.time || ""}. ${a.note || ""}`
+      );
       const r = state.routine?.[state.routineIndex];
-      const routine = r ? `Siguiente paso: ${r.title}.` : "";
-      const who = `Tu persona de confianza es ${state.trusted.name || ""}.`;
-      return [who, routine, ...meds, ...appts].filter(Boolean).join(" ");
+      const routine = r ? (es ? `Siguiente paso: ${r.title}.` : `Next step: ${r.title}.`) : "";
+      const who = state.trusted?.name ? (es ? `Tu persona de confianza es ${state.trusted.name}.` : `Your trusted person is ${state.trusted.name}.`) : "";
+      const parts = [who, routine, ...meds, ...appts].filter(Boolean);
+      if(!parts.length) return es ? "No tienes nada pendiente ahora. Puedes continuar con calma." : "You have nothing pending right now. You can continue calmly.";
+      return parts.join(" ");
     }
     function makeNoteItem(text){
       const d = document.createElement("div");
@@ -2874,23 +2919,31 @@
     }
 
     function renderWho(){
-      $("#trustedName").textContent = state.trusted.name || "—";
-      $("#trustedDesc").textContent = [state.trusted.rel, state.trusted.msg].filter(Boolean).join(". ") || "—";
+      const trusted = state.trusted || {};
+      const hasTrusted = !!(
+        trusted.name || trusted.rel || trusted.msg || trusted.phone ||
+        trusted.photoDataUrl || trusted.memoryAudioDataUrl || trusted.memoryVideoDataUrl
+      );
+      const card = $("#trustedPersonCard");
+      card?.classList.toggle("hidden", !hasTrusted);
+
+      $("#trustedName").textContent = trusted.name || "—";
+      $("#trustedDesc").textContent = [trusted.rel, trusted.msg].filter(Boolean).join(". ") || "—";
       $("#placeName").textContent = state.place || "Casa";
 
       const av = $("#whoAvatar");
       av.innerHTML = "";
-      if(state.trusted.photoDataUrl){
+      if(trusted.photoDataUrl){
         const img = document.createElement("img");
-        img.src = state.trusted.photoDataUrl;
-        img.alt = "Foto persona de confianza";
+        img.src = trusted.photoDataUrl;
+        img.alt = currentLang === "es" ? "Foto de la persona de confianza" : "Trusted person's photo";
         av.appendChild(img);
       }else{
         av.textContent = "👤";
       }
-      av.style.cursor = "pointer";
-      av.title = "Escuchar mensaje de Ignacio";
-      av.onclick = ()=> playTrustedAudio().catch(()=>speak(buildWhoText()));
+      av.style.cursor = hasTrusted ? "pointer" : "default";
+      av.title = hasTrusted ? (currentLang === "es" ? "Escuchar mensaje de la persona de confianza" : "Listen to trusted person's message") : "";
+      av.onclick = hasTrusted ? (()=> playTrustedAudio().catch(()=>speak(buildWhoText()))) : null;
       renderContainment();
     }
 
