@@ -781,6 +781,41 @@
     .setupActions{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;margin-top:16px}
     @media (max-width:640px){.setupGrid{grid-template-columns:1fr}.setupGrid .full{grid-column:auto}.setupPanel{padding:18px}}
 
+    /* ===== Actividades del paciente (L1/L2) ===== */
+    .activity-choice-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+    .activity-choice{min-height:96px;padding:14px;border-radius:18px;text-align:left;display:flex;flex-direction:column;justify-content:center;gap:4px}
+    .activity-choice strong{font-size:16px}
+    .activity-choice span{font-size:12px;color:rgba(246,251,255,.82);font-weight:600;line-height:1.35}
+    .activity-panel{margin-top:12px;padding:14px;border-radius:18px;background:rgba(0,0,0,.12);border:1px solid var(--line)}
+    .activity-panel h3{margin:0 0 6px;font-size:18px}
+    .activity-panel .activity-help{margin:0 0 12px;color:rgba(246,251,255,.82);font-size:13px;line-height:1.4}
+    .pairs-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;max-width:420px;margin:0 auto}
+    .pair-card{min-height:92px;font-size:38px;border-radius:18px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.08);color:var(--text);cursor:pointer}
+    .pair-card.revealed,.pair-card.matched{background:rgba(255,212,122,.16);border-color:rgba(255,212,122,.42)}
+    .pair-card.matched{cursor:default}
+    .equal-target{display:grid;place-items:center;min-height:120px;font-size:64px;border-radius:20px;background:rgba(255,212,122,.10);border:1px solid rgba(255,212,122,.28);margin-bottom:12px}
+    .equal-options{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+    .equal-option{min-height:82px;font-size:38px;border-radius:18px}
+    .memory-activity-card{display:grid;grid-template-columns:140px 1fr;gap:14px;align-items:center;padding:12px;border-radius:18px;background:rgba(255,255,255,.06);border:1px solid var(--line)}
+    .memory-activity-photo{width:140px;height:140px;border-radius:18px;overflow:hidden;background:rgba(255,255,255,.08);display:grid;place-items:center;font-size:46px}
+    .memory-activity-photo img{width:100%;height:100%;object-fit:cover}
+    .activity-feedback{margin-top:12px;text-align:center;min-height:22px;font-weight:800;color:var(--accent2)}
+    @media (max-width:620px){
+      .activity-choice-grid{grid-template-columns:1fr}
+      .memory-activity-card{grid-template-columns:1fr;text-align:center}
+      .memory-activity-photo{margin:0 auto}
+    }
+
+    /* ===== L3: pantalla de contención mínima ===== */
+    .l3-status{padding:14px 16px;border-radius:18px;background:rgba(255,255,255,.07);border:1px solid rgba(255,212,122,.26)}
+    .l3-status .k{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:rgba(246,251,255,.78)}
+    .l3-status .v{font-size:18px;font-weight:850;margin-top:4px}
+    .l3-status .s{font-size:14px;color:rgba(246,251,255,.86);margin-top:4px;line-height:1.4}
+    body[data-profile="L3"] #containmentScreen{margin-top:0!important}
+    body[data-profile="L3"] .containment{gap:12px}
+    body[data-profile="L3"] .containment .hero{grid-template-columns:110px 1fr;align-items:center}
+    body[data-profile="L3"] .containment .photo{width:110px;height:110px}
+
   </style>
 </head>
 
@@ -929,7 +964,7 @@
                   </div>
                 </div>
 
-                <div class="item calm-focus">
+                <div class="item calm-focus l3-hide">
                   <div class="meta">
                     <div class="k" data-i18n="despues">Después</div>
                     <div class="v" id="nextEventTitle">—</div>
@@ -942,7 +977,7 @@
                 </div>
 
                 <!-- Botón SOS familiar - aparece si el cuidador lo activa -->
-                <div id="sosAlertBlock" class="hidden" style="margin-top:10px">
+                <div id="sosAlertBlock" class="hidden l3-hide" style="margin-top:10px">
                   <button class="btn giant" id="btnSosAlert"
                     style="width:100%;background:linear-gradient(180deg,rgba(255,80,80,.55),rgba(200,30,30,.40));border:1px solid rgba(255,100,100,.5);font-size:18px;font-weight:800;letter-spacing:.04em;padding:18px;"
                     data-i18n="sosAvisar">
@@ -965,6 +1000,7 @@
 
                 <div class="patient-access-row l3-hide">
                   <button class="btn big" id="btnPatientReadToday">Escuchar mi día</button>
+                  <button class="btn big primary" id="btnPatientActivities">🧩 Actividades</button>
                 </div>
                 <div class="family-entry-soft l3-hide">
                   <button class="btn ghost" id="btnPatientFamilyAccess" data-i18n="accesoFamiliar">Área familiar</button>
@@ -1004,7 +1040,7 @@
                   <button class="tabbtn active" data-ptab="routine" role="tab" aria-selected="true">Rutina</button>
                   <button class="tabbtn" data-ptab="reminders" role="tab" aria-selected="false">Recordatorios</button>
                   <button class="tabbtn" data-ptab="album" role="tab" aria-selected="false" data-i18n="album">Álbum</button>
-                  <button class="tabbtn" data-ptab="cognitive" role="tab" aria-selected="false">Ejercicios</button>
+                  <button class="tabbtn" data-ptab="cognitive" role="tab" aria-selected="false">Actividades</button>
                   <button class="tabbtn" id="btnPatientLess" role="tab" aria-selected="false">Volver</button>
                 </div>
 
@@ -1036,25 +1072,54 @@
                   </div>
 
                   <div id="ptab_cognitive" class="hidden">
-                    <div class="note">Ejercicio breve y amable. Sin “errores”: solo intentos.</div>
-                    <div style="margin-top:10px" class="card" style="box-shadow:none">
-                      <div class="bd">
-                        <div class="split">
-                          <div class="field">
-                            <label>Elige una pregunta</label>
-                            <select id="quizSelect"></select>
-                          </div>
-                          <div class="field">
-                            <label>Tu respuesta</label>
-                            <input id="quizAnswer" type="text" placeholder="Escribe aquí..." />
-                          </div>
-                        </div>
-                        <div class="btnrow">
-                          <button class="btn primary" id="btnQuizCheck">Comprobar</button>
-                          <button class="btn" id="btnQuizHint">Pista</button>
-                          <button class="btn" id="btnQuizSpeak">Escuchar pregunta</button>
-                        </div>
-                        <div class="note" id="quizFeedback" style="margin-top:10px">—</div>
+                    <div class="note">Actividades sencillas para pasar un rato agradable. Sin tiempo, sin puntuaciones y sin penalizaciones.</div>
+
+                    <div id="activityChooser" class="activity-choice-grid">
+                      <button class="btn activity-choice" data-activity="pairs">
+                        <strong>🧩 Encuentra las parejas</strong>
+                        <span>Destapa cuatro cartas y busca las dos parejas.</span>
+                      </button>
+                      <button class="btn activity-choice" data-activity="equal">
+                        <strong>👀 ¿Cuál es igual?</strong>
+                        <span>Mira el dibujo grande y pulsa el que sea igual.</span>
+                      </button>
+                      <button class="btn activity-choice" data-activity="memories">
+                        <strong>❤️ Mis recuerdos</strong>
+                        <span>Mira fotos y escucha los mensajes guardados por tu familia.</span>
+                      </button>
+                    </div>
+
+                    <div id="activityPairs" class="activity-panel hidden">
+                      <h3>🧩 Encuentra las parejas</h3>
+                      <p class="activity-help">Pulsa dos cartas. Si son iguales, se quedan descubiertas.</p>
+                      <div id="pairsGrid" class="pairs-grid"></div>
+                      <div id="pairsFeedback" class="activity-feedback" aria-live="polite"></div>
+                      <div class="btnrow" style="margin-top:12px">
+                        <button class="btn primary" id="btnPairsAgain">Jugar otra vez</button>
+                        <button class="btn" data-activity-back>Elegir otra actividad</button>
+                      </div>
+                    </div>
+
+                    <div id="activityEqual" class="activity-panel hidden">
+                      <h3>👀 ¿Cuál es igual?</h3>
+                      <p class="activity-help">Busca abajo el mismo dibujo que aparece aquí.</p>
+                      <div id="equalTarget" class="equal-target">🌼</div>
+                      <div id="equalOptions" class="equal-options"></div>
+                      <div id="equalFeedback" class="activity-feedback" aria-live="polite"></div>
+                      <div class="btnrow" style="margin-top:12px">
+                        <button class="btn primary" id="btnEqualNext">Otro dibujo</button>
+                        <button class="btn" data-activity-back>Elegir otra actividad</button>
+                      </div>
+                    </div>
+
+                    <div id="activityMemories" class="activity-panel hidden">
+                      <h3>❤️ Mis recuerdos</h3>
+                      <p class="activity-help">Un momento tranquilo para mirar y escuchar recuerdos familiares.</p>
+                      <div id="memoryActivityContent"></div>
+                      <div class="btnrow" style="margin-top:12px">
+                        <button class="btn primary" id="btnMemoryActivitySpeak">Escuchar</button>
+                        <button class="btn" id="btnMemoryActivityNext">Otro recuerdo</button>
+                        <button class="btn" data-activity-back>Elegir otra actividad</button>
                       </div>
                     </div>
                   </div>
@@ -1068,24 +1133,25 @@
               <!-- L3: CONTENCIÓN -->
               <div id="containmentScreen" class="only-l3" style="margin-top:12px">
                 <div class="containment calm-focus l3-minimal">
+                  <div class="l3-status" aria-live="polite">
+                    <div class="k">Ahora</div>
+                    <div class="v" id="l3StatusTitle">Todo está bien</div>
+                    <div class="s" id="l3StatusText">Estás acompañado.</div>
+                  </div>
+
                   <div class="hero calm-focus">
-                    <div class="photo" id="containmentPhoto" aria-hidden="true">👤</div>
+                    <div class="photo" id="containmentPhoto" role="button" tabindex="0" aria-label="Escuchar a la persona de confianza">👤</div>
                     <div>
                       <div class="big" id="containmentTitle">Estoy contigo</div>
-                      <div class="small" id="containmentSubtitle">
-                        <span data-i18n="pulsaRecuerdo">Pulsa el recuerdo o llama a tu persona de confianza.</span>
-                      </div>
+                      <div class="small" id="containmentSubtitle">Pulsa para escuchar un mensaje tranquilizador.</div>
                     </div>
                   </div>
 
-                  <button class="btn primary giant" id="btnContainmentMemory" data-i18n="mensajeVoz">▶ Mensaje de voz</button>
+                  <button class="btn primary giant" id="btnContainmentMemory">▶ Escuchar mensaje</button>
 
-                  <div id="l3MemoryBox" class="note calm-focus" style="margin:0">
-                    <strong data-i18n="videoRecuerdo">🎬 Vídeo recuerdo</strong><br>
-                    <span data-i18n="familiaAnyadir">Aquí aparecerá el vídeo o audio que haya guardado la familia.</span>
-                  </div>
+                  <div id="l3MemoryBox" class="note calm-focus hidden" style="margin:0"></div>
 
-                  <div id="sosAlertBlockL3" class="hidden" style="margin-top:10px">
+                  <div id="sosAlertBlockL3" class="hidden" style="margin-top:2px">
                     <button class="btn giant" id="btnSosAlertL3"
                       style="width:100%;background:linear-gradient(180deg,rgba(255,80,80,.55),rgba(200,30,30,.40));border:1px solid rgba(255,100,100,.5);font-size:18px;font-weight:800;letter-spacing:.04em;padding:18px;">
                       <span data-i18n="sosAvisar">🆘 Avisar a mi familia</span>
@@ -1933,7 +1999,7 @@
 
       renderAll();
       if(mode === "patient" && state.profile === "L3"){
-        setTimeout(()=>playL3Memory(true), 250);
+        renderContainment();
       }
     }
     btnModePatient.addEventListener("click", ()=>setMode("patient"));
@@ -2358,6 +2424,7 @@
       const next = getNextSupportItem();
       $("#nextEventTitle").textContent = next.title;
       $("#nextEventText").textContent = next.text;
+      if(state.profile === "L3") renderContainment();
     }
 
     /* =====================
@@ -2456,10 +2523,12 @@
       const p = state.profile;
       if(p === "L3"){
         $("#patientViewName").textContent = "Contención";
+        $("#orientationBadge").textContent = "Acompañado";
+        $("#orientationBadge").className = "badge warn";
         $("#patientSimple").classList.add("hidden");
         $("#patientFull").classList.add("hidden");
         $("#quickHelpCard").classList.add("hidden");
-        setTimeout(()=>playL3Memory(true), 250);
+        renderContainment();
         return;
       }
       const view = state.patientView === "full" ? "full" : "simple";
@@ -2506,19 +2575,31 @@
     });
 
     /* ===== Tabs paciente ===== */
-    $$(".tabbtn[data-ptab]").forEach(btn=>{
-      btn.addEventListener("click", ()=>{
-        if(state.profile === "L3") return;
-        const tab = btn.dataset.ptab;
-        $$(".tabbtn[data-ptab]").forEach(b=>{
-          b.classList.toggle("active", b===btn);
-          b.setAttribute("aria-selected", b===btn ? "true":"false");
-        });
-        ["routine","reminders","album","cognitive"].forEach(k=>{
-          $("#ptab_"+k).classList.toggle("hidden", k!==tab);
-        });
-        bumpUsage("patient_tab:" + tab);
+    function openPatientTab(tab){
+      if(state.profile === "L3") return;
+      $$(".tabbtn[data-ptab]").forEach(b=>{
+        const active = b.dataset.ptab === tab;
+        b.classList.toggle("active", active);
+        b.setAttribute("aria-selected", active ? "true" : "false");
       });
+      ["routine","reminders","album","cognitive"].forEach(k=>{
+        $("#ptab_"+k)?.classList.toggle("hidden", k!==tab);
+      });
+      if(tab === "cognitive") showActivityChooser();
+      bumpUsage("patient_tab:" + tab);
+    }
+
+    $$(".tabbtn[data-ptab]").forEach(btn=>{
+      btn.addEventListener("click", ()=> openPatientTab(btn.dataset.ptab));
+    });
+
+    $("#btnPatientActivities")?.addEventListener("click", ()=>{
+      if(state.profile === "L3") return;
+      state.patientView = "full";
+      setCalmMode(false);
+      renderPatientView();
+      openPatientTab("cognitive");
+      bumpUsage("patient_action:activities");
     });
 
     /* ===== Tabs cuidador ===== */
@@ -2847,51 +2928,172 @@
     }
 
     /* ======================
-       Quiz
+       Actividades del paciente
        ====================== */
-    function renderQuiz(){
-      const sel = $("#quizSelect");
-      if(!sel) return;
-      sel.innerHTML = "";
-      (state.quiz||[]).forEach((it, idx)=>{
-        const opt = document.createElement("option");
-        opt.value = String(idx);
-        opt.textContent = it.q;
-        sel.appendChild(opt);
-      });
-      $("#quizAnswer").value = "";
-      $("#quizFeedback").textContent = "—";
+    const activityPanels = ["activityPairs","activityEqual","activityMemories"];
+    let pairsState = {first:null, lock:false, matched:0};
+    let memoryActivityIndex = 0;
+
+    function shuffleArray(items){
+      const a = [...items];
+      for(let i=a.length-1;i>0;i--){
+        const j = Math.floor(Math.random()*(i+1));
+        [a[i],a[j]] = [a[j],a[i]];
+      }
+      return a;
     }
-    $("#btnQuizSpeak")?.addEventListener("click", ()=>{
-      bumpUsage("patient_action:quiz_speak");
-      const it = state.quiz[Number($("#quizSelect").value)];
-      if(it) speak(it.q);
+
+    function showActivityChooser(){
+      $("#activityChooser")?.classList.remove("hidden");
+      activityPanels.forEach(id=>$("#"+id)?.classList.add("hidden"));
+    }
+
+    function openActivity(name){
+      $("#activityChooser")?.classList.add("hidden");
+      activityPanels.forEach(id=>$("#"+id)?.classList.add("hidden"));
+      if(name === "pairs"){
+        $("#activityPairs")?.classList.remove("hidden");
+        startPairsGame();
+      }else if(name === "equal"){
+        $("#activityEqual")?.classList.remove("hidden");
+        startEqualRound();
+      }else if(name === "memories"){
+        $("#activityMemories")?.classList.remove("hidden");
+        renderMemoryActivity();
+      }
+      bumpUsage("patient_activity:" + name);
+    }
+
+    $$("[data-activity]").forEach(btn=>{
+      btn.addEventListener("click", ()=>openActivity(btn.dataset.activity));
     });
-    $("#btnQuizHint")?.addEventListener("click", ()=>{
-      bumpUsage("patient_action:quiz_hint");
-      const it = state.quiz[Number($("#quizSelect").value)];
-      const msg = it?.h ? ("Pista: " + it.h) : "Pista: Respira y mira la pantalla.";
-      $("#quizFeedback").textContent = msg;
-      speak(msg);
+    $$("[data-activity-back]").forEach(btn=>{
+      btn.addEventListener("click", showActivityChooser);
     });
-    $("#btnQuizCheck")?.addEventListener("click", ()=>{
-      bumpUsage("patient_action:quiz_check");
-      const it = state.quiz[Number($("#quizSelect").value)];
-      const ans = ($("#quizAnswer").value || "").trim().toLowerCase();
-      if(!it){ $("#quizFeedback").textContent = "—"; return; }
-      if(!ans){
-        $("#quizFeedback").textContent = "Está bien. Puedes intentarlo cuando quieras.";
-        speak($("#quizFeedback").textContent);
+
+    function startPairsGame(){
+      const grid = $("#pairsGrid");
+      const feedback = $("#pairsFeedback");
+      if(!grid) return;
+      const symbols = shuffleArray(["🌼","🐶","🍎","🚗","☀️","🎵"]).slice(0,2);
+      const cards = shuffleArray([...symbols,...symbols]);
+      pairsState = {first:null, lock:false, matched:0};
+      grid.innerHTML = "";
+      if(feedback) feedback.textContent = "Busca dos dibujos iguales.";
+      cards.forEach((symbol,idx)=>{
+        const btn = document.createElement("button");
+        btn.className = "pair-card";
+        btn.type = "button";
+        btn.textContent = "●";
+        btn.setAttribute("aria-label","Carta " + (idx+1));
+        btn.dataset.value = symbol;
+        btn.addEventListener("click", ()=>revealPairCard(btn));
+        grid.appendChild(btn);
+      });
+    }
+
+    function revealPairCard(btn){
+      if(pairsState.lock || btn.classList.contains("matched") || btn === pairsState.first) return;
+      btn.textContent = btn.dataset.value;
+      btn.classList.add("revealed");
+      if(!pairsState.first){
+        pairsState.first = btn;
         return;
       }
-      const ok = normalize(ans).includes(normalize(it.a));
-      if(ok){
-        $("#quizFeedback").textContent = "¡Muy bien! 👍";
-        speak("Muy bien.");
-      }else{
-        $("#quizFeedback").textContent = "Gracias por intentarlo. Mira la pista si lo necesitas.";
-        speak("Gracias por intentarlo.");
+      const first = pairsState.first;
+      if(first.dataset.value === btn.dataset.value){
+        first.classList.add("matched");
+        btn.classList.add("matched");
+        first.disabled = true;
+        btn.disabled = true;
+        pairsState.first = null;
+        pairsState.matched += 2;
+        $("#pairsFeedback").textContent = pairsState.matched === 4 ? "¡Muy bien! Has encontrado las dos parejas." : "Muy bien. Has encontrado una pareja.";
+        if(pairsState.matched === 4) speak("Muy bien.");
+        return;
       }
+      pairsState.lock = true;
+      $("#pairsFeedback").textContent = "Probamos otra vez.";
+      setTimeout(()=>{
+        [first,btn].forEach(card=>{
+          card.textContent = "●";
+          card.classList.remove("revealed");
+        });
+        pairsState.first = null;
+        pairsState.lock = false;
+      },700);
+    }
+    $("#btnPairsAgain")?.addEventListener("click", startPairsGame);
+
+    function startEqualRound(){
+      const pool = ["🌼","🐶","🍎","🚗","☀️","🎵","🐱","🍊"];
+      const target = pool[Math.floor(Math.random()*pool.length)];
+      const distractors = shuffleArray(pool.filter(x=>x!==target)).slice(0,2);
+      const options = shuffleArray([target,...distractors]);
+      $("#equalTarget").textContent = target;
+      $("#equalFeedback").textContent = "Pulsa el dibujo igual.";
+      const box = $("#equalOptions");
+      if(!box) return;
+      box.innerHTML = "";
+      options.forEach(symbol=>{
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "btn equal-option";
+        btn.textContent = symbol;
+        btn.addEventListener("click", ()=>{
+          if(symbol === target){
+            $("#equalFeedback").textContent = "¡Muy bien! Es el mismo dibujo.";
+            speak("Muy bien.");
+          }else{
+            $("#equalFeedback").textContent = "Probamos otra. Mira despacio el dibujo grande.";
+          }
+        });
+        box.appendChild(btn);
+      });
+    }
+    $("#btnEqualNext")?.addEventListener("click", startEqualRound);
+
+    function renderMemoryActivity(){
+      const box = $("#memoryActivityContent");
+      const speakBtn = $("#btnMemoryActivitySpeak");
+      const nextBtn = $("#btnMemoryActivityNext");
+      if(!box) return;
+      const items = state.album || [];
+      if(!items.length){
+        box.innerHTML = `<div class="note">Tu familia todavía no ha añadido recuerdos al álbum.</div>`;
+        speakBtn?.classList.add("hidden");
+        nextBtn?.classList.add("hidden");
+        return;
+      }
+      speakBtn?.classList.remove("hidden");
+      nextBtn?.classList.toggle("hidden", items.length < 2);
+      memoryActivityIndex = memoryActivityIndex % items.length;
+      const item = items[memoryActivityIndex];
+      const photo = item.photoDataUrl
+        ? `<img src="${item.photoDataUrl}" alt="Recuerdo familiar">`
+        : "🖼️";
+      box.innerHTML = `
+        <div class="memory-activity-card">
+          <div class="memory-activity-photo">${photo}</div>
+          <div>
+            <div style="font-size:19px;font-weight:850">${escapeHtml(item.name || "Un recuerdo")}</div>
+            <div style="margin-top:6px;color:rgba(246,251,255,.86);line-height:1.45">${escapeHtml(item.msg || "Mira este recuerdo con calma.")}</div>
+          </div>
+        </div>
+      `;
+    }
+    $("#btnMemoryActivitySpeak")?.addEventListener("click", ()=>{
+      const items = state.album || [];
+      if(!items.length) return;
+      const item = items[memoryActivityIndex % items.length];
+      speak(`${item.name || "Un recuerdo"}. ${item.msg || ""}`);
+      bumpUsage("patient_activity:memory_speak");
+    });
+    $("#btnMemoryActivityNext")?.addEventListener("click", ()=>{
+      const items = state.album || [];
+      if(!items.length) return;
+      memoryActivityIndex = (memoryActivityIndex + 1) % items.length;
+      renderMemoryActivity();
     });
 
     /* ======================
@@ -3396,66 +3598,76 @@
 
     function renderContainment(){
       const photo = $("#containmentPhoto");
-      const t = state.trusted;
+      const t = state.trusted || {};
+      if(!photo) return;
 
       photo.innerHTML = "";
       if(t.photoDataUrl){
         const img = document.createElement("img");
         img.src = t.photoDataUrl;
-        img.alt = "Foto persona de confianza";
+        img.alt = "Foto de " + (t.name || "persona de confianza");
         photo.appendChild(img);
       }else{
         photo.textContent = "👤";
       }
 
-      $("#containmentTitle").textContent = t.name ? `${t.name} está contigo` : "Estoy contigo";
-      $("#containmentSubtitle").textContent = "Pulsa la foto para escuchar su voz o abre el videorecuerdo.";
+      const trustedName = t.name || "Tu persona de confianza";
+      $("#containmentTitle").textContent = `${trustedName} está contigo`;
+      $("#containmentSubtitle").textContent = t.memoryAudioDataUrl
+        ? "Pulsa la foto o el botón para escuchar su voz."
+        : "Pulsa para escuchar un mensaje tranquilizador.";
 
-      const box = $("#l3MemoryBox");
-      if(box){
-        const title = t.memoryTitle || "Videorecuerdo";
-        const hasVideo = !!t.memoryVideoDataUrl;
-        const hasAudio = !!t.memoryAudioDataUrl;
-        const posterSrc = "archivos/travel-storytelling-couple (2).jpg";
-
-        if(hasVideo){
-          box.innerHTML = `
-            <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:8px">🎬 Vídeo recuerdo</div>
-            <div id="memoryPoster" style="cursor:pointer;border-radius:14px;overflow:hidden;border:1px solid rgba(231,200,122,.35);background:rgba(0,0,0,.30)">
-              <img src="${posterSrc}" alt="Ver vídeo" style="width:100%;display:block;aspect-ratio:16/9;object-fit:cover;opacity:.85">
-              <div style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text);font-size:14px">▶ Pulsar para ver el vídeo</div>
-            </div>
-            <video id="l3VideoPlayer" playsinline controls style="display:none;width:100%;margin-top:10px;border-radius:14px;background:rgba(0,0,0,.25)">
-              <source src="${t.memoryVideoDataUrl}">
-            </video>
-            ${hasAudio ? `<audio id="l3AudioPlayer" preload="auto" style="display:none"><source src="${t.memoryAudioDataUrl}"></audio>` : ''}
-          `;
-        }else if(hasAudio){
-          box.innerHTML = `
-            <audio id="l3AudioPlayer" preload="auto" style="display:none">
-              <source src="${t.memoryAudioDataUrl}">
-            </audio>
-          `;
-        }else{
-          box.innerHTML = `🎬 Vídeo recuerdo<br><span style="opacity:.7;font-size:13px">La familia puede añadir aquí un vídeo.</span>`;
-        }
-      }
+      const next = getNextSupportItem();
+      const place = state.place || "Casa";
+      const nothingPending = /No hay nada pendiente|Nothing pending/i.test(next.title);
+      $("#l3StatusTitle").textContent = nothingPending ? "Todo está bien" : next.title;
+      $("#l3StatusText").textContent = nothingPending
+        ? `Estás en ${place}. No hay nada pendiente ahora.`
+        : next.text;
 
       const memoryBtn = $("#btnContainmentMemory");
       if(memoryBtn){
-        memoryBtn.textContent = "▶ Mensaje de voz";
+        memoryBtn.textContent = t.memoryAudioDataUrl ? `▶ Escuchar a ${trustedName}` : "▶ Escuchar mensaje";
       }
 
-      photo.style.cursor = "pointer";
-      photo.title = "Escuchar mensaje de Ignacio";
-      photo.onclick = () => {
-        playTrustedAudio().catch(()=>speak(buildWhoText()));
-      };
+      const box = $("#l3MemoryBox");
+      if(box){
+        const hasVideo = !!t.memoryVideoDataUrl;
+        if(hasVideo){
+          const title = escapeHtml(t.memoryTitle || "Vídeo recuerdo");
+          box.classList.remove("hidden");
+          box.innerHTML = `
+            <div style="font-size:14px;font-weight:800;color:var(--text);margin-bottom:8px">🎬 ${title}</div>
+            <button id="memoryPoster" class="btn big" type="button">▶ Ver recuerdo</button>
+            <video id="l3VideoPlayer" playsinline controls style="display:none;width:100%;margin-top:10px;border-radius:14px;background:rgba(0,0,0,.25)">
+              <source src="${t.memoryVideoDataUrl}">
+            </video>
+          `;
+        }else{
+          box.classList.add("hidden");
+          box.innerHTML = "";
+        }
+      }
 
-      // El poster se acaba de crear en box.innerHTML, ahora sí existe en el DOM
+      const playTrustedMessage = ()=>{
+        if(t.memoryAudioDataUrl){
+          playTrustedAudio().catch(()=>speak(buildWhoText()));
+        }else{
+          speak(buildWhoText());
+        }
+      };
+      photo.onclick = playTrustedMessage;
+      photo.onkeydown = (ev)=>{
+        if(ev.key === "Enter" || ev.key === " "){
+          ev.preventDefault();
+          playTrustedMessage();
+        }
+      };
+      photo.setAttribute("aria-label", `Escuchar a ${trustedName}`);
+
       const poster = $("#memoryPoster");
       if(poster){
-        poster.onclick = () => {
+        poster.onclick = ()=>{
           poster.style.display = "none";
           const videoEl = $("#l3VideoPlayer");
           if(videoEl){
@@ -3464,22 +3676,16 @@
           }
         };
       }
-
-      const callBtn = $("#btnContainmentCall");
-      if(callBtn){
-        callBtn.textContent = t.name ? `☎ Llamar a ${t.name}` : "☎ Llamar ahora";
-      }
     }
 
-    $("#btnContainmentMemory").addEventListener("click", ()=>{
+    $("#btnContainmentMemory")?.addEventListener("click", ()=>{
       bumpUsage("patient_action:l3_memory");
       const src = state?.trusted?.memoryAudioDataUrl;
-      if(!src){
-        toast("El cuidador aún no ha añadido un mensaje de voz.");
-        return;
+      if(src){
+        playTrustedAudio().catch(()=>speak(buildWhoText()));
+      }else{
+        speak(buildWhoText());
       }
-      const a = new Audio(src);
-      a.play().catch(()=> toast("No se pudo reproducir el audio."));
     });
     $("#btnContainmentCall")?.addEventListener("click", ()=>{
       bumpUsage("patient_action:l3_call");
