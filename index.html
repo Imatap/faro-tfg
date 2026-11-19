@@ -812,7 +812,7 @@
     .l3-status .v{font-size:18px;font-weight:850;margin-top:4px}
     .l3-status .s{font-size:14px;color:rgba(246,251,255,.86);margin-top:4px;line-height:1.4}
     body[data-profile="L3"] #containmentScreen{margin-top:0!important}
-    body[data-profile="L3"] .containment{min-height:0;grid-template-rows:auto auto auto auto;gap:12px}
+    body[data-profile="L3"] .containment{min-height:0;grid-template-rows:auto auto auto auto auto;gap:12px}
     body[data-profile="L3"] .containment .hero{grid-template-columns:110px 1fr;align-items:center}
     body[data-profile="L3"] .containment .photo{width:110px;height:110px}
     @media (max-width:520px){
@@ -1144,16 +1144,18 @@
                   </div>
 
                   <div class="hero calm-focus">
-                    <div class="photo" id="containmentPhoto" role="button" tabindex="0" aria-label="Escuchar a la persona de confianza">👤</div>
+                    <div class="photo" id="containmentPhoto" aria-hidden="true">👤</div>
                     <div>
                       <div class="big" id="containmentTitle">Estoy contigo</div>
-                      <div class="small" id="containmentSubtitle">Pulsa para escuchar un mensaje tranquilizador.</div>
+                      <div class="small">Puedes escuchar un mensaje o ver tus recuerdos.</div>
                     </div>
                   </div>
 
-                  <button class="btn primary giant" id="btnContainmentMemory">▶ Escuchar mensaje</button>
+                  <button class="btn primary giant" id="btnContainmentMemory">🔊 Escuchar mensaje</button>
+                  <button class="btn giant" id="btnContainmentVideo">▶ Ver mis recuerdos</button>
 
-                  <div id="l3MemoryBox" class="note calm-focus hidden" style="margin:0"></div>
+                  <video id="l3VideoPlayer" playsinline controls class="hidden"
+                    style="width:100%;margin-top:2px;border-radius:16px;background:rgba(0,0,0,.30)"></video>
 
                   <div id="sosAlertBlockL3" class="hidden" style="margin-top:2px">
                     <button class="btn giant" id="btnSosAlertL3"
@@ -3620,9 +3622,6 @@
       const trustedNameRaw = t.name || "Tu persona de confianza";
       const trustedName = capitalize(trustedNameRaw);
       $("#containmentTitle").textContent = `${trustedName} está contigo`;
-      $("#containmentSubtitle").textContent = t.memoryAudioDataUrl
-        ? "Pulsa la foto o el botón para escuchar su voz."
-        : "Pulsa para escuchar un mensaje tranquilizador.";
 
       const next = getNextSupportItem();
       const place = state.place || "Casa";
@@ -3632,56 +3631,21 @@
         ? `Estás en ${place}. No hay nada pendiente ahora.`
         : next.text;
 
-      const memoryBtn = $("#btnContainmentMemory");
-      if(memoryBtn){
-        memoryBtn.textContent = t.memoryAudioDataUrl ? `▶ Escuchar a ${trustedName}` : "▶ Escuchar mensaje";
+      const audioBtn = $("#btnContainmentMemory");
+      if(audioBtn){
+        audioBtn.textContent = t.memoryAudioDataUrl ? `🔊 Escuchar a ${trustedName}` : "🔊 Escuchar mensaje";
       }
 
-      const box = $("#l3MemoryBox");
-      if(box){
-        const hasVideo = !!t.memoryVideoDataUrl;
-        if(hasVideo){
-          const title = escapeHtml(t.memoryTitle || "Vídeo recuerdo");
-          box.classList.remove("hidden");
-          box.innerHTML = `
-            <div style="font-size:14px;font-weight:800;color:var(--text);margin-bottom:8px">🎬 ${title}</div>
-            <button id="memoryPoster" class="btn big" type="button">▶ Ver recuerdo</button>
-            <video id="l3VideoPlayer" playsinline controls style="display:none;width:100%;margin-top:10px;border-radius:14px;background:rgba(0,0,0,.25)">
-              <source src="${t.memoryVideoDataUrl}">
-            </video>
-          `;
-        }else{
-          box.classList.add("hidden");
-          box.innerHTML = "";
-        }
+      const videoBtn = $("#btnContainmentVideo");
+      if(videoBtn){
+        videoBtn.classList.toggle("hidden", !t.memoryVideoDataUrl);
       }
 
-      const playTrustedMessage = ()=>{
-        if(t.memoryAudioDataUrl){
-          playTrustedAudio().catch(()=>speak(buildWhoText()));
-        }else{
-          speak(buildWhoText());
-        }
-      };
-      photo.onclick = playTrustedMessage;
-      photo.onkeydown = (ev)=>{
-        if(ev.key === "Enter" || ev.key === " "){
-          ev.preventDefault();
-          playTrustedMessage();
-        }
-      };
-      photo.setAttribute("aria-label", `Escuchar a ${trustedName}`);
-
-      const poster = $("#memoryPoster");
-      if(poster){
-        poster.onclick = ()=>{
-          poster.style.display = "none";
-          const videoEl = $("#l3VideoPlayer");
-          if(videoEl){
-            videoEl.style.display = "block";
-            videoEl.play().catch(()=>toast("No se pudo reproducir el vídeo."));
-          }
-        };
+      const player = $("#l3VideoPlayer");
+      if(player && !t.memoryVideoDataUrl){
+        player.pause?.();
+        player.removeAttribute("src");
+        player.classList.add("hidden");
       }
     }
 
@@ -3694,6 +3658,30 @@
         speak(buildWhoText());
       }
     });
+
+    $("#btnContainmentVideo")?.addEventListener("click", ()=>{
+      bumpUsage("patient_action:l3_video");
+      const src = state?.trusted?.memoryVideoDataUrl;
+      if(!src){
+        toast("Tu familia todavía no ha añadido un vídeo de recuerdos.");
+        return;
+      }
+      const player = $("#l3VideoPlayer");
+      if(!player) return;
+      player.src = src;
+      player.classList.remove("hidden");
+      player.currentTime = 0;
+      player.play().catch(()=>toast("No se pudo reproducir el vídeo."));
+      player.scrollIntoView({behavior:"smooth", block:"nearest"});
+    });
+
+    $("#l3VideoPlayer")?.addEventListener("ended", ()=>{
+      const player = $("#l3VideoPlayer");
+      if(!player) return;
+      player.classList.add("hidden");
+      player.currentTime = 0;
+    });
+
     $("#btnContainmentCall")?.addEventListener("click", ()=>{
       bumpUsage("patient_action:l3_call");
       const phone = (state.trusted.phone || "").trim();
