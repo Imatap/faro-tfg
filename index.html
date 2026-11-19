@@ -1670,27 +1670,54 @@
     }
 
     /* ===== Voz ===== */
+    let faroVoices = [];
+
+    function loadFaroVoices(){
+      if(!("speechSynthesis" in window)) return [];
+      faroVoices = window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
+      return faroVoices;
+    }
+
+    function chooseFaroVoice(){
+      const voices = faroVoices.length ? faroVoices : loadFaroVoices();
+      const spanishVoices = voices.filter(v => /^es([_-]|$)/i.test(v.lang));
+
+      return (
+        spanishVoices.find(v => /(elvira|helena|monica|lucia|paulina|dalia|sabina|laura|sofia)/i.test(v.name)) ||
+        spanishVoices.find(v => /(google|microsoft)/i.test(v.name) && !/(jorge|alvaro|raul|pablo|diego)/i.test(v.name)) ||
+        spanishVoices[0] ||
+        null
+      );
+    }
+
     function speak(text){
       if(!("speechSynthesis" in window)){
         toast("Este dispositivo no soporta voz.");
         return;
       }
+
       window.speechSynthesis.cancel();
+
       const u = new SpeechSynthesisUtterance(text);
       u.lang = "es-ES";
-      u.rate = 0.90;
-      u.pitch = 1.03;
-      const voices = window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
-      const spanishVoices = voices.filter(v => /^es([_-]|$)/i.test(v.lang));
-      const preferred =
-        spanishVoices.find(v => /(google.*español|google.*spanish|elvira|helena|monica|lucia|paulina|dalia|sabina)/i.test(v.name)) ||
-        spanishVoices.find(v => /(microsoft|google)/i.test(v.name) && !/(jorge|alvaro|raul|pablo|diego)/i.test(v.name)) ||
-        spanishVoices[0];
+
+      // Ritmo algo más pausado y tono ligeramente más cálido.
+      u.rate = 0.86;
+      u.pitch = 1.10;
+
+      const preferred = chooseFaroVoice();
       if(preferred) u.voice = preferred;
+
       window.speechSynthesis.speak(u);
     }
+
     if ("speechSynthesis" in window) {
-      window.speechSynthesis.onvoiceschanged = () => {};
+      // Chrome puede cargar las voces después de que haya arrancado la página.
+      loadFaroVoices();
+      window.speechSynthesis.onvoiceschanged = () => {
+        loadFaroVoices();
+      };
+
       // Workaround para Android: la síntesis se pausa sola, hay que reanudarla
       setInterval(() => {
         if(window.speechSynthesis.speaking && !window.speechSynthesis.paused){
@@ -1698,6 +1725,7 @@
           window.speechSynthesis.resume();
         }
       }, 10000);
+
       // Cancelar al salir de la app o poner en segundo plano
       document.addEventListener("visibilitychange", () => {
         if(document.hidden) window.speechSynthesis.cancel();
