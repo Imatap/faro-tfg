@@ -579,7 +579,11 @@
        ========================= */
     .splash{
       position:fixed; inset:0;
-      display:grid; place-items:center;
+      width:100vw;
+      min-height:100dvh;
+      display:grid;
+      justify-items:center;
+      align-items:center;
       padding:24px;
       z-index:99999;
       background:
@@ -596,6 +600,8 @@
     }
     .splashInner{
       width:min(520px, 100%);
+      margin:0 auto;
+      justify-self:center;
       text-align:center;
       display:flex;
       flex-direction:column;
@@ -738,7 +744,6 @@
     /* Mantener la puesta en marcha centrada también en pantallas anchas */
     #setupSplashActions{align-self:stretch;}
     @media (min-width:641px){
-      .splashInner{margin:auto;}
       .setupIntro{width:min(520px,100%);}
     }
     .setupOverlay{
