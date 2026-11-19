@@ -812,9 +812,13 @@
     .l3-status .v{font-size:18px;font-weight:850;margin-top:4px}
     .l3-status .s{font-size:14px;color:rgba(246,251,255,.86);margin-top:4px;line-height:1.4}
     body[data-profile="L3"] #containmentScreen{margin-top:0!important}
-    body[data-profile="L3"] .containment{gap:12px}
+    body[data-profile="L3"] .containment{min-height:0;grid-template-rows:auto auto auto auto;gap:12px}
     body[data-profile="L3"] .containment .hero{grid-template-columns:110px 1fr;align-items:center}
     body[data-profile="L3"] .containment .photo{width:110px;height:110px}
+    @media (max-width:520px){
+      body[data-profile="L3"] .containment .hero{grid-template-columns:1fr;text-align:center}
+      body[data-profile="L3"] .containment .photo{margin:0 auto}
+    }
 
   </style>
 </head>
