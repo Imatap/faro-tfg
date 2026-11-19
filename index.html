@@ -800,6 +800,21 @@
     .memory-activity-photo{width:140px;height:140px;border-radius:18px;overflow:hidden;background:rgba(255,255,255,.08);display:grid;place-items:center;font-size:46px}
     .memory-activity-photo img{width:100%;height:100%;object-fit:cover}
     .activity-feedback{margin-top:12px;text-align:center;min-height:22px;font-weight:800;color:var(--accent2)}
+    .sequence-question{font-size:17px;font-weight:850;margin-bottom:12px;text-align:center}
+    .sequence-options{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+    .sequence-option{min-height:96px;padding:12px;border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px}
+    .sequence-option .emoji{font-size:34px}
+    .sequence-option .label{font-size:13px;font-weight:800}
+    .sequence-option.done{opacity:.58;border-color:rgba(125,255,182,.45);background:rgba(125,255,182,.10)}
+    .odd-question{font-size:17px;font-weight:850;margin-bottom:12px;text-align:center}
+    .odd-options{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+    .odd-option{min-height:92px;padding:12px;border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px}
+    .odd-option .emoji{font-size:34px}
+    .odd-option .label{font-size:13px;font-weight:800}
+    @media (max-width:520px){
+      .sequence-options{grid-template-columns:1fr}
+      .odd-options{grid-template-columns:1fr 1fr}
+    }
     @media (max-width:620px){
       .activity-choice-grid{grid-template-columns:1fr}
       .memory-activity-card{grid-template-columns:1fr;text-align:center}
@@ -1076,26 +1091,17 @@
                   </div>
 
                   <div id="ptab_cognitive" class="hidden">
-                    <div class="note">Actividades sencillas para pasar un rato agradable. Sin tiempo, sin puntuaciones y sin penalizaciones.</div>
+                    <div class="note" id="activityIntro">Actividades adaptadas al nivel de apoyo. Sin tiempo, sin puntuaciones y sin penalizaciones.</div>
 
                     <div id="activityChooser" class="activity-choice-grid">
-                      <button class="btn activity-choice" data-activity="pairs">
-                        <strong>🧩 Encuentra las parejas</strong>
-                        <span>Destapa cuatro cartas y busca las dos parejas.</span>
-                      </button>
-                      <button class="btn activity-choice" data-activity="equal">
-                        <strong>👀 ¿Cuál es igual?</strong>
-                        <span>Mira el dibujo grande y pulsa el que sea igual.</span>
-                      </button>
-                      <button class="btn activity-choice" data-activity="memories">
-                        <strong>❤️ Mis recuerdos</strong>
-                        <span>Mira fotos y escucha los mensajes guardados por tu familia.</span>
-                      </button>
+                      <button class="btn activity-choice" id="activityChoice1"></button>
+                      <button class="btn activity-choice" id="activityChoice2"></button>
+                      <button class="btn activity-choice" id="activityChoice3"></button>
                     </div>
 
                     <div id="activityPairs" class="activity-panel hidden">
                       <h3>🧩 Encuentra las parejas</h3>
-                      <p class="activity-help">Pulsa dos cartas. Si son iguales, se quedan descubiertas.</p>
+                      <p class="activity-help" id="pairsHelp">Pulsa dos cartas. Si son iguales, se quedan descubiertas.</p>
                       <div id="pairsGrid" class="pairs-grid"></div>
                       <div id="pairsFeedback" class="activity-feedback" aria-live="polite"></div>
                       <div class="btnrow" style="margin-top:12px">
@@ -1118,11 +1124,35 @@
 
                     <div id="activityMemories" class="activity-panel hidden">
                       <h3>❤️ Mis recuerdos</h3>
-                      <p class="activity-help">Un momento tranquilo para mirar y escuchar recuerdos familiares.</p>
+                      <p class="activity-help">Mira la foto y escucha el mensaje. No tienes que recordar nada.</p>
                       <div id="memoryActivityContent"></div>
                       <div class="btnrow" style="margin-top:12px">
                         <button class="btn primary" id="btnMemoryActivitySpeak">Escuchar</button>
                         <button class="btn" id="btnMemoryActivityNext">Otro recuerdo</button>
+                        <button class="btn" data-activity-back>Elegir otra actividad</button>
+                      </div>
+                    </div>
+
+                    <div id="activitySequence" class="activity-panel hidden">
+                      <h3>🔢 Ponlo en orden</h3>
+                      <p class="activity-help">Pulsa los pasos en el orden en que los harías.</p>
+                      <div id="sequenceQuestion" class="sequence-question"></div>
+                      <div id="sequenceOptions" class="sequence-options"></div>
+                      <div id="sequenceFeedback" class="activity-feedback" aria-live="polite"></div>
+                      <div class="btnrow" style="margin-top:12px">
+                        <button class="btn primary" id="btnSequenceAgain">Otra secuencia</button>
+                        <button class="btn" data-activity-back>Elegir otra actividad</button>
+                      </div>
+                    </div>
+
+                    <div id="activityOdd" class="activity-panel hidden">
+                      <h3>🔎 ¿Cuál es diferente?</h3>
+                      <p class="activity-help">Tres cosas tienen algo en común. Pulsa la que es diferente.</p>
+                      <div id="oddQuestion" class="odd-question"></div>
+                      <div id="oddOptions" class="odd-options"></div>
+                      <div id="oddFeedback" class="activity-feedback" aria-live="polite"></div>
+                      <div class="btnrow" style="margin-top:12px">
+                        <button class="btn primary" id="btnOddAgain">Otra ronda</button>
                         <button class="btn" data-activity-back>Elegir otra actividad</button>
                       </div>
                     </div>
@@ -2548,6 +2578,7 @@
 
       renderSimpleStep();
       renderPatientOrientation();
+      configureActivitiesForProfile();
       saveState();
     }
 
@@ -2932,9 +2963,12 @@
     /* ======================
        Actividades del paciente
        ====================== */
-    const activityPanels = ["activityPairs","activityEqual","activityMemories"];
-    let pairsState = {first:null, lock:false, matched:0};
+    const activityPanels = ["activityPairs","activityEqual","activityMemories","activitySequence","activityOdd"];
+    let pairsState = {first:null, lock:false, matched:0, total:0};
     let memoryActivityIndex = 0;
+    let sequenceRoundIndex = 0;
+    let sequenceProgress = 0;
+    let oddRoundIndex = 0;
 
     function shuffleArray(items){
       const a = [...items];
@@ -2945,29 +2979,67 @@
       return a;
     }
 
+    function setActivityChoice(btn, activity, title, description){
+      if(!btn) return;
+      btn.dataset.activity = activity;
+      btn.innerHTML = `<strong>${title}</strong><span>${description}</span>`;
+    }
+
+    function configureActivitiesForProfile(){
+      const intro = $("#activityIntro");
+      const c1 = $("#activityChoice1");
+      const c2 = $("#activityChoice2");
+      const c3 = $("#activityChoice3");
+
+      if(state.profile === "L1"){
+        if(intro) intro.textContent = "Actividades para mantener la autonomía: un poco más de atención, orden y asociación. Sin tiempo ni puntuaciones.";
+        setActivityChoice(c1,"pairs","🧩 Encuentra las parejas","Busca tres parejas entre seis cartas.");
+        setActivityChoice(c2,"sequence","🔢 Ponlo en orden","Ordena tres pasos de una actividad cotidiana.");
+        setActivityChoice(c3,"odd","🔎 ¿Cuál es diferente?","Encuentra el elemento que no pertenece al grupo.");
+      }else{
+        if(intro) intro.textContent = "Actividades sencillas de reconocimiento y recuerdos. Sin tiempo, sin puntuaciones y sin penalizaciones.";
+        setActivityChoice(c1,"pairs","🧩 Encuentra las parejas","Busca dos parejas entre cuatro cartas.");
+        setActivityChoice(c2,"equal","👀 ¿Cuál es igual?","Mira el dibujo grande y pulsa el mismo.");
+        setActivityChoice(c3,"memories","❤️ Mis recuerdos","Mira fotos y escucha mensajes de tu familia.");
+      }
+    }
+
     function showActivityChooser(){
+      if(state.profile === "L3") return;
+      configureActivitiesForProfile();
       $("#activityChooser")?.classList.remove("hidden");
       activityPanels.forEach(id=>$("#"+id)?.classList.add("hidden"));
     }
 
     function openActivity(name){
+      if(state.profile === "L3") return;
       $("#activityChooser")?.classList.add("hidden");
       activityPanels.forEach(id=>$("#"+id)?.classList.add("hidden"));
+
       if(name === "pairs"){
         $("#activityPairs")?.classList.remove("hidden");
         startPairsGame();
-      }else if(name === "equal"){
+      }else if(name === "equal" && state.profile === "L2"){
         $("#activityEqual")?.classList.remove("hidden");
         startEqualRound();
-      }else if(name === "memories"){
+      }else if(name === "memories" && state.profile === "L2"){
         $("#activityMemories")?.classList.remove("hidden");
         renderMemoryActivity();
+      }else if(name === "sequence" && state.profile === "L1"){
+        $("#activitySequence")?.classList.remove("hidden");
+        startSequenceRound();
+      }else if(name === "odd" && state.profile === "L1"){
+        $("#activityOdd")?.classList.remove("hidden");
+        startOddRound();
+      }else{
+        showActivityChooser();
+        return;
       }
       bumpUsage("patient_activity:" + name);
     }
 
-    $$("[data-activity]").forEach(btn=>{
-      btn.addEventListener("click", ()=>openActivity(btn.dataset.activity));
+    [$("#activityChoice1"),$("#activityChoice2"),$("#activityChoice3")].forEach(btn=>{
+      btn?.addEventListener("click", ()=>openActivity(btn.dataset.activity));
     });
     $$("[data-activity-back]").forEach(btn=>{
       btn.addEventListener("click", showActivityChooser);
@@ -2976,12 +3048,21 @@
     function startPairsGame(){
       const grid = $("#pairsGrid");
       const feedback = $("#pairsFeedback");
+      const help = $("#pairsHelp");
       if(!grid) return;
-      const symbols = shuffleArray(["🌼","🐶","🍎","🚗","☀️","🎵"]).slice(0,2);
+
+      const pairCount = state.profile === "L1" ? 3 : 2;
+      const symbols = shuffleArray(["🌼","🐶","🍎","🚗","☀️","🎵","🐱","🍊"]).slice(0,pairCount);
       const cards = shuffleArray([...symbols,...symbols]);
-      pairsState = {first:null, lock:false, matched:0};
+      pairsState = {first:null, lock:false, matched:0, total:cards.length};
+
+      grid.style.gridTemplateColumns = state.profile === "L1" ? "repeat(3,1fr)" : "repeat(2,1fr)";
       grid.innerHTML = "";
+      if(help) help.textContent = state.profile === "L1"
+        ? "Hay seis cartas. Busca las tres parejas."
+        : "Hay cuatro cartas. Busca las dos parejas.";
       if(feedback) feedback.textContent = "Busca dos dibujos iguales.";
+
       cards.forEach((symbol,idx)=>{
         const btn = document.createElement("button");
         btn.className = "pair-card";
@@ -2998,10 +3079,12 @@
       if(pairsState.lock || btn.classList.contains("matched") || btn === pairsState.first) return;
       btn.textContent = btn.dataset.value;
       btn.classList.add("revealed");
+
       if(!pairsState.first){
         pairsState.first = btn;
         return;
       }
+
       const first = pairsState.first;
       if(first.dataset.value === btn.dataset.value){
         first.classList.add("matched");
@@ -3010,10 +3093,15 @@
         btn.disabled = true;
         pairsState.first = null;
         pairsState.matched += 2;
-        $("#pairsFeedback").textContent = pairsState.matched === 4 ? "¡Muy bien! Has encontrado las dos parejas." : "Muy bien. Has encontrado una pareja.";
-        if(pairsState.matched === 4) speak("Muy bien.");
+
+        const complete = pairsState.matched === pairsState.total;
+        $("#pairsFeedback").textContent = complete
+          ? "¡Muy bien! Has encontrado todas las parejas."
+          : "Muy bien. Has encontrado una pareja.";
+        if(complete) speak("Muy bien.");
         return;
       }
+
       pairsState.lock = true;
       $("#pairsFeedback").textContent = "Probamos otra vez.";
       setTimeout(()=>{
@@ -3034,9 +3122,11 @@
       const options = shuffleArray([target,...distractors]);
       $("#equalTarget").textContent = target;
       $("#equalFeedback").textContent = "Pulsa el dibujo igual.";
+
       const box = $("#equalOptions");
       if(!box) return;
       box.innerHTML = "";
+
       options.forEach(symbol=>{
         const btn = document.createElement("button");
         btn.type = "button";
@@ -3055,11 +3145,134 @@
     }
     $("#btnEqualNext")?.addEventListener("click", startEqualRound);
 
+    const sequenceRounds = [
+      {
+        question:"Lavarse las manos",
+        steps:[
+          {emoji:"💧",label:"Mojar las manos"},
+          {emoji:"🧼",label:"Usar jabón"},
+          {emoji:"🧻",label:"Secar las manos"}
+        ]
+      },
+      {
+        question:"Prepararse para salir",
+        steps:[
+          {emoji:"👕",label:"Vestirse"},
+          {emoji:"👟",label:"Ponerse los zapatos"},
+          {emoji:"🚪",label:"Salir de casa"}
+        ]
+      },
+      {
+        question:"Preparar una tostada",
+        steps:[
+          {emoji:"🍞",label:"Coger el pan"},
+          {emoji:"♨️",label:"Tostarlo"},
+          {emoji:"🍽️",label:"Ponerlo en el plato"}
+        ]
+      }
+    ];
+
+    function startSequenceRound(){
+      const round = sequenceRounds[sequenceRoundIndex % sequenceRounds.length];
+      sequenceRoundIndex++;
+      sequenceProgress = 0;
+      $("#sequenceQuestion").textContent = round.question;
+      $("#sequenceFeedback").textContent = "Empieza por el primer paso.";
+
+      const box = $("#sequenceOptions");
+      if(!box) return;
+      box.innerHTML = "";
+
+      shuffleArray(round.steps.map((step,index)=>({...step,index}))).forEach(step=>{
+        const btn=document.createElement("button");
+        btn.type="button";
+        btn.className="btn sequence-option";
+        btn.innerHTML=`<span class="emoji">${step.emoji}</span><span class="label">${step.label}</span>`;
+        btn.addEventListener("click", ()=>{
+          if(btn.classList.contains("done")) return;
+          if(step.index === sequenceProgress){
+            btn.classList.add("done");
+            btn.disabled=true;
+            sequenceProgress++;
+            if(sequenceProgress === round.steps.length){
+              $("#sequenceFeedback").textContent="¡Muy bien! Has completado el orden.";
+              speak("Muy bien.");
+            }else{
+              $("#sequenceFeedback").textContent="Bien. ¿Qué harías después?";
+            }
+          }else{
+            $("#sequenceFeedback").textContent="Míralo con calma. ¿Qué harías primero?";
+          }
+        });
+        box.appendChild(btn);
+      });
+    }
+    $("#btnSequenceAgain")?.addEventListener("click", startSequenceRound);
+
+    const oddRounds = [
+      {
+        question:"¿Cuál no es una fruta?",
+        options:[
+          {emoji:"🍎",label:"Manzana",odd:false},
+          {emoji:"🍐",label:"Pera",odd:false},
+          {emoji:"🍊",label:"Naranja",odd:false},
+          {emoji:"👟",label:"Zapato",odd:true}
+        ]
+      },
+      {
+        question:"¿Cuál no es un animal?",
+        options:[
+          {emoji:"🐶",label:"Perro",odd:false},
+          {emoji:"🐱",label:"Gato",odd:false},
+          {emoji:"🐰",label:"Conejo",odd:false},
+          {emoji:"🚗",label:"Coche",odd:true}
+        ]
+      },
+      {
+        question:"¿Cuál no se usa para comer?",
+        options:[
+          {emoji:"🍴",label:"Tenedor",odd:false},
+          {emoji:"🥄",label:"Cuchara",odd:false},
+          {emoji:"🍽️",label:"Plato",odd:false},
+          {emoji:"⚽",label:"Pelota",odd:true}
+        ]
+      }
+    ];
+
+    function startOddRound(){
+      const round = oddRounds[oddRoundIndex % oddRounds.length];
+      oddRoundIndex++;
+      $("#oddQuestion").textContent = round.question;
+      $("#oddFeedback").textContent = "Elige una opción.";
+
+      const box = $("#oddOptions");
+      if(!box) return;
+      box.innerHTML = "";
+
+      shuffleArray(round.options).forEach(option=>{
+        const btn=document.createElement("button");
+        btn.type="button";
+        btn.className="btn odd-option";
+        btn.innerHTML=`<span class="emoji">${option.emoji}</span><span class="label">${option.label}</span>`;
+        btn.addEventListener("click", ()=>{
+          if(option.odd){
+            $("#oddFeedback").textContent="¡Muy bien! Esa es la diferente.";
+            speak("Muy bien.");
+          }else{
+            $("#oddFeedback").textContent="Esa pertenece al grupo. Prueba con otra.";
+          }
+        });
+        box.appendChild(btn);
+      });
+    }
+    $("#btnOddAgain")?.addEventListener("click", startOddRound);
+
     function renderMemoryActivity(){
       const box = $("#memoryActivityContent");
       const speakBtn = $("#btnMemoryActivitySpeak");
       const nextBtn = $("#btnMemoryActivityNext");
       if(!box) return;
+
       const items = state.album || [];
       if(!items.length){
         box.innerHTML = `<div class="note">Tu familia todavía no ha añadido recuerdos al álbum.</div>`;
@@ -3067,6 +3280,7 @@
         nextBtn?.classList.add("hidden");
         return;
       }
+
       speakBtn?.classList.remove("hidden");
       nextBtn?.classList.toggle("hidden", items.length < 2);
       memoryActivityIndex = memoryActivityIndex % items.length;
@@ -3074,6 +3288,7 @@
       const photo = item.photoDataUrl
         ? `<img src="${item.photoDataUrl}" alt="Recuerdo familiar">`
         : "🖼️";
+
       box.innerHTML = `
         <div class="memory-activity-card">
           <div class="memory-activity-photo">${photo}</div>
@@ -3084,6 +3299,7 @@
         </div>
       `;
     }
+
     $("#btnMemoryActivitySpeak")?.addEventListener("click", ()=>{
       const items = state.album || [];
       if(!items.length) return;
@@ -3091,6 +3307,7 @@
       speak(`${item.name || "Un recuerdo"}. ${item.msg || ""}`);
       bumpUsage("patient_activity:memory_speak");
     });
+
     $("#btnMemoryActivityNext")?.addEventListener("click", ()=>{
       const items = state.album || [];
       if(!items.length) return;
