@@ -2529,12 +2529,14 @@
         $("#patientViewName").textContent = "Contención";
         $("#orientationBadge").textContent = "Acompañado";
         $("#orientationBadge").className = "badge warn";
+        $("#orientationBadge").removeAttribute("data-i18n");
         $("#patientSimple").classList.add("hidden");
         $("#patientFull").classList.add("hidden");
         $("#quickHelpCard").classList.add("hidden");
         renderContainment();
         return;
       }
+      $("#orientationBadge").setAttribute("data-i18n","pasoPaso");
       const view = state.patientView === "full" ? "full" : "simple";
       state.patientView = view;
       $("#patientViewName").textContent = (view === "full") ? "Completo" : "Simple";
@@ -3615,7 +3617,8 @@
         photo.textContent = "👤";
       }
 
-      const trustedName = t.name || "Tu persona de confianza";
+      const trustedNameRaw = t.name || "Tu persona de confianza";
+      const trustedName = capitalize(trustedNameRaw);
       $("#containmentTitle").textContent = `${trustedName} está contigo`;
       $("#containmentSubtitle").textContent = t.memoryAudioDataUrl
         ? "Pulsa la foto o el botón para escuchar su voz."
