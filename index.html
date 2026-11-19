@@ -735,6 +735,12 @@
     .setupIntro h3{margin:0 0 8px;font-size:20px}
     .setupIntro p{margin:0 0 12px;color:var(--muted);line-height:1.45}
     .setupIntro .small{font-size:13px;color:var(--muted)}
+    /* Mantener la puesta en marcha centrada también en pantallas anchas */
+    #setupSplashActions{align-self:stretch;}
+    @media (min-width:641px){
+      .splashInner{margin:auto;}
+      .setupIntro{width:min(520px,100%);}
+    }
     .setupOverlay{
       position:fixed;inset:0;z-index:100000;
       display:flex;align-items:center;justify-content:center;
@@ -2195,37 +2201,35 @@
       toast(state.allowSms ? (currentLang==="es" ? "Botón de SMS activado." : "SMS button enabled.") : (currentLang==="es" ? "Botón de SMS desactivado." : "SMS button disabled."));
     });
 
-    function handleSosAlert(){
+    function buildSmsUrl(phone, message){
+      const cleanPhone = String(phone || "").replace(/[\s().-]/g, "");
+      const encoded = encodeURIComponent(message);
+      const isiOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+      return `sms:${cleanPhone}${isiOS ? "&" : "?"}body=${encoded}`;
+    }
+
+    function openPreparedHelpSms({speakFirst=true} = {}){
       const phone = (state.trusted?.phone || "").trim();
+      const trustedName = (state.trusted?.name || "mi persona de confianza").trim();
+      const patientName = (state.patientName || "La persona usuaria").trim();
+
       if(!phone){
-        toast("No hay teléfono configurado. Ve a ajustes del paciente.");
-        return;
+        toast("No hay un teléfono de contacto configurado.");
+        if(speakFirst) speak("Estoy contigo. No hay un teléfono de ayuda configurado.");
+        return false;
       }
 
-      // Obtener GPS en el momento de pulsar
-      function sendWithLocation(lat, lon){
-        if(state.allowCall){
-          window.location.href = "tel:" + phone;
-        }
-        if(state.allowSms){
-          let locationText = "";
-          if(lat && lon){
-            locationText = " Mi ubicación: https://maps.google.com/?q=" + lat + "," + lon;
-          }
-          const msg = encodeURIComponent("🆘 " + (state.trusted?.name || "Tu familiar") + " necesita ayuda. Por favor contáctale." + locationText);
-          window.open("sms:" + phone + "?body=" + msg, "_blank");
-        }
+      const message = `🆘 ${patientName} necesita ayuda. Por favor, contacta con él o ella.`;
+      if(speakFirst){
+        speak(`Estoy contigo. Vamos a avisar a ${trustedName}. Cuando se abra Mensajes, pulsa enviar.`);
       }
+      toast(`Se abrirá Mensajes para avisar a ${trustedName}. Pulsa Enviar.`);
+      window.location.href = buildSmsUrl(phone, message);
+      return true;
+    }
 
-      if(navigator.geolocation){
-        navigator.geolocation.getCurrentPosition(
-          pos => sendWithLocation(pos.coords.latitude.toFixed(5), pos.coords.longitude.toFixed(5)),
-          ()  => sendWithLocation(null, null),
-          { timeout: 4000, maximumAge: 30000 }
-        );
-      } else {
-        sendWithLocation(null, null);
-      }
+    function handleSosAlert(){
+      openPreparedHelpSms({speakFirst:true});
     }
 
     $("#btnSosAlert")?.addEventListener("click", ()=>{
@@ -2599,35 +2603,27 @@
       toast("Aviso enviado.");
       speak("Perfecto. Gracias por avisar.");
     });
-    $("#btnNeedHelp")?.addEventListener("click", async ()=>{
+    $("#btnNeedHelp")?.addEventListener("click", ()=>{
       bumpUsage("patient_action:need_help");
       sendSignal("help","Necesito ayuda");
-      toast("Aviso de ayuda enviado.");
-      speak("Está bien. Voy a avisar ahora.");
-      await notify("FARO: Necesita ayuda", "El paciente pulsó 'Necesito ayuda'.");
+      openPreparedHelpSms({speakFirst:true});
     });
-    if($("#btnSimpleHelp")) $("#btnSimpleHelp").addEventListener("click", async ()=>{
+    if($("#btnSimpleHelp")) $("#btnSimpleHelp").addEventListener("click", ()=>{
       bumpUsage("patient_action:simple_help");
       sendSignal("help","Necesito ayuda");
       setCalmMode(true);
-      toast("Aviso enviado.");
-      speak("Ya está. He avisado. Quédate conmigo.");
-      await notify("FARO: Necesita ayuda", "El paciente pulsó 'Necesito ayuda' (modo simple).");
+      openPreparedHelpSms({speakFirst:true});
     });
-    $("#btnPatientMainHelp")?.addEventListener("click", async ()=>{
+    $("#btnPatientMainHelp")?.addEventListener("click", ()=>{
       bumpUsage("patient_action:main_help");
       sendSignal("help","Necesito ayuda");
       setCalmMode(true);
-      toast("Aviso enviado.");
-      speak("Ya está. He avisado. Quédate conmigo.");
-      await notify("FARO: Necesita ayuda", "El paciente pulsó el botón principal de ayuda.");
+      openPreparedHelpSms({speakFirst:true});
     });
-    $("#btnFullHelp")?.addEventListener("click", async ()=>{
+    $("#btnFullHelp")?.addEventListener("click", ()=>{
       bumpUsage("patient_action:full_help");
       sendSignal("help","Necesito ayuda");
-      toast("Aviso enviado.");
-      speak("He avisado. Respira conmigo.");
-      await notify("FARO: Necesita ayuda", "El paciente pulsó 'Necesito ayuda' (modo completo).");
+      openPreparedHelpSms({speakFirst:true});
     });
 
     function doBreath(){
@@ -3573,6 +3569,7 @@
       if(!state.trusted.rel) state.trusted.rel = "Persona de confianza";
       if(!state.trusted.msg) state.trusted.msg = "Estoy contigo. Vamos paso a paso.";
       state.allowCall = true;
+      state.allowSms = true;
       state.setupComplete = true;
       state.mode = "patient";
       saveState();
