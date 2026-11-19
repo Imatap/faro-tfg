@@ -3550,6 +3550,11 @@
     /* ======================
        Contención (L3)
        ====================== */
+    const DEMO_L3_VIDEO = "archivos/dia de la madre.mp4";
+    function getL3VideoSrc(){
+      return state?.trusted?.memoryVideoDataUrl || DEMO_L3_VIDEO;
+    }
+
     function playTrustedVideoIn(player, poster=null, auto=false){
       if(!player) return Promise.reject(new Error("video"));
       const candidates = trustedVideoCandidates();
@@ -3639,10 +3644,11 @@
       const videoBtn = $("#btnContainmentVideo");
       if(videoBtn){
         videoBtn.classList.remove("hidden");
+        videoBtn.textContent = "▶ Ver mis recuerdos";
       }
 
       const player = $("#l3VideoPlayer");
-      if(player && !t.memoryVideoDataUrl){
+      if(player){
         player.pause?.();
         player.removeAttribute("src");
         player.classList.add("hidden");
@@ -3661,11 +3667,7 @@
 
     $("#btnContainmentVideo")?.addEventListener("click", ()=>{
       bumpUsage("patient_action:l3_video");
-      const src = state?.trusted?.memoryVideoDataUrl;
-      if(!src){
-        toast("Tu familia todavía no ha añadido un vídeo de recuerdos.");
-        return;
-      }
+      const src = getL3VideoSrc();
       const player = $("#l3VideoPlayer");
       if(!player) return;
       player.src = src;
