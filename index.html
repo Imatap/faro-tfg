@@ -419,12 +419,14 @@
     }
     .care-tabs .tabbtn.care-tab-plan{background:rgba(107, 208, 220, .18);}
     .care-tabs .tabbtn.care-tab-diary{background:rgba(103, 155, 255, .18);}
+    .care-tabs .tabbtn.care-tab-location{background:rgba(91, 196, 220, .18);}
     .care-tabs .tabbtn.care-tab-patient{background:rgba(122, 210, 160, .18);}
     .care-tabs .tabbtn.care-tab-games{background:rgba(255, 184, 107, .20);}
     .care-tabs .tabbtn.care-tab-knowledge{background:rgba(186, 132, 255, .20);}
 
     .care-tabs .tabbtn.care-tab-plan.active{background:linear-gradient(180deg, rgba(107, 208, 220, .42), rgba(107, 208, 220, .22)); border-color:rgba(107, 208, 220, .48);}
     .care-tabs .tabbtn.care-tab-diary.active{background:linear-gradient(180deg, rgba(103, 155, 255, .42), rgba(103, 155, 255, .22)); border-color:rgba(103, 155, 255, .48);}
+    .care-tabs .tabbtn.care-tab-location.active{background:linear-gradient(180deg, rgba(91,196,220,.42), rgba(91,196,220,.22)); border-color:rgba(91,196,220,.50);}
     .care-tabs .tabbtn.care-tab-patient.active{background:linear-gradient(180deg, rgba(122, 210, 160, .42), rgba(122, 210, 160, .22)); border-color:rgba(122, 210, 160, .48);}
     .care-tabs .tabbtn.care-tab-games.active{background:linear-gradient(180deg, rgba(255, 184, 107, .44), rgba(255, 184, 107, .24)); border-color:rgba(255, 184, 107, .52);}
     .care-tabs .tabbtn.care-tab-knowledge.active{background:linear-gradient(180deg, rgba(186, 132, 255, .44), rgba(186, 132, 255, .24)); border-color:rgba(186, 132, 255, .52);}
@@ -452,6 +454,7 @@
     .calendar-dot.observation{background:#9cc8ff}
     .calendar-dot.completed{background:#7dffb6}
     .calendar-dot.help{background:#ff8d8d}
+    .calendar-dot.location{background:#5bc4dc}
     .calendar-dot.planned{background:#ffd47a}
     .tracking-summary{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 12px;min-width:0}
     .tracking-chip{font-size:11px;padding:6px 9px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.05)}
@@ -754,54 +757,104 @@
       box-shadow:0 14px 40px rgba(129,223,204,.10);
     }
 
-    /* ===== Radar + mapa ===== */
-    .radarWrap{
-      display:grid;
-      grid-template-columns: 180px 1fr;
-      gap:12px;
-      align-items:stretch;
-    }
-    @media (max-width:560px){
-      .radarWrap{grid-template-columns:1fr}
-    }
-    .radarCanvas{
-      width:180px;height:180px;
-      border-radius:22px;
-      background:rgba(0,0,0,.16);
+    /* ===== Demo de ubicación ===== */
+    .location-demo-grid{display:grid;grid-template-columns:minmax(250px,.72fr) minmax(360px,1.28fr);gap:12px;margin-top:12px}
+    @media (max-width:900px){.location-demo-grid{grid-template-columns:1fr}}
+    .location-panel{
       border:1px solid var(--line);
-      overflow:hidden;
-      backdrop-filter: blur(8px);
+      background:rgba(0,0,0,.12);
+      border-radius:18px;
+      padding:14px;
+      min-width:0;
     }
-    .mapBox{
-      height:180px;
-      border-radius:22px;
-      background:rgba(0,0,0,.16);
-      border:1px solid var(--line);
-      overflow:hidden;
-      display:grid;
-      place-items:center;
-      color:rgba(246,251,255,.86);
-      font-size:13px;
+    .location-status-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap}
+    .location-title{font-size:18px;font-weight:900;margin-top:2px}
+    .location-demo-badge{
+      display:inline-flex;align-items:center;gap:6px;
+      border:1px solid rgba(255,212,122,.40);
+      background:rgba(255,212,122,.12);
+      color:var(--accent2);
+      padding:6px 9px;border-radius:999px;font-size:11px;font-weight:900;letter-spacing:.06em
+    }
+    .location-metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:12px}
+    .location-metric{border:1px solid var(--line);background:rgba(255,255,255,.045);border-radius:14px;padding:10px}
+    .location-metric .k{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+    .location-metric .v{font-size:14px;font-weight:850;margin-top:4px}
+    .location-zone-status{margin-top:10px;padding:11px 12px;border-radius:14px;border:1px solid var(--line)}
+    .location-zone-status.safe{background:rgba(125,255,182,.08);border-color:rgba(125,255,182,.30)}
+    .location-zone-status.out{background:rgba(255,122,122,.10);border-color:rgba(255,122,122,.38)}
+    .location-zone-status strong{display:block;font-size:14px}
+    .location-zone-status span{display:block;font-size:12px;color:var(--muted);margin-top:3px}
+
+    .location-map{
+      height:330px;
+      min-height:280px;
       position:relative;
-      backdrop-filter: blur(8px);
+      overflow:hidden;
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.14);
+      background:
+        linear-gradient(28deg, transparent 0 43%, rgba(255,255,255,.06) 44% 46%, transparent 47% 100%),
+        linear-gradient(118deg, transparent 0 47%, rgba(255,255,255,.055) 48% 50%, transparent 51% 100%),
+        radial-gradient(circle at 20% 24%, rgba(112,214,164,.10) 0 12%, transparent 13%),
+        radial-gradient(circle at 82% 72%, rgba(91,196,220,.10) 0 11%, transparent 12%),
+        linear-gradient(145deg, rgba(18,64,107,.92), rgba(8,31,64,.98));
     }
-    .mapBox iframe{
-      width:100%;
-      height:100%;
-      border:0;
-      filter: saturate(0.85) contrast(1.05);
+    .location-map::before,.location-map::after{
+      content:"";position:absolute;background:rgba(255,255,255,.07);border-radius:999px;transform-origin:center
     }
-    .mapOverlayPill{
-      position:absolute;
-      left:10px; top:10px;
-      background:rgba(0,0,0,.46);
-      border:1px solid rgba(255,255,255,.18);
-      padding:6px 10px;
-      border-radius:999px;
-      font-size:12px;
-      color:var(--text);
-      backdrop-filter: blur(10px);
+    .location-map::before{width:130%;height:10px;left:-15%;top:52%;transform:rotate(-14deg)}
+    .location-map::after{width:115%;height:8px;left:-8%;top:36%;transform:rotate(28deg)}
+    .safe-zone-ring{
+      position:absolute;left:50%;top:50%;width:48%;aspect-ratio:1;
+      transform:translate(-50%,-50%);
+      border-radius:50%;
+      border:2px dashed rgba(125,255,182,.58);
+      background:rgba(125,255,182,.055);
+      box-shadow:0 0 0 8px rgba(125,255,182,.02);
       z-index:2;
+    }
+    .safe-home{
+      position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+      width:34px;height:34px;border-radius:11px;display:grid;place-items:center;
+      background:rgba(255,212,122,.16);border:1px solid rgba(255,212,122,.42);
+      z-index:4;font-size:18px
+    }
+    .location-pin{
+      position:absolute;left:50%;top:50%;
+      transform:translate(-50%,-50%);
+      width:34px;height:34px;border-radius:50% 50% 50% 12%;
+      rotate:-45deg;
+      background:#ffd47a;
+      border:3px solid rgba(255,255,255,.88);
+      box-shadow:0 10px 30px rgba(0,0,0,.38),0 0 0 7px rgba(255,212,122,.12);
+      z-index:6;transition:left .8s ease,top .8s ease,background .25s ease
+    }
+    .location-pin::after{
+      content:"";position:absolute;width:9px;height:9px;border-radius:50%;
+      background:#173d71;left:50%;top:50%;transform:translate(-50%,-50%)
+    }
+    .location-pin.out{background:#ff8d8d;box-shadow:0 10px 30px rgba(0,0,0,.38),0 0 0 7px rgba(255,122,122,.12)}
+    .map-label{
+      position:absolute;z-index:3;font-size:11px;font-weight:800;color:rgba(246,251,255,.78);
+      background:rgba(0,0,0,.34);border:1px solid rgba(255,255,255,.10);border-radius:999px;padding:5px 8px
+    }
+    .map-label.home{left:52%;top:58%}
+    .map-label.park{left:68%;top:20%}
+    .map-label.center{left:12%;top:70%}
+    .location-map-legend{
+      position:absolute;left:10px;bottom:10px;z-index:7;
+      padding:7px 9px;border-radius:10px;background:rgba(0,0,0,.48);border:1px solid rgba(255,255,255,.12);
+      font-size:11px;color:rgba(246,251,255,.84)
+    }
+    .location-controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+    .location-controls .btn{flex:1 1 150px}
+    .location-architecture{margin-top:12px;padding:12px;border-radius:15px;background:rgba(91,196,220,.07);border:1px dashed rgba(91,196,220,.30)}
+    .location-architecture .flow{font-weight:900;margin-top:5px;line-height:1.5}
+    @media (max-width:560px){
+      .location-map{height:280px}
+      .location-metrics{grid-template-columns:1fr}
+      .location-controls .btn{flex:1 1 100%}
     }
 
     /* ===== Pantalla L3 (contención) ===== */
@@ -1556,6 +1609,7 @@
               <div class="tabs care-tabs" role="tablist" aria-label="Secciones del cuidador">
                 <button class="tabbtn care-tab-plan active" data-ctab="plan" role="tab" aria-selected="true">Plan</button>
                 <button class="tabbtn care-tab-diary" data-ctab="diary" role="tab" aria-selected="false">Seguimiento</button>
+                <button class="tabbtn care-tab-location" data-ctab="location" role="tab" aria-selected="false">Ubicación</button>
                 <button class="tabbtn care-tab-patient" data-ctab="patient" role="tab" aria-selected="false">Paciente</button>
                 <button class="tabbtn care-tab-games" data-ctab="games" role="tab" aria-selected="false">Ejercicios</button>
                 <button class="tabbtn care-tab-knowledge" data-ctab="knowledge" role="tab" aria-selected="false">Recursos</button>
@@ -1700,6 +1754,85 @@
                         <div class="btnrow">
                           <button class="btn primary" id="btnAddTrackingObservation">Guardar observación</button>
                         </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Ubicación (demo simulada) -->
+                <div id="ctab_location" class="hidden">
+                  <div class="note">
+                    <strong>Demostración simulada.</strong> Esta vista representa cómo FARO podría recibir la posición de un reloj GPS o localizador externo. No realiza seguimiento real.
+                  </div>
+
+                  <div class="location-demo-grid">
+                    <div class="location-panel">
+                      <div class="location-status-head">
+                        <div>
+                          <div class="k">Dispositivo</div>
+                          <div class="location-title">⌚ Reloj GPS</div>
+                        </div>
+                        <span class="location-demo-badge">DEMO · SIMULADO</span>
+                      </div>
+
+                      <div class="location-metrics">
+                        <div class="location-metric">
+                          <div class="k">Última posición</div>
+                          <div class="v" id="locationLastLabel">Casa</div>
+                        </div>
+                        <div class="location-metric">
+                          <div class="k">Actualización</div>
+                          <div class="v" id="locationUpdated">Sin datos</div>
+                        </div>
+                        <div class="location-metric">
+                          <div class="k">Batería</div>
+                          <div class="v" id="locationBattery">86 %</div>
+                        </div>
+                        <div class="location-metric">
+                          <div class="k">Zona segura</div>
+                          <div class="v" id="locationRadius">500 m</div>
+                        </div>
+                      </div>
+
+                      <div class="location-zone-status safe" id="locationZoneStatus">
+                        <strong id="locationZoneTitle">✓ Dentro de la zona segura</strong>
+                        <span id="locationZoneText">El dispositivo está dentro del entorno habitual.</span>
+                      </div>
+
+                      <div class="location-controls">
+                        <button class="btn primary" id="btnLocationWalk">▶ Simular paseo</button>
+                        <button class="btn" id="btnLocationRefresh">↻ Actualizar posición</button>
+                        <button class="btn" id="btnLocationHome">⌂ Volver a casa</button>
+                      </div>
+
+                      <div class="location-architecture">
+                        <div class="k">Implementación real prevista</div>
+                        <div class="flow">Reloj / tracker GPS → servicio de localización → FARO → cuidador</div>
+                        <div class="s" style="margin-top:5px">FARO mostraría siempre la última posición recibida y su hora, evitando presentar datos antiguos como ubicación actual.</div>
+                      </div>
+                    </div>
+
+                    <div class="location-panel">
+                      <div class="tracking-head">
+                        <div>
+                          <div class="k">Última ubicación conocida</div>
+                          <strong id="locationMapTitle">Casa</strong>
+                        </div>
+                        <span class="badge ok" id="locationMapBadge">Zona segura</span>
+                      </div>
+
+                      <div class="location-map" id="locationDemoMap" aria-label="Mapa esquemático simulado">
+                        <div class="safe-zone-ring" aria-hidden="true"></div>
+                        <div class="safe-home" title="Casa">⌂</div>
+                        <div class="map-label home">Casa</div>
+                        <div class="map-label park">Parque</div>
+                        <div class="map-label center">Centro</div>
+                        <div class="location-pin" id="locationDemoPin" aria-hidden="true"></div>
+                        <div class="location-map-legend">Círculo verde: zona segura · Pin: posición simulada</div>
+                      </div>
+
+                      <div class="note" style="margin-top:12px">
+                        En una versión real, la posición dependería de la cobertura, batería y última comunicación del dispositivo. Por eso FARO mostraría siempre la fecha y hora de la última actualización.
                       </div>
                     </div>
                   </div>
@@ -2008,15 +2141,20 @@
       diary: [],
       history: [],
       location: {
-        enabled: false,
-        source: "none",
-        lat: null,
-        lon: null,
-        accuracy: null,
+        enabled: true,
+        source: "demo",
+        lat: 40.4168,
+        lon: -3.7038,
+        accuracy: 12,
         updatedAt: null,
         baseLat: 40.4168,
         baseLon: -3.7038,
-        simulateAngle: 0
+        simulateAngle: 0,
+        demoStep: 0,
+        battery: 86,
+        safeRadiusM: 500,
+        insideSafeZone: true,
+        lastLabel: "Casa"
       }
     };
 
@@ -2939,10 +3077,11 @@
         b.classList.toggle("active", active);
         b.setAttribute("aria-selected", active ? "true":"false");
       });
-      ["plan","diary","patient","games","knowledge"].forEach(k=>{
+      ["plan","diary","location","patient","games","knowledge"].forEach(k=>{
         $("#ctab_"+k).classList.toggle("hidden", k!==tab);
       });
       if(tab === "diary") renderTracking();
+      if(tab === "location") renderLocationDemo();
       bumpUsage("care_tab:" + tab);
     }
     $$(".tabbtn[data-ctab]").forEach(btn=>{
@@ -3882,6 +4021,8 @@
       if(type === "help") return {icon:"🆘", label:"Ayuda", dot:"help"};
       if(type === "medication_confirmed") return {icon:"💊", label:"Medicación", dot:"completed"};
       if(type === "observation") return {icon:"📝", label:"Observación", dot:"observation"};
+      if(type === "location_exit") return {icon:"📍", label:"Salida de zona", dot:"location"};
+      if(type === "location_return") return {icon:"⌂", label:"Regreso a zona", dot:"location"};
       if(type === "planned_done") return {icon:"✓", label:"Previsto · confirmado", dot:"completed"};
       return {icon:"○", label:"Previsto", dot:"planned"};
     }
@@ -3941,14 +4082,16 @@
         planned:events.filter(e=>e.type==="planned" || e.type==="planned_done").length,
         completed:events.filter(e=>e.type==="routine_completed" || e.type==="medication_confirmed").length,
         observation:events.filter(e=>e.type==="observation").length,
-        help:events.filter(e=>e.type==="help").length
+        help:events.filter(e=>e.type==="help").length,
+        location:events.filter(e=>e.type==="location_exit" || e.type==="location_return").length
       };
 
       [
         ["Previstos",counts.planned],
         ["Confirmados",counts.completed],
         ["Observaciones",counts.observation],
-        ["Ayuda",counts.help]
+        ["Ayuda",counts.help],
+        ["Ubicación",counts.location]
       ].forEach(([name,count])=>{
         const chip=document.createElement("span");
         chip.className="tracking-chip";
@@ -4304,8 +4447,139 @@
     });
 
     /* ======================
-       Ubicación: Radar + mapa
+       Ubicación: demo simulada
        ====================== */
+    const LOCATION_DEMO_STEPS = [
+      {x:50,y:50,label:"Casa",inside:true,latOff:0,lonOff:0},
+      {x:57,y:46,label:"Calle cercana",inside:true,latOff:.0004,lonOff:.0005},
+      {x:66,y:39,label:"Paseo del barrio",inside:true,latOff:.0008,lonOff:.0010},
+      {x:78,y:28,label:"Fuera de la zona habitual",inside:false,latOff:.0016,lonOff:.0022},
+      {x:84,y:57,label:"Parque",inside:false,latOff:.0011,lonOff:.0030},
+      {x:65,y:68,label:"Regresando a casa",inside:true,latOff:-.0005,lonOff:.0012},
+      {x:50,y:50,label:"Casa",inside:true,latOff:0,lonOff:0}
+    ];
+
+    function ensureLocationDemoState(){
+      const loc = state.location || (state.location = {});
+      if(loc.source !== "demo") loc.source = "demo";
+      if(typeof loc.demoStep !== "number") loc.demoStep = 0;
+      if(typeof loc.battery !== "number") loc.battery = 86;
+      if(typeof loc.safeRadiusM !== "number") loc.safeRadiusM = 500;
+      if(typeof loc.insideSafeZone !== "boolean") loc.insideSafeZone = true;
+      if(!loc.lastLabel) loc.lastLabel = "Casa";
+      if(typeof loc.baseLat !== "number") loc.baseLat = 40.4168;
+      if(typeof loc.baseLon !== "number") loc.baseLon = -3.7038;
+      if(typeof loc.lat !== "number") loc.lat = loc.baseLat;
+      if(typeof loc.lon !== "number") loc.lon = loc.baseLon;
+      if(typeof loc.accuracy !== "number") loc.accuracy = 12;
+      loc.enabled = true;
+      return loc;
+    }
+
+    function formatLocationUpdate(iso){
+      if(!iso) return "Sin actualizar";
+      const d = new Date(iso);
+      if(Number.isNaN(d.getTime())) return "Sin actualizar";
+      const seconds = Math.max(0, Math.floor((Date.now()-d.getTime())/1000));
+      if(seconds < 20) return "Ahora mismo";
+      if(seconds < 60) return `Hace ${seconds} s`;
+      const min = Math.floor(seconds/60);
+      if(min < 60) return `Hace ${min} min`;
+      return d.toLocaleString("es-ES",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});
+    }
+
+    function renderLocationDemo(){
+      const loc = ensureLocationDemoState();
+      const step = LOCATION_DEMO_STEPS[Math.max(0,Math.min(loc.demoStep||0,LOCATION_DEMO_STEPS.length-1))];
+      const pin = $("#locationDemoPin");
+
+      if(pin){
+        pin.style.left = step.x + "%";
+        pin.style.top = step.y + "%";
+        pin.classList.toggle("out", !loc.insideSafeZone);
+      }
+
+      if($("#locationLastLabel")) $("#locationLastLabel").textContent = loc.lastLabel || step.label;
+      if($("#locationMapTitle")) $("#locationMapTitle").textContent = loc.lastLabel || step.label;
+      if($("#locationUpdated")) $("#locationUpdated").textContent = formatLocationUpdate(loc.updatedAt);
+      if($("#locationBattery")) $("#locationBattery").textContent = `${Math.round(loc.battery)} %`;
+      if($("#locationRadius")) $("#locationRadius").textContent = `${loc.safeRadiusM} m`;
+
+      const status = $("#locationZoneStatus");
+      const badge = $("#locationMapBadge");
+      if(loc.insideSafeZone){
+        status?.classList.remove("out");
+        status?.classList.add("safe");
+        if($("#locationZoneTitle")) $("#locationZoneTitle").textContent = "✓ Dentro de la zona segura";
+        if($("#locationZoneText")) $("#locationZoneText").textContent = "El dispositivo está dentro del entorno habitual.";
+        if(badge){
+          badge.textContent = "Zona segura";
+          badge.className = "badge ok";
+        }
+      }else{
+        status?.classList.remove("safe");
+        status?.classList.add("out");
+        if($("#locationZoneTitle")) $("#locationZoneTitle").textContent = "⚠ Fuera de la zona segura";
+        if($("#locationZoneText")) $("#locationZoneText").textContent = "La posición simulada está fuera del radio configurado alrededor de casa.";
+        if(badge){
+          badge.textContent = "Fuera de zona";
+          badge.className = "badge danger";
+        }
+      }
+    }
+
+    function setLocationDemoStep(index,{logTransition=true}={}){
+      const loc = ensureLocationDemoState();
+      const prevInside = !!loc.insideSafeZone;
+      const step = LOCATION_DEMO_STEPS[Math.max(0,Math.min(index,LOCATION_DEMO_STEPS.length-1))];
+
+      loc.demoStep = Math.max(0,Math.min(index,LOCATION_DEMO_STEPS.length-1));
+      loc.insideSafeZone = step.inside;
+      loc.lastLabel = step.label;
+      loc.lat = loc.baseLat + step.latOff;
+      loc.lon = loc.baseLon + step.lonOff;
+      loc.accuracy = 12 + Math.round(Math.abs(step.x-50)/4);
+      loc.updatedAt = nowISO();
+      loc.battery = Math.max(18, (loc.battery || 86) - (index===0 ? 0 : 1));
+
+      if(logTransition && prevInside && !step.inside){
+        historyAdd("location_exit","Salida de zona segura",`Ubicación simulada: ${step.label}. Radio configurado: ${loc.safeRadiusM} m.`);
+        if(Notification.permission === "granted"){
+          try{ new Notification("FARO · Aviso de ubicación",{body:"El dispositivo simulado ha salido de la zona segura."}); }catch{}
+        }
+      }else if(logTransition && !prevInside && step.inside){
+        historyAdd("location_return","Regreso a zona segura",`Ubicación simulada: ${step.label}.`);
+      }else{
+        saveState();
+      }
+
+      renderLocationDemo();
+      renderTracking();
+    }
+
+    $("#btnLocationWalk")?.addEventListener("click",()=>{
+      const loc = ensureLocationDemoState();
+      let next=(loc.demoStep||0)+1;
+      if(next>=LOCATION_DEMO_STEPS.length) next=1;
+      setLocationDemoStep(next);
+      const current=LOCATION_DEMO_STEPS[next];
+      toast(current.inside ? "Posición simulada actualizada." : "Demo: fuera de la zona segura.");
+    });
+
+    $("#btnLocationHome")?.addEventListener("click",()=>{
+      setLocationDemoStep(0);
+      toast("Demo: dispositivo de nuevo en casa.");
+    });
+
+    $("#btnLocationRefresh")?.addEventListener("click",()=>{
+      const loc=ensureLocationDemoState();
+      loc.updatedAt=nowISO();
+      loc.battery=Math.max(18,(loc.battery||86)-1);
+      saveState();
+      renderLocationDemo();
+      toast("Última posición actualizada.");
+    });
+
     /* ======================
        Contención (L3)
        ====================== */
@@ -4482,6 +4756,7 @@
       renderAlbum();
       renderAlbumAdmin();
       renderTracking();
+      renderLocationDemo();
       renderCarePanel();
       fillPatientSettingsForm();
       $("#routineEditor").value = (state.routine||[]).map((s,i)=> `${i+1}) ${s.title}`).join("\n");
