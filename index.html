@@ -1002,15 +1002,6 @@
                   <button class="btn danger giant help-primary" id="btnPatientMainHelp" data-i18n="necesitaAyuda">Necesito ayuda</button>
                 </div>
 
-                <!-- Botón SOS familiar - aparece si el cuidador lo activa -->
-                <div id="sosAlertBlock" class="hidden l3-hide" style="margin-top:10px">
-                  <button class="btn giant" id="btnSosAlert"
-                    style="width:100%;background:linear-gradient(180deg,rgba(255,80,80,.55),rgba(200,30,30,.40));border:1px solid rgba(255,100,100,.5);font-size:18px;font-weight:800;letter-spacing:.04em;padding:18px;"
-                    data-i18n="sosAvisar">
-                    🆘 Avisar a mi familia
-                  </button>
-                </div>
-
                 <div class="who calm-focus l3-hide" id="trustedPersonCard">
                   <div class="avatar" id="whoAvatar" aria-hidden="true">👤</div>
                   <div>
@@ -1055,9 +1046,6 @@
                   <button class="btn big" id="btnPatientMore">Más opciones</button>
                 </div>
 
-                <div class="btnrow hidden" style="margin-top:10px">
-                  <button class="btn big" id="btnPatientMoreL2">Más opciones</button>
-                </div>
               </div>
 
               <!-- L1/L2: FULL -->
@@ -1155,9 +1143,6 @@
                   </div>
                 </div>
 
-                <div class="btnrow" style="margin-top:12px">
-                  <button class="btn danger big" id="btnFullHelp" data-i18n="necesitaAyuda">Necesito ayuda</button>
-                </div>
               </div>
 
               <!-- L3: CONTENCIÓN -->
@@ -1189,45 +1174,20 @@
             </div>
           </div>
 
-          <!-- Ayuda rápida (L1/L2) -->
+          <!-- Calma (L1/L2): una única acción, sin duplicar ayuda ni lectura del día -->
           <div class="card show-l1-l2 hidden" id="quickHelpCard">
             <div class="hd">
-              <h2 data-i18n="ayudaRapida">Ayuda rápida</h2>
-              <span class="badge ok" id="safetyBadge" data-i18n="seguro">Seguro</span>
+              <h2>Calma</h2>
+              <span class="badge ok">Respira</span>
             </div>
             <div class="bd">
-              <div class="list">
-                <div class="item">
-                  <div class="meta">
-                    <div class="k">Respirar</div>
-                    <div class="v">1 minuto de calma</div>
-                    <div class="s">Te guío con una voz suave: inhalar, exhalar.</div>
-                  </div>
-                  <button class="btn small primary" id="btnBreath">Empezar</button>
+              <div class="item">
+                <div class="meta">
+                  <div class="k">Respirar</div>
+                  <div class="v">Un minuto de calma</div>
+                  <div class="s">FARO te guía despacio para inhalar y exhalar.</div>
                 </div>
-
-                <div class="item calm-hide">
-                  <div class="meta">
-                    <div class="k">Mensaje</div>
-                    <div class="v">Estoy bien / necesito ayuda</div>
-                    <div class="s">Envía un aviso (se guarda en el panel del cuidador).</div>
-                  </div>
-                  <button class="btn small" id="btnImOk">Estoy bien</button>
-                  <button class="btn small danger" id="btnNeedHelp">Necesito ayuda</button>
-                </div>
-
-                <div class="item calm-hide">
-                  <div class="meta">
-                    <div class="k">Asistente</div>
-                    <div class="v">Hablar y escuchar</div>
-                    <div class="s">Puede leer recordatorios y rutina en voz alta.</div>
-                  </div>
-                  <button class="btn small" id="btnSpeakToday">Leer hoy</button>
-                </div>
-
-                <div class="note calm-hide">
-                  <strong>Nota:</strong> prototipo. En una app real integrarías llamadas reales, geolocalización y notificaciones del sistema.
-                </div>
+                <button class="btn primary" id="btnBreath">Empezar</button>
               </div>
             </div>
           </div>
@@ -1295,7 +1255,7 @@
                 <button class="tabbtn care-tab-plan active" data-ctab="plan" role="tab" aria-selected="true">Plan</button>
                 <button class="tabbtn care-tab-diary" data-ctab="diary" role="tab" aria-selected="false">Diario</button>
                 <button class="tabbtn care-tab-patient" data-ctab="patient" role="tab" aria-selected="false">Paciente</button>
-                <button class="tabbtn care-tab-games" data-ctab="games" role="tab" aria-selected="false">Ejercicios</button>
+                <button class="tabbtn care-tab-games" data-ctab="games" role="tab" aria-selected="false">Actividades</button>
                 <button class="tabbtn care-tab-knowledge" data-ctab="knowledge" role="tab" aria-selected="false">Recursos</button>
               </div>
 
@@ -1499,7 +1459,6 @@
 
                       <div class="btnrow">
                         <button class="btn primary" id="btnSaveTrusted" data-i18n="guardar">Guardar</button>
-                        <button class="btn" id="btnResetTrusted" data-i18n="restablecer">Restablecer</button>
                       </div>
                     </div>
                   </div>
@@ -1527,16 +1486,49 @@
                     </div>
                   </div>
 
+                  <div style="margin-top:12px" class="card">
+                    <div class="bd">
+                      <div class="meta">
+                        <div class="k">Copia de seguridad</div>
+                        <div class="v">Guardar o recuperar la configuración de FARO</div>
+                        <div class="s">Exporta rutinas, citas, medicación, ajustes y recuerdos a un archivo JSON.</div>
+                      </div>
+                      <div class="btnrow" style="margin-top:12px">
+                        <button class="btn primary" id="btnExport">Exportar copia</button>
+                        <button class="btn" id="btnImport">Importar copia</button>
+                        <input id="importFile" type="file" accept="application/json,.json" class="hidden" />
+                      </div>
+                    </div>
+                  </div>
+
                 </div>
 
 
-                <!-- Ejercicios -->
+                <!-- Actividades adaptadas -->
                 <div id="ctab_games" class="hidden">
-                  <div class="note">Juegos externos de memoria. Pulsa para abrirlos.</div>
-                  <div style="margin-top:12px; display:flex; flex-direction:column; gap:10px;">
-                    <a class="btn primary giant" href="https://www.memo-juegos.com/juegos-de-memoria-online/para-todos/memory-con-emoticones" target="_blank" rel="noopener noreferrer">🧩 Memory con emoticonos</a>
-                    <a class="btn primary giant" href="https://www.memo-juegos.com/juegos-de-memoria-online/para-todos/erramientas-de-bricolaje" target="_blank" rel="noopener noreferrer">🔧 Herramientas de bricolaje</a>
-                    <a class="btn primary giant" href="https://poki.com/es/g/connect-puzzle" target="_blank" rel="noopener noreferrer">🔗 Connect Puzzle</a>
+                  <div class="note">Las actividades se muestran dentro de FARO y cambian automáticamente según el nivel de apoyo. No se abren webs externas.</div>
+                  <div class="list" style="margin-top:12px">
+                    <div class="item">
+                      <div class="meta">
+                        <div class="k">L1 — Mayor autonomía</div>
+                        <div class="v">Atención, planificación y vida cotidiana</div>
+                        <div class="s">8 cartas, secuencias de 4 pasos y situaciones funcionales como preparar una cita o una compra.</div>
+                      </div>
+                    </div>
+                    <div class="item">
+                      <div class="meta">
+                        <div class="k">L2 — Apoyo intermedio</div>
+                        <div class="v">Atención y asociación guiadas</div>
+                        <div class="s">6 cartas, secuencias de 3 pasos y clasificación sencilla.</div>
+                      </div>
+                    </div>
+                    <div class="item">
+                      <div class="meta">
+                        <div class="k">L3 — Apoyo elevado</div>
+                        <div class="v">Sin juegos</div>
+                        <div class="s">Se priorizan orientación, tranquilidad, voz familiar y vídeo de recuerdos.</div>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -1604,41 +1596,35 @@
 
           <div class="card">
             <div class="hd">
-              <h2 data-i18n="revisionRapida">Revisión rápida</h2>
-              <span class="badge ok" data-i18n="recomendado">Recomendado</span>
+              <h2>Comprobación rápida</h2>
+              <span class="badge ok">Coherente</span>
             </div>
             <div class="bd">
               <div class="list">
                 <div class="item">
                   <div class="meta">
-                    <div class="k" data-i18n="kBtnLlamada">Botón de llamada</div>
-                    <div class="v" data-i18n="vBtnLlamada">Llamada de emergencia al familiar</div>
-                    <div class="s" data-i18n="sBtnLlamada">Si está activado, el paciente verá el botón 🆘 y al pulsarlo llamará al teléfono configurado.</div>
+                    <div class="k">Necesito ayuda</div>
+                    <div class="v">Aviso por mensaje</div>
+                    <div class="s">En L1 y L2 hay un único botón de ayuda. Prepara un SMS para la persona de confianza.</div>
                   </div>
-                  <button class="btn small" id="btnToggleCall">Activar</button>
                 </div>
                 <div class="item">
                   <div class="meta">
-                    <div class="k" data-i18n="kBtnSms">Botón de SMS</div>
-                    <div class="v" data-i18n="vBtnSms">Mensaje de aviso al familiar</div>
-                    <div class="s" data-i18n="sBtnSms">Si está activado, el paciente verá el botón 🆘 y al pulsarlo enviará un SMS de aviso.</div>
+                    <div class="k">Llamar</div>
+                    <div class="v">Contacto directo</div>
+                    <div class="s">La tarjeta de la persona de confianza mantiene una acción separada para realizar una llamada.</div>
                   </div>
-                  <button class="btn small" id="btnToggleSms">Activar</button>
                 </div>
                 <div class="item">
                   <div class="meta">
-                    <div class="k" data-i18n="kVoz">Voz</div>
-                    <div class="v" data-i18n="vVoz">Lectura en voz alta</div>
-                    <div class="s" data-i18n="sVoz">Usa la voz del dispositivo (Web Speech API).</div>
+                    <div class="k">L3</div>
+                    <div class="v">Sin alertas visibles</div>
+                    <div class="s">Se reducen decisiones y se priorizan audio familiar y vídeo de recuerdos.</div>
                   </div>
-                  <button class="btn small hidden" id="btnTestVoice">Probar voz</button>
-                </div>
-                <div class="note">
-                  <span data-i18n="recPractica">Recomendación práctica: deja el perfil en </span><strong>L2</strong><span data-i18n="recPractica2">. Usa </span><strong>L3</strong><span data-i18n="recPractica3"> en días malos o si prima seguridad.</span>
                 </div>
               </div>
             </div>
-          </div>
+          </div>>
 
         </div>
       </section>
@@ -2057,7 +2043,7 @@
         panelCuidador: "Panel del cuidador",
         ayudaRapida: "Ayuda rápida", revisionRapida: "Revisión rápida",
         plan: "Plan", diario: "Diario", paciente: "Paciente",
-        ejercicios: "Ejercicios", recursos: "Recursos",
+        ejercicios: "Actividades", recursos: "Recursos",
         cambiaSegun: "Cambia el nivel según el día. Si hay confusión o ansiedad, baja a ",
         contencion: "Contención",
         entrarFaro: "Entrar", accesoFamiliar: "Área familiar",
@@ -2131,7 +2117,7 @@
         panelCuidador: "Caregiver panel",
         ayudaRapida: "Quick help", revisionRapida: "Quick review",
         plan: "Plan", diario: "Diary", paciente: "Patient",
-        ejercicios: "Exercises", recursos: "Resources",
+        ejercicios: "Activities", recursos: "Resources",
         cambiaSegun: "Change the level depending on the day. If confused or anxious, switch to ",
         contencion: "Containment",
         entrarFaro: "Enter", accesoFamiliar: "Family area",
@@ -2296,37 +2282,6 @@
       applyTranslations();
     });
 
-    // ===== Toggles de llamada y SMS =====
-    function renderSosToggles(){
-      const btnCall = $("#btnToggleCall");
-      const btnSms  = $("#btnToggleSms");
-      if(btnCall){
-        btnCall.textContent = state.allowCall ? t("desactivar") : t("activar");
-        btnCall.classList.toggle("primary", state.allowCall);
-      }
-      if(btnSms){
-        btnSms.textContent = state.allowSms ? t("desactivar") : t("activar");
-        btnSms.classList.toggle("primary", state.allowSms);
-      }
-      // Mostrar/ocultar botón SOS en pantalla paciente
-      const sosVisible = state.allowCall || state.allowSms;
-      ["#sosAlertBlock","#sosAlertBlockL3"].forEach(id=>{
-        const el = $(id);
-        if(el) el.classList.toggle("hidden", !sosVisible);
-      });
-    }
-
-    $("#btnToggleCall")?.addEventListener("click", ()=>{
-      state.allowCall = !state.allowCall;
-      saveState(); renderSosToggles();
-      toast(state.allowCall ? (currentLang==="es" ? "Botón de llamada activado." : "Call button enabled.") : (currentLang==="es" ? "Botón de llamada desactivado." : "Call button disabled."));
-    });
-    $("#btnToggleSms")?.addEventListener("click", ()=>{
-      state.allowSms = !state.allowSms;
-      saveState(); renderSosToggles();
-      toast(state.allowSms ? (currentLang==="es" ? "Botón de SMS activado." : "SMS button enabled.") : (currentLang==="es" ? "Botón de SMS desactivado." : "SMS button disabled."));
-    });
-
     function buildSmsUrl(phone, message){
       const cleanPhone = String(phone || "").replace(/[\s().-]/g, "");
       const encoded = encodeURIComponent(message);
@@ -2353,19 +2308,6 @@
       window.location.href = buildSmsUrl(phone, message);
       return true;
     }
-
-    function handleSosAlert(){
-      openPreparedHelpSms({speakFirst:true});
-    }
-
-    $("#btnSosAlert")?.addEventListener("click", ()=>{
-      bumpUsage("patient_action:sos_alert");
-      handleSosAlert();
-    });
-    $("#btnSosAlertL3")?.addEventListener("click", ()=>{
-      bumpUsage("patient_action:sos_alert_l3");
-      handleSosAlert();
-    });
 
     /* ===== Reloj ===== */
     function tick(){
@@ -2586,14 +2528,6 @@
       renderPatientView();
       toast("Vista completa.");
     });
-    $("#btnPatientMoreL2")?.addEventListener("click", ()=>{
-      bumpUsage("patient_action:more");
-      if(state.profile === "L3") return;
-      state.patientView = "full";
-      setCalmMode(false);
-      renderPatientView();
-      toast("Vista completa.");
-    });
     $("#btnPatientLess")?.addEventListener("click", ()=>{
       bumpUsage("patient_action:less");
       if(state.profile === "L3") return;
@@ -2741,32 +2675,10 @@
       renderCarePanel();
     }
 
-    $("#btnImOk")?.addEventListener("click", ()=>{
-      bumpUsage("patient_action:im_ok");
-      sendSignal("ok","Estoy bien");
-      toast("Aviso enviado.");
-      speak("Perfecto. Gracias por avisar.");
-    });
-    $("#btnNeedHelp")?.addEventListener("click", ()=>{
-      bumpUsage("patient_action:need_help");
-      sendSignal("help","Necesito ayuda");
-      openPreparedHelpSms({speakFirst:true});
-    });
-    if($("#btnSimpleHelp")) $("#btnSimpleHelp").addEventListener("click", ()=>{
-      bumpUsage("patient_action:simple_help");
-      sendSignal("help","Necesito ayuda");
-      setCalmMode(true);
-      openPreparedHelpSms({speakFirst:true});
-    });
     $("#btnPatientMainHelp")?.addEventListener("click", ()=>{
       bumpUsage("patient_action:main_help");
       sendSignal("help","Necesito ayuda");
       setCalmMode(true);
-      openPreparedHelpSms({speakFirst:true});
-    });
-    $("#btnFullHelp")?.addEventListener("click", ()=>{
-      bumpUsage("patient_action:full_help");
-      sendSignal("help","Necesito ayuda");
       openPreparedHelpSms({speakFirst:true});
     });
 
@@ -2780,11 +2692,6 @@
     $("#btnL3Breath")?.addEventListener("click", ()=>{ bumpUsage("patient_action:l3_breath"); doBreath(); });
 
     /* ===== Leer “hoy” ===== */
-    $("#btnSpeakToday")?.addEventListener("click", ()=>{
-      bumpUsage("patient_action:speak_today");
-      speak(compilePatientToday());
-      toast("Leyendo recordatorios.");
-    });
     $("#btnPatientReadToday")?.addEventListener("click", ()=>{
       bumpUsage("patient_action:read_today_home");
       speak(compilePatientToday());
@@ -2807,18 +2714,23 @@
       return (state.meds||[]).slice().sort((a,b)=>(a.time||"").localeCompare(b.time||""));
     }
     function upcomingAppts(){
-      return (state.appts||[]).slice().sort((a,b)=>{
-        const da = (a.date||"") + " " + (a.time||"");
-        const db = (b.date||"") + " " + (b.time||"");
-        return da.localeCompare(db);
-      });
+      const today = toDateInputValue(new Date());
+      return (state.appts||[])
+        .filter(a => !a.date || a.date >= today)
+        .slice()
+        .sort((a,b)=>{
+          const da = (a.date||"") + " " + (a.time||"");
+          const db = (b.date||"") + " " + (b.time||"");
+          return da.localeCompare(db);
+        });
     }
     function compilePatientToday(){
       const es = currentLang === "es";
       const meds = upcomingMedsToday().slice(0,4).map(m=>
         es ? `Medicación: ${m.name} a las ${m.time}. ${m.note || ""}` : `Medication: ${m.name} at ${m.time}. ${m.note || ""}`
       );
-      const appts = upcomingAppts().slice(0,3).map(a=>
+      const today = toDateInputValue(new Date());
+      const appts = upcomingAppts().filter(a => a.date === today).slice(0,3).map(a=>
         es ? `Cita: ${a.title} el ${a.date} a las ${a.time || ""}. ${a.note || ""}` : `Appointment: ${a.title} on ${a.date} at ${a.time || ""}. ${a.note || ""}`
       );
       const r = state.routine?.[state.routineIndex];
@@ -3621,7 +3533,11 @@
     }
 
     $("#btnSaveTrusted")?.addEventListener("click", async ()=>{
-      state.profile = $("#profileSelect").value || "L2";
+      const nextProfile = $("#profileSelect").value || "L2";
+      if(nextProfile !== state.profile){
+        state.patientView = PROFILE_RULES[nextProfile]?.defaultView || "simple";
+      }
+      state.profile = nextProfile;
       const carePinCandidate = ($("#carePinInput").value || "").trim();
       if(!validCarePin(carePinCandidate)){
         alert("El PIN del Área familiar debe tener exactamente 4 cifras.");
@@ -3654,15 +3570,7 @@
       toast("Guardado.");
     });
 
-    $("#btnResetTrusted")?.addEventListener("click", ()=>{
-      if(!confirm("¿Restablecer datos?")) return;
-      localStorage.removeItem(KEY);
-      state = loadState();
-      saveState();
-      applyProfile();
-      renderAll();
-      toast("Restablecido.");
-    });
+
 
     $("#btnAddAlbum")?.addEventListener("click", async ()=>{
       const name = $("#albumName").value.trim();
@@ -3682,8 +3590,6 @@
        ====================== */
     $("#btnExport")?.addEventListener("click", ()=>{
       const txt = JSON.stringify(state, null, 2);
-      $("#exportBox").textContent = txt;
-
       const blob = new Blob([txt], {type:"application/json"});
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -3713,15 +3619,7 @@
       }
     });
 
-    $("#btnWipe")?.addEventListener("click", ()=>{
-      if(!confirm("¿Borrar TODOS los datos locales?")) return;
-      localStorage.removeItem(KEY);
-      state = loadState();
-      saveState();
-      applyProfile();
-      renderAll();
-      toast("Datos borrados.");
-    });
+
 
     /* ======================
        Panel cuidador
@@ -3774,7 +3672,9 @@
       if(q) q.value = state.profile || "L2";
     }
     $("#profileSelectQuick")?.addEventListener("change", ()=>{
-      state.profile = $("#profileSelectQuick").value || "L2";
+      const nextProfile = $("#profileSelectQuick").value || "L2";
+      state.profile = nextProfile;
+      state.patientView = PROFILE_RULES[nextProfile]?.defaultView || "simple";
       saveState();
       applyProfile();
       toast("Perfil actualizado.");
@@ -3968,12 +3868,10 @@
       renderCarePanel();
       fillPatientSettingsForm();
       $("#routineEditor").value = (state.routine||[]).map((s,i)=> `${i+1}) ${s.title}`).join("\n");
-      if($("#exportBox")) $("#exportBox").textContent = "—";
       renderPatientOrientation();
       renderPatientView();
       renderContainment();
       syncQuickProfileUI();
-      renderSosToggles();
       applyTranslations();
     }
     $("#apptDate").value = toDateInputValue(new Date());
@@ -4041,6 +3939,7 @@
 
       state.patientName = patientName;
       state.profile = profile;
+      state.patientView = PROFILE_RULES[profile]?.defaultView || "simple";
       state.carePin = pin;
       state.careRecoveryCode = generateRecoveryCode();
       state.trusted.name = trustedName;
