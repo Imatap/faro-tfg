@@ -2082,6 +2082,10 @@
     }
     btnModePatient.addEventListener("click", ()=>setMode("patient"));
     btnModeCare.addEventListener("click", ()=>setMode("care"));
+    $("#btnBackToCare")?.addEventListener("click", ()=>{
+      bumpUsage("patient_action:open_caregiver");
+      setMode("care");
+    });
     // ===== SISTEMA DE IDIOMAS =====
     const TRANSLATIONS = {
       es: {
