@@ -4084,6 +4084,7 @@
 
       state.patientName = patientName;
       state.profile = profile;
+      state.patientView = PROFILE_RULES[profile]?.defaultView || "simple";
       state.carePin = pin;
       state.careRecoveryCode = generateRecoveryCode();
       state.trusted.name = trustedName;
@@ -4105,6 +4106,9 @@
     function init(){
       $("#safetyBadge").textContent = "Seguro";
       $("#safetyBadge").className = "badge ok";
+
+      state.patientView = PROFILE_RULES[state.profile]?.defaultView || "simple";
+      saveState();
 
       tick();
       applyProfile();
