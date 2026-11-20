@@ -811,9 +811,16 @@
     .odd-option{min-height:92px;padding:12px;border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px}
     .odd-option .emoji{font-size:34px}
     .odd-option .label{font-size:13px;font-weight:800}
+    .needs-question{font-size:17px;font-weight:850;margin-bottom:12px;text-align:center}
+    .needs-options{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+    .needs-option{min-height:96px;padding:12px;border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px}
+    .needs-option .emoji{font-size:34px}
+    .needs-option .label{font-size:13px;font-weight:800}
+    .needs-option.done{opacity:.60;border-color:rgba(125,255,182,.45);background:rgba(125,255,182,.10)}
     @media (max-width:520px){
       .sequence-options{grid-template-columns:1fr}
       .odd-options{grid-template-columns:1fr 1fr}
+      .needs-options{grid-template-columns:1fr 1fr}
     }
     @media (max-width:620px){
       .activity-choice-grid{grid-template-columns:1fr}
@@ -1110,32 +1117,9 @@
                       </div>
                     </div>
 
-                    <div id="activityEqual" class="activity-panel hidden">
-                      <h3>👀 ¿Cuál es igual?</h3>
-                      <p class="activity-help">Busca abajo el mismo dibujo que aparece aquí.</p>
-                      <div id="equalTarget" class="equal-target">🌼</div>
-                      <div id="equalOptions" class="equal-options"></div>
-                      <div id="equalFeedback" class="activity-feedback" aria-live="polite"></div>
-                      <div class="btnrow" style="margin-top:12px">
-                        <button class="btn primary" id="btnEqualNext">Otro dibujo</button>
-                        <button class="btn" data-activity-back>Elegir otra actividad</button>
-                      </div>
-                    </div>
-
-                    <div id="activityMemories" class="activity-panel hidden">
-                      <h3>❤️ Mis recuerdos</h3>
-                      <p class="activity-help">Mira la foto y escucha el mensaje. No tienes que recordar nada.</p>
-                      <div id="memoryActivityContent"></div>
-                      <div class="btnrow" style="margin-top:12px">
-                        <button class="btn primary" id="btnMemoryActivitySpeak">Escuchar</button>
-                        <button class="btn" id="btnMemoryActivityNext">Otro recuerdo</button>
-                        <button class="btn" data-activity-back>Elegir otra actividad</button>
-                      </div>
-                    </div>
-
                     <div id="activitySequence" class="activity-panel hidden">
                       <h3>🔢 Ponlo en orden</h3>
-                      <p class="activity-help">Pulsa los pasos en el orden en que los harías.</p>
+                      <p class="activity-help" id="sequenceHelp">Pulsa los pasos en el orden en que los harías.</p>
                       <div id="sequenceQuestion" class="sequence-question"></div>
                       <div id="sequenceOptions" class="sequence-options"></div>
                       <div id="sequenceFeedback" class="activity-feedback" aria-live="polite"></div>
@@ -1153,6 +1137,18 @@
                       <div id="oddFeedback" class="activity-feedback" aria-live="polite"></div>
                       <div class="btnrow" style="margin-top:12px">
                         <button class="btn primary" id="btnOddAgain">Otra ronda</button>
+                        <button class="btn" data-activity-back>Elegir otra actividad</button>
+                      </div>
+                    </div>
+
+                    <div id="activityNeeds" class="activity-panel hidden">
+                      <h3>👜 ¿Qué necesito?</h3>
+                      <p class="activity-help">Prepara lo necesario para una situación cotidiana.</p>
+                      <div id="needsQuestion" class="needs-question"></div>
+                      <div id="needsOptions" class="needs-options"></div>
+                      <div id="needsFeedback" class="activity-feedback" aria-live="polite"></div>
+                      <div class="btnrow" style="margin-top:12px">
+                        <button class="btn primary" id="btnNeedsAgain">Otra situación</button>
                         <button class="btn" data-activity-back>Elegir otra actividad</button>
                       </div>
                     </div>
@@ -2963,12 +2959,12 @@
     /* ======================
        Actividades del paciente
        ====================== */
-    const activityPanels = ["activityPairs","activityEqual","activityMemories","activitySequence","activityOdd"];
+    const activityPanels = ["activityPairs","activitySequence","activityOdd","activityNeeds"];
     let pairsState = {first:null, lock:false, matched:0, total:0};
-    let memoryActivityIndex = 0;
-    let sequenceRoundIndex = 0;
+    let sequenceRoundIndex = {L1:0,L2:0};
     let sequenceProgress = 0;
     let oddRoundIndex = 0;
+    let needsRoundIndex = 0;
 
     function shuffleArray(items){
       const a = [...items];
@@ -2992,15 +2988,15 @@
       const c3 = $("#activityChoice3");
 
       if(state.profile === "L1"){
-        if(intro) intro.textContent = "Actividades para mantener la autonomía: un poco más de atención, orden y asociación. Sin tiempo ni puntuaciones.";
+        if(intro) intro.textContent = "Actividades funcionales para mantener autonomía, atención y planificación. Sin tiempo ni puntuaciones.";
+        setActivityChoice(c1,"pairs","🧩 Encuentra las parejas","Busca cuatro parejas entre ocho cartas.");
+        setActivityChoice(c2,"sequence","🔢 Organiza la tarea","Ordena cuatro pasos de una actividad cotidiana.");
+        setActivityChoice(c3,"needs","👜 ¿Qué necesito?","Elige lo necesario para resolver una situación cotidiana.");
+      }else{
+        if(intro) intro.textContent = "Actividades guiadas de atención y asociación. Sin tiempo, sin puntuaciones y sin penalizaciones.";
         setActivityChoice(c1,"pairs","🧩 Encuentra las parejas","Busca tres parejas entre seis cartas.");
         setActivityChoice(c2,"sequence","🔢 Ponlo en orden","Ordena tres pasos de una actividad cotidiana.");
         setActivityChoice(c3,"odd","🔎 ¿Cuál es diferente?","Encuentra el elemento que no pertenece al grupo.");
-      }else{
-        if(intro) intro.textContent = "Actividades sencillas de reconocimiento y recuerdos. Sin tiempo, sin puntuaciones y sin penalizaciones.";
-        setActivityChoice(c1,"pairs","🧩 Encuentra las parejas","Busca dos parejas entre cuatro cartas.");
-        setActivityChoice(c2,"equal","👀 ¿Cuál es igual?","Mira el dibujo grande y pulsa el mismo.");
-        setActivityChoice(c3,"memories","❤️ Mis recuerdos","Mira fotos y escucha mensajes de tu familia.");
       }
     }
 
@@ -3019,18 +3015,15 @@
       if(name === "pairs"){
         $("#activityPairs")?.classList.remove("hidden");
         startPairsGame();
-      }else if(name === "equal" && state.profile === "L2"){
-        $("#activityEqual")?.classList.remove("hidden");
-        startEqualRound();
-      }else if(name === "memories" && state.profile === "L2"){
-        $("#activityMemories")?.classList.remove("hidden");
-        renderMemoryActivity();
-      }else if(name === "sequence" && state.profile === "L1"){
+      }else if(name === "sequence"){
         $("#activitySequence")?.classList.remove("hidden");
         startSequenceRound();
-      }else if(name === "odd" && state.profile === "L1"){
+      }else if(name === "odd" && state.profile === "L2"){
         $("#activityOdd")?.classList.remove("hidden");
         startOddRound();
+      }else if(name === "needs" && state.profile === "L1"){
+        $("#activityNeeds")?.classList.remove("hidden");
+        startNeedsRound();
       }else{
         showActivityChooser();
         return;
@@ -3051,16 +3044,16 @@
       const help = $("#pairsHelp");
       if(!grid) return;
 
-      const pairCount = state.profile === "L1" ? 3 : 2;
-      const symbols = shuffleArray(["🌼","🐶","🍎","🚗","☀️","🎵","🐱","🍊"]).slice(0,pairCount);
+      const pairCount = state.profile === "L1" ? 4 : 3;
+      const symbols = shuffleArray(["🌼","🐶","🍎","🚗","☀️","🎵","🐱","🍊","🏠","📘"]).slice(0,pairCount);
       const cards = shuffleArray([...symbols,...symbols]);
       pairsState = {first:null, lock:false, matched:0, total:cards.length};
 
-      grid.style.gridTemplateColumns = state.profile === "L1" ? "repeat(3,1fr)" : "repeat(2,1fr)";
+      grid.style.gridTemplateColumns = state.profile === "L1" ? "repeat(4,1fr)" : "repeat(3,1fr)";
       grid.innerHTML = "";
       if(help) help.textContent = state.profile === "L1"
-        ? "Hay seis cartas. Busca las tres parejas."
-        : "Hay cuatro cartas. Busca las dos parejas.";
+        ? "Hay ocho cartas. Busca las cuatro parejas."
+        : "Hay seis cartas. Busca las tres parejas.";
       if(feedback) feedback.textContent = "Busca dos dibujos iguales.";
 
       cards.forEach((symbol,idx)=>{
@@ -3115,37 +3108,7 @@
     }
     $("#btnPairsAgain")?.addEventListener("click", startPairsGame);
 
-    function startEqualRound(){
-      const pool = ["🌼","🐶","🍎","🚗","☀️","🎵","🐱","🍊"];
-      const target = pool[Math.floor(Math.random()*pool.length)];
-      const distractors = shuffleArray(pool.filter(x=>x!==target)).slice(0,2);
-      const options = shuffleArray([target,...distractors]);
-      $("#equalTarget").textContent = target;
-      $("#equalFeedback").textContent = "Pulsa el dibujo igual.";
-
-      const box = $("#equalOptions");
-      if(!box) return;
-      box.innerHTML = "";
-
-      options.forEach(symbol=>{
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = "btn equal-option";
-        btn.textContent = symbol;
-        btn.addEventListener("click", ()=>{
-          if(symbol === target){
-            $("#equalFeedback").textContent = "¡Muy bien! Es el mismo dibujo.";
-            speak("Muy bien.");
-          }else{
-            $("#equalFeedback").textContent = "Probamos otra. Mira despacio el dibujo grande.";
-          }
-        });
-        box.appendChild(btn);
-      });
-    }
-    $("#btnEqualNext")?.addEventListener("click", startEqualRound);
-
-    const sequenceRounds = [
+    const sequenceRoundsL2 = [
       {
         question:"Lavarse las manos",
         steps:[
@@ -3155,33 +3118,71 @@
         ]
       },
       {
-        question:"Prepararse para salir",
-        steps:[
-          {emoji:"👕",label:"Vestirse"},
-          {emoji:"👟",label:"Ponerse los zapatos"},
-          {emoji:"🚪",label:"Salir de casa"}
-        ]
-      },
-      {
         question:"Preparar una tostada",
         steps:[
           {emoji:"🍞",label:"Coger el pan"},
           {emoji:"♨️",label:"Tostarlo"},
           {emoji:"🍽️",label:"Ponerlo en el plato"}
         ]
+      },
+      {
+        question:"Ponerse el abrigo",
+        steps:[
+          {emoji:"🧥",label:"Coger el abrigo"},
+          {emoji:"🙌",label:"Ponérselo"},
+          {emoji:"🤐",label:"Abrocharlo"}
+        ]
+      }
+    ];
+
+    const sequenceRoundsL1 = [
+      {
+        question:"Enviar una carta",
+        steps:[
+          {emoji:"✍️",label:"Escribir el mensaje"},
+          {emoji:"✉️",label:"Meterlo en el sobre"},
+          {emoji:"🏷️",label:"Poner el sello"},
+          {emoji:"📮",label:"Echarla al buzón"}
+        ]
+      },
+      {
+        question:"Preparar una llamada al médico",
+        steps:[
+          {emoji:"📇",label:"Buscar el teléfono"},
+          {emoji:"📄",label:"Preparar la información"},
+          {emoji:"📞",label:"Hacer la llamada"},
+          {emoji:"📝",label:"Anotar la cita"}
+        ]
+      },
+      {
+        question:"Preparar una lavadora",
+        steps:[
+          {emoji:"👕",label:"Meter la ropa"},
+          {emoji:"🧴",label:"Añadir detergente"},
+          {emoji:"⚙️",label:"Elegir el programa"},
+          {emoji:"▶️",label:"Ponerla en marcha"}
+        ]
       }
     ];
 
     function startSequenceRound(){
-      const round = sequenceRounds[sequenceRoundIndex % sequenceRounds.length];
-      sequenceRoundIndex++;
+      const isL1 = state.profile === "L1";
+      const rounds = isL1 ? sequenceRoundsL1 : sequenceRoundsL2;
+      const key = isL1 ? "L1" : "L2";
+      const round = rounds[sequenceRoundIndex[key] % rounds.length];
+      sequenceRoundIndex[key]++;
       sequenceProgress = 0;
+
       $("#sequenceQuestion").textContent = round.question;
+      $("#sequenceHelp").textContent = isL1
+        ? "Ordena los cuatro pasos de esta tarea."
+        : "Ordena los tres pasos de esta tarea.";
       $("#sequenceFeedback").textContent = "Empieza por el primer paso.";
 
       const box = $("#sequenceOptions");
       if(!box) return;
       box.innerHTML = "";
+      box.style.gridTemplateColumns = isL1 ? "repeat(2,1fr)" : "repeat(3,1fr)";
 
       shuffleArray(round.steps.map((step,index)=>({...step,index}))).forEach(step=>{
         const btn=document.createElement("button");
@@ -3190,6 +3191,7 @@
         btn.innerHTML=`<span class="emoji">${step.emoji}</span><span class="label">${step.label}</span>`;
         btn.addEventListener("click", ()=>{
           if(btn.classList.contains("done")) return;
+
           if(step.index === sequenceProgress){
             btn.classList.add("done");
             btn.disabled=true;
@@ -3201,7 +3203,7 @@
               $("#sequenceFeedback").textContent="Bien. ¿Qué harías después?";
             }
           }else{
-            $("#sequenceFeedback").textContent="Míralo con calma. ¿Qué harías primero?";
+            $("#sequenceFeedback").textContent="Míralo con calma. ¿Qué paso iría antes?";
           }
         });
         box.appendChild(btn);
@@ -3259,7 +3261,7 @@
             $("#oddFeedback").textContent="¡Muy bien! Esa es la diferente.";
             speak("Muy bien.");
           }else{
-            $("#oddFeedback").textContent="Esa pertenece al grupo. Prueba con otra.";
+            $("#oddFeedback").textContent="Esa pertenece al grupo. Mira las demás opciones.";
           }
         });
         box.appendChild(btn);
@@ -3267,53 +3269,82 @@
     }
     $("#btnOddAgain")?.addEventListener("click", startOddRound);
 
-    function renderMemoryActivity(){
-      const box = $("#memoryActivityContent");
-      const speakBtn = $("#btnMemoryActivitySpeak");
-      const nextBtn = $("#btnMemoryActivityNext");
-      if(!box) return;
-
-      const items = state.album || [];
-      if(!items.length){
-        box.innerHTML = `<div class="note">Tu familia todavía no ha añadido recuerdos al álbum.</div>`;
-        speakBtn?.classList.add("hidden");
-        nextBtn?.classList.add("hidden");
-        return;
+    const needsRounds = [
+      {
+        question:"Vas a una cita médica. ¿Qué conviene llevar?",
+        options:[
+          {emoji:"💳",label:"Tarjeta sanitaria",needed:true},
+          {emoji:"🪪",label:"Identificación",needed:true},
+          {emoji:"📄",label:"Informes médicos",needed:true},
+          {emoji:"📺",label:"Mando de TV",needed:false},
+          {emoji:"🛏️",label:"Almohada",needed:false},
+          {emoji:"🍳",label:"Sartén",needed:false}
+        ]
+      },
+      {
+        question:"Vas a hacer la compra. ¿Qué te puede ayudar?",
+        options:[
+          {emoji:"👛",label:"Cartera",needed:true},
+          {emoji:"📝",label:"Lista de compra",needed:true},
+          {emoji:"🛍️",label:"Bolsa",needed:true},
+          {emoji:"🪥",label:"Cepillo de dientes",needed:false},
+          {emoji:"🎮",label:"Mando",needed:false},
+          {emoji:"🛏️",label:"Almohada",needed:false}
+        ]
+      },
+      {
+        question:"Vas a hacer una gestión al banco. ¿Qué prepararías?",
+        options:[
+          {emoji:"🪪",label:"Identificación",needed:true},
+          {emoji:"💳",label:"Tarjeta o libreta",needed:true},
+          {emoji:"📄",label:"Documentos necesarios",needed:true},
+          {emoji:"⚽",label:"Pelota",needed:false},
+          {emoji:"🍽️",label:"Plato",needed:false},
+          {emoji:"🧸",label:"Peluche",needed:false}
+        ]
       }
+    ];
 
-      speakBtn?.classList.remove("hidden");
-      nextBtn?.classList.toggle("hidden", items.length < 2);
-      memoryActivityIndex = memoryActivityIndex % items.length;
-      const item = items[memoryActivityIndex];
-      const photo = item.photoDataUrl
-        ? `<img src="${item.photoDataUrl}" alt="Recuerdo familiar">`
-        : "🖼️";
+    function startNeedsRound(){
+      const round = needsRounds[needsRoundIndex % needsRounds.length];
+      needsRoundIndex++;
+      let selectedNeeded = 0;
+      const totalNeeded = round.options.filter(o=>o.needed).length;
 
-      box.innerHTML = `
-        <div class="memory-activity-card">
-          <div class="memory-activity-photo">${photo}</div>
-          <div>
-            <div style="font-size:19px;font-weight:850">${escapeHtml(item.name || "Un recuerdo")}</div>
-            <div style="margin-top:6px;color:rgba(246,251,255,.86);line-height:1.45">${escapeHtml(item.msg || "Mira este recuerdo con calma.")}</div>
-          </div>
-        </div>
-      `;
+      $("#needsQuestion").textContent = round.question;
+      $("#needsFeedback").textContent = "Elige lo que prepararías.";
+
+      const box = $("#needsOptions");
+      if(!box) return;
+      box.innerHTML = "";
+
+      shuffleArray(round.options).forEach(option=>{
+        const btn=document.createElement("button");
+        btn.type="button";
+        btn.className="btn needs-option";
+        btn.innerHTML=`<span class="emoji">${option.emoji}</span><span class="label">${option.label}</span>`;
+
+        btn.addEventListener("click", ()=>{
+          if(btn.classList.contains("done")) return;
+
+          if(option.needed){
+            btn.classList.add("done");
+            btn.disabled=true;
+            selectedNeeded++;
+            if(selectedNeeded === totalNeeded){
+              $("#needsFeedback").textContent="Perfecto. Has preparado lo necesario.";
+              speak("Muy bien.");
+            }else{
+              $("#needsFeedback").textContent="Bien. ¿Qué más prepararías?";
+            }
+          }else{
+            $("#needsFeedback").textContent="Ese objeto no parece necesario aquí. Mira las demás opciones.";
+          }
+        });
+        box.appendChild(btn);
+      });
     }
-
-    $("#btnMemoryActivitySpeak")?.addEventListener("click", ()=>{
-      const items = state.album || [];
-      if(!items.length) return;
-      const item = items[memoryActivityIndex % items.length];
-      speak(`${item.name || "Un recuerdo"}. ${item.msg || ""}`);
-      bumpUsage("patient_activity:memory_speak");
-    });
-
-    $("#btnMemoryActivityNext")?.addEventListener("click", ()=>{
-      const items = state.album || [];
-      if(!items.length) return;
-      memoryActivityIndex = (memoryActivityIndex + 1) % items.length;
-      renderMemoryActivity();
-    });
+    $("#btnNeedsAgain")?.addEventListener("click", startNeedsRound);
 
     /* ======================
        Cuidador: Plan
