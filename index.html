@@ -2560,7 +2560,7 @@
       const es = currentLang === "es";
 
       (state.meds || []).forEach(m => {
-        if(!m.time) return;
+        if(!m.time || medicationConfirmedOnDate(m.id, today)) return;
         const [hh, mm] = m.time.split(":").map(Number);
         const minutes = (hh||0)*60 + (mm||0);
         candidates.push({
@@ -2978,6 +2978,14 @@
       d.textContent = text;
       return d;
     }
+    function medicationConfirmedOnDate(medId, dateKey=toDateInputValue(new Date())){
+      return (state.history || []).some(e =>
+        e.type === "medication_confirmed" &&
+        e.medId === medId &&
+        localDateKeyFromISO(e.at) === dateKey
+      );
+    }
+
     function renderPatientReminders(){
       const list = $("#patientRemindersList");
       if(!list) return;
@@ -2988,28 +2996,77 @@
       const today = toDateInputValue(new Date());
       const apptsToday = appts.filter(a=>a.date===today);
 
-      const blocks = [];
-      meds.forEach(m=> blocks.push({k:"Medicación", v:`${m.name} — ${m.time}`, s:m.note||"—", badge:"Hoy"}));
-      apptsToday.forEach(a=> blocks.push({k:"Cita", v:`${a.title} — ${a.time || "hora por confirmar"}`, s:a.note||"—", badge:"Hoy"}));
-
-      if(!blocks.length){
+      if(!meds.length && !apptsToday.length){
         list.appendChild(makeNoteItem("No hay recordatorios para hoy. Puedes descansar."));
         return;
       }
-      for(const b of blocks){
+
+      meds.forEach(m=>{
+        const confirmed = medicationConfirmedOnDate(m.id, today);
+        const el = document.createElement("div");
+        el.className = "item";
+
+        const meta = document.createElement("div");
+        meta.className = "meta";
+        meta.innerHTML = `
+          <div class="k">Medicación</div>
+          <div class="v">${escapeHtml(m.name)} — ${escapeHtml(m.time || "hora pendiente")}</div>
+          <div class="s">${escapeHtml(m.note || "Tómala como te la han preparado.")}</div>
+        `;
+
+        const actions = document.createElement("div");
+        actions.style.display="flex";
+        actions.style.flexDirection="column";
+        actions.style.gap="8px";
+        actions.style.alignItems="flex-end";
+
+        const badge = document.createElement("span");
+        badge.className = confirmed ? "badge ok" : "badge warn";
+        badge.textContent = confirmed ? "Tomada" : "Pendiente";
+        actions.appendChild(badge);
+
+        const btn = document.createElement("button");
+        btn.type="button";
+        btn.className = confirmed ? "btn small" : "btn small primary";
+        btn.disabled = confirmed;
+        btn.textContent = confirmed ? "✓ Confirmada" : "✓ Ya la he tomado";
+        btn.addEventListener("click", ()=>{
+          if(medicationConfirmedOnDate(m.id, today)) return;
+          historyAdd(
+            "medication_confirmed",
+            `Medicación confirmada: ${m.name}`,
+            `${m.time ? "Prevista a las " + m.time + ". " : ""}${m.note || ""}`.trim(),
+            nowISO(),
+            {medId:m.id}
+          );
+          bumpUsage("patient_action:medication_confirmed");
+          renderPatientReminders();
+          renderPatientOrientation();
+          speak("Medicación registrada.");
+          toast("Medicación registrada.");
+        });
+        actions.appendChild(btn);
+
+        el.appendChild(meta);
+        el.appendChild(actions);
+        list.appendChild(el);
+      });
+
+      apptsToday.forEach(a=>{
         const el = document.createElement("div");
         el.className = "item";
         el.innerHTML = `
           <div class="meta">
-            <div class="k">${escapeHtml(b.k)}</div>
-            <div class="v">${escapeHtml(b.v)}</div>
-            <div class="s">${escapeHtml(b.s)}</div>
+            <div class="k">Cita</div>
+            <div class="v">${escapeHtml(a.title)} — ${escapeHtml(a.time || "hora por confirmar")}</div>
+            <div class="s">${escapeHtml(a.note || "—")}</div>
           </div>
-          <span class="badge ok">${escapeHtml(b.badge)}</span>
+          <span class="badge ok">Hoy</span>
         `;
         list.appendChild(el);
-      }
+      });
     }
+
 
     /* ======================
        Álbum
@@ -3601,14 +3658,15 @@
     let trackingMonthCursor = new Date();
     trackingMonthCursor = new Date(trackingMonthCursor.getFullYear(), trackingMonthCursor.getMonth(), 1);
 
-    function historyAdd(type, title, detail="", at=nowISO()){
+    function historyAdd(type, title, detail="", at=nowISO(), meta={}){
       state.history = state.history || [];
       state.history.unshift({
         id: cryptoRandomId(),
         type,
         title,
         detail,
-        at
+        at,
+        ...meta
       });
       saveState();
       if(state.mode === "care") renderTracking();
@@ -3644,11 +3702,18 @@
 
       // Elementos previstos: no se confunden con realizados.
       (state.meds || []).forEach(m=>{
+        const confirmed = (state.history || []).some(e =>
+          e.type === "medication_confirmed" &&
+          e.medId === m.id &&
+          localDateKeyFromISO(e.at) === dateKey
+        );
         events.push({
-          type:"planned",
+          type:confirmed ? "planned_done" : "planned",
           at:`${dateKey}T${m.time || "12:00"}:00`,
-          title:`Medicación prevista: ${m.name}`,
-          detail:m.time ? `Hora prevista: ${m.time}${m.note ? " · " + m.note : ""}` : (m.note || "Sin hora")
+          title:confirmed ? `Medicación prevista: ${m.name} ✓` : `Medicación prevista: ${m.name}`,
+          detail:confirmed
+            ? `Programada para ${m.time || "sin hora"}. Confirmada posteriormente.`
+            : (m.time ? `Hora prevista: ${m.time}${m.note ? " · " + m.note : ""}` : (m.note || "Sin hora"))
         });
       });
 
@@ -3670,6 +3735,7 @@
       if(type === "help") return {icon:"🆘", label:"Ayuda", dot:"help"};
       if(type === "medication_confirmed") return {icon:"💊", label:"Medicación", dot:"completed"};
       if(type === "observation") return {icon:"📝", label:"Observación", dot:"observation"};
+      if(type === "planned_done") return {icon:"✓", label:"Previsto · confirmado", dot:"completed"};
       return {icon:"○", label:"Previsto", dot:"planned"};
     }
 
@@ -3725,7 +3791,7 @@
 
       const events=trackingEventsForDate(trackingSelectedDate);
       const counts={
-        planned:events.filter(e=>e.type==="planned").length,
+        planned:events.filter(e=>e.type==="planned" || e.type==="planned_done").length,
         completed:events.filter(e=>e.type==="routine_completed" || e.type==="medication_confirmed").length,
         observation:events.filter(e=>e.type==="observation").length,
         help:events.filter(e=>e.type==="help").length
