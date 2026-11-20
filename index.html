@@ -1002,15 +1002,6 @@
                   <button class="btn danger giant help-primary" id="btnPatientMainHelp" data-i18n="necesitaAyuda">Necesito ayuda</button>
                 </div>
 
-                <!-- Botón SOS familiar - aparece si el cuidador lo activa -->
-                <div id="sosAlertBlock" class="hidden l3-hide" style="margin-top:10px">
-                  <button class="btn giant" id="btnSosAlert"
-                    style="width:100%;background:linear-gradient(180deg,rgba(255,80,80,.55),rgba(200,30,30,.40));border:1px solid rgba(255,100,100,.5);font-size:18px;font-weight:800;letter-spacing:.04em;padding:18px;"
-                    data-i18n="sosAvisar">
-                    🆘 Avisar a mi familia
-                  </button>
-                </div>
-
                 <div class="who calm-focus l3-hide" id="trustedPersonCard">
                   <div class="avatar" id="whoAvatar" aria-hidden="true">👤</div>
                   <div>
@@ -1155,9 +1146,6 @@
                   </div>
                 </div>
 
-                <div class="btnrow" style="margin-top:12px">
-                  <button class="btn danger big" id="btnFullHelp" data-i18n="necesitaAyuda">Necesito ayuda</button>
-                </div>
               </div>
 
               <!-- L3: CONTENCIÓN -->
@@ -1204,16 +1192,6 @@
                     <div class="s">Te guío con una voz suave: inhalar, exhalar.</div>
                   </div>
                   <button class="btn small primary" id="btnBreath">Empezar</button>
-                </div>
-
-                <div class="item calm-hide">
-                  <div class="meta">
-                    <div class="k">Mensaje</div>
-                    <div class="v">Estoy bien / necesito ayuda</div>
-                    <div class="s">Envía un aviso (se guarda en el panel del cuidador).</div>
-                  </div>
-                  <button class="btn small" id="btnImOk">Estoy bien</button>
-                  <button class="btn small danger" id="btnNeedHelp">Necesito ayuda</button>
                 </div>
 
                 <div class="item calm-hide">
@@ -2741,17 +2719,6 @@
       renderCarePanel();
     }
 
-    $("#btnImOk")?.addEventListener("click", ()=>{
-      bumpUsage("patient_action:im_ok");
-      sendSignal("ok","Estoy bien");
-      toast("Aviso enviado.");
-      speak("Perfecto. Gracias por avisar.");
-    });
-    $("#btnNeedHelp")?.addEventListener("click", ()=>{
-      bumpUsage("patient_action:need_help");
-      sendSignal("help","Necesito ayuda");
-      openPreparedHelpSms({speakFirst:true});
-    });
     if($("#btnSimpleHelp")) $("#btnSimpleHelp").addEventListener("click", ()=>{
       bumpUsage("patient_action:simple_help");
       sendSignal("help","Necesito ayuda");
@@ -2762,11 +2729,6 @@
       bumpUsage("patient_action:main_help");
       sendSignal("help","Necesito ayuda");
       setCalmMode(true);
-      openPreparedHelpSms({speakFirst:true});
-    });
-    $("#btnFullHelp")?.addEventListener("click", ()=>{
-      bumpUsage("patient_action:full_help");
-      sendSignal("help","Necesito ayuda");
       openPreparedHelpSms({speakFirst:true});
     });
 
