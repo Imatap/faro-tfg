@@ -1722,7 +1722,16 @@
     }
     let state = loadState();
     document.body.dataset.mode = state.mode || "patient";
-    function saveState(){ localStorage.setItem(KEY, JSON.stringify(state)); }
+    function saveState(){
+      try{
+        localStorage.setItem(KEY, JSON.stringify(state));
+        return true;
+      }catch(err){
+        console.error("No se pudo guardar FARO:", err);
+        toast("No se pudo guardar: los archivos pueden ser demasiado grandes.");
+        return false;
+      }
+    }
 
     /* ==========
        UI helpers
@@ -1808,24 +1817,6 @@
       document.addEventListener("visibilitychange", () => {
         if(document.hidden) window.speechSynthesis.cancel();
       });
-    }
-
-    /* ===== Notificaciones ===== */
-    async function ensureNotifications(){
-      if(!("Notification" in window)){
-        toast("Notificaciones no disponibles aquí.");
-        return false;
-      }
-      if(Notification.permission === "granted") return true;
-      const p = await Notification.requestPermission();
-      if(p === "granted"){ toast("Notificaciones activadas."); return true; }
-      toast("Permiso denegado.");
-      return false;
-    }
-    async function notify(title, body){
-      const ok = await ensureNotifications();
-      if(!ok) return;
-      try{ new Notification(title, {body}); }catch{}
     }
 
     /* ===== Uso local ===== */
@@ -2209,9 +2200,6 @@
 
       // Botones ayuda paciente
       tx("#btnPatientMainHelp", "necesitaAyuda");
-      tx("#btnFullHelp", "necesitaAyuda");
-      tx("#btnSosAlert", "sosAvisar");
-      tx("#btnSosAlertL3", "sosAvisar");
 
       // Rutina
       tx("#btnRoutineNext", "siguiente");
@@ -2244,7 +2232,6 @@
 
       // Guardar / Restablecer
       tx("#btnSaveTrusted", "guardar");
-      tx("#btnResetTrusted", "restablecer");
 
       // Grabación
       if($("#btnStartRec") && !$("#btnStartRec").disabled) tx("#btnStartRec","grabar");
@@ -2254,10 +2241,8 @@
       if(recSt && (recSt.textContent==="Sin grabación"||recSt.textContent==="No recording")) recSt.textContent=t("sinGrabacion");
 
       // Badges
-      tx("#safetyBadge","seguro");
 
       // Llamar ahora L3
-      tAll(".btn.danger.giant.help-primary","necesitaAyuda");
 
       // data-i18n fallback
       document.querySelectorAll("[data-i18n]").forEach(el=>{
@@ -2402,54 +2387,15 @@
       const t = state.trusted;
       return `Hola. Soy ${t.name || "tu persona de confianza"}. ${t.rel ? "Soy " + t.rel + "." : ""} ${t.msg || ""}`;
     }
-    function trustedAudioCandidates(){
-      const current = state?.trusted?.memoryAudioDataUrl || "";
-      return [current].filter(Boolean);
-    }
-
-    function trustedVideoCandidates(){
-      const current = state?.trusted?.memoryVideoDataUrl || "";
-      return [current].filter(Boolean);
-    }
-
     function playTrustedAudio(){
-      const audioEl = $("#l3AudioPlayer");
-      const candidates = trustedAudioCandidates();
-
-      if(audioEl){
-        const source = audioEl.querySelector("source");
-        if(source){ source.src = candidates[0]; }
-        audioEl.src = candidates[0];
-        audioEl.load();
-        audioEl.currentTime = 0;
-        return audioEl.play().then(()=>true).catch(async ()=>{
-          for(const src of candidates.slice(1)){
-            try{
-              audioEl.src = src;
-              if(source){ source.src = src; }
-              audioEl.load();
-              audioEl.currentTime = 0;
-              await audioEl.play();
-              return true;
-            }catch(e){}
-          }
-          throw new Error("audio");
-        });
-      }
-
-      return new Promise(async (resolve, reject)=>{
-        for(const src of candidates){
-          try{
-            const a = new Audio(src);
-            a.preload = "auto";
-            a.currentTime = 0;
-            await a.play();
-            window.__faroTrustedAudio = a;
-            resolve(true);
-            return;
-          }catch(e){}
-        }
-        reject(new Error("audio"));
+      const src = state?.trusted?.memoryAudioDataUrl || "";
+      if(!src) return Promise.reject(new Error("audio"));
+      const a = new Audio(src);
+      a.preload = "auto";
+      a.currentTime = 0;
+      return a.play().then(()=>{
+        window.__faroTrustedAudio = a;
+        return true;
       });
     }
 
@@ -2469,20 +2415,7 @@
         toast("Añade un teléfono en modo cuidador.");
       }
     });
-    $("#btnReassure")?.addEventListener("click", ()=>{
-      bumpUsage("patient_action:reassure");
-      if(state.profile !== "L3"){
-        state.patientView = "simple";
-      }
-      setCalmMode(true);
-      $("#orientationBadge").textContent = "Acompañado";
-      $("#orientationBadge").className = "badge warn";
-      speak(state.trusted.msg || "Estoy contigo. Todo está bien.");
-      toast("Mensaje calmante.");
-      saveState();
-      renderPatientView();
-      renderContainment();
-    });
+
 
     /* ======================
        Vista paciente
@@ -2689,7 +2622,6 @@
       toast("Respiración guiada.");
     }
     $("#btnBreath")?.addEventListener("click", ()=>{ bumpUsage("patient_action:breath"); doBreath(); });
-    $("#btnL3Breath")?.addEventListener("click", ()=>{ bumpUsage("patient_action:l3_breath"); doBreath(); });
 
     /* ===== Leer “hoy” ===== */
     $("#btnPatientReadToday")?.addEventListener("click", ()=>{
@@ -2701,11 +2633,7 @@
       bumpUsage("patient_action:family_access");
       setMode("care");
     });
-    $("#btnL3ListenToday")?.addEventListener("click", ()=>{
-      bumpUsage("patient_action:l3_listen");
-      speak(buildWhoText());
-      toast("Escuchando.");
-    });
+
 
     /* ======================
        Recordatorios
@@ -3697,60 +3625,6 @@
       return state?.trusted?.memoryVideoDataUrl || DEMO_L3_VIDEO;
     }
 
-    function playTrustedVideoIn(player, poster=null, auto=false){
-      if(!player) return Promise.reject(new Error("video"));
-      const candidates = trustedVideoCandidates();
-      const source = player.querySelector("source");
-
-      const tryPlay = async (src, muted)=>{
-        if(source){ source.src = src; }
-        player.src = src;
-        player.style.display = "block";
-        player.muted = !!muted;
-        player.currentTime = 0;
-        player.load();
-        poster && (poster.style.display = "none");
-        await player.play();
-        return true;
-      };
-
-      return tryPlay(candidates[0], auto).catch(async ()=>{
-        for(const src of candidates.slice(1)){
-          try{
-            return await tryPlay(src, auto);
-          }catch(e){}
-        }
-        throw new Error("video");
-      });
-    }
-
-    function playL3Memory(auto=false){
-      const video = $("#l3VideoPlayer") || $("#l3MemoryBox video");
-      const audio = $("#l3AudioPlayer") || $("#l3MemoryBox audio");
-      const poster = $("#memoryPoster");
-
-      if(video){
-        playTrustedVideoIn(video, poster, auto).catch(()=>{
-          if(!auto && audio){
-            playTrustedAudio().catch(()=>toast("No se pudo reproducir el vídeo ni el audio."));
-            return;
-          }
-          if(!auto){
-            toast("No se pudo reproducir el vídeo.");
-          }
-        });
-        return true;
-      }
-      if(!auto && audio){
-        playTrustedAudio().catch(()=>toast("No se pudo reproducir el audio."));
-        return true;
-      }
-      if(!auto){
-        speak(buildWhoText());
-      }
-      return false;
-    }
-
     function renderContainment(){
       const photo = $("#containmentPhoto");
       const t = state.trusted || {};
@@ -3826,26 +3700,6 @@
       player.currentTime = 0;
     });
 
-    $("#btnContainmentCall")?.addEventListener("click", ()=>{
-      bumpUsage("patient_action:l3_call");
-      const phone = (state.trusted.phone || "").trim();
-      speak("Voy a avisar ahora.");
-      state.signals.last = { type:"call_request", text:"Solicitud de llamada (L3)", at: nowISO() };
-      saveState();
-      renderCarePanel();
-      if(phone){
-        window.location.href = "tel:" + phone;
-      }else{
-        toast("Añade un teléfono en modo familiar.");
-      }
-    });
-
-    /* ===== Checklist ===== */
-    $("#btnAskNotif")?.addEventListener("click", ensureNotifications);
-    $("#btnTestVoice")?.addEventListener("click", ()=>{
-      speak("Hola. Esta es una prueba de voz de Faro.");
-      toast("Prueba de voz.");
-    });
 
 
     const btnKnowledgeSummary = document.getElementById("btnKnowledgeSummary");
@@ -3946,8 +3800,6 @@
       state.trusted.phone = phoneRaw;
       if(!state.trusted.rel) state.trusted.rel = "Persona de confianza";
       if(!state.trusted.msg) state.trusted.msg = "Estoy contigo. Vamos paso a paso.";
-      state.allowCall = true;
-      state.allowSms = true;
       state.setupComplete = true;
       state.mode = "patient";
       saveState();
@@ -3959,9 +3811,6 @@
     }
 
     function init(){
-      $("#safetyBadge").textContent = "Seguro";
-      $("#safetyBadge").className = "badge ok";
-
       tick();
       applyProfile();
       renderAll();
