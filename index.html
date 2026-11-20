@@ -263,6 +263,78 @@
       border-color:var(--line);
     }
 
+    /* Jerarquía visual de pestañas del paciente */
+    .patient-tabs{
+      gap:10px;
+      padding:10px;
+      background:linear-gradient(180deg, rgba(255,255,255,.055), rgba(0,0,0,.12));
+    }
+    .patient-tabs .tabbtn{
+      color:rgba(246,251,255,.92);
+      border-color:rgba(255,255,255,.10);
+      min-height:42px;
+      padding:10px 14px;
+      transition:transform .12s ease, filter .12s ease, box-shadow .12s ease;
+    }
+    .patient-tabs .tabbtn:hover{
+      transform:translateY(-1px);
+      filter:brightness(1.05);
+    }
+
+    .patient-tabs .patient-tab-routine{
+      background:rgba(92,190,204,.14);
+    }
+    .patient-tabs .patient-tab-reminders{
+      background:rgba(255,196,92,.14);
+    }
+    .patient-tabs .patient-tab-album{
+      background:rgba(183,137,255,.14);
+    }
+    .patient-tabs .patient-tab-activities{
+      background:rgba(112,214,164,.14);
+    }
+    .patient-tabs .patient-tab-back{
+      background:rgba(255,255,255,.045);
+      color:rgba(246,251,255,.72);
+      border-color:rgba(255,255,255,.08);
+      margin-left:auto;
+    }
+
+    .patient-tabs .patient-tab-routine.active{
+      background:linear-gradient(180deg, rgba(92,190,204,.40), rgba(92,190,204,.20));
+      border-color:rgba(92,190,204,.58);
+      box-shadow:0 8px 24px rgba(92,190,204,.14);
+    }
+    .patient-tabs .patient-tab-reminders.active{
+      background:linear-gradient(180deg, rgba(255,196,92,.42), rgba(255,196,92,.20));
+      border-color:rgba(255,196,92,.60);
+      box-shadow:0 8px 24px rgba(255,196,92,.14);
+    }
+    .patient-tabs .patient-tab-album.active{
+      background:linear-gradient(180deg, rgba(183,137,255,.40), rgba(183,137,255,.20));
+      border-color:rgba(183,137,255,.58);
+      box-shadow:0 8px 24px rgba(183,137,255,.14);
+    }
+    .patient-tabs .patient-tab-activities.active{
+      background:linear-gradient(180deg, rgba(112,214,164,.40), rgba(112,214,164,.20));
+      border-color:rgba(112,214,164,.58);
+      box-shadow:0 8px 24px rgba(112,214,164,.14);
+    }
+    .patient-tabs .patient-tab-back.active{
+      background:rgba(255,255,255,.08);
+      border-color:rgba(255,255,255,.14);
+      box-shadow:none;
+    }
+
+    @media (max-width:560px){
+      .patient-tabs .tabbtn{
+        flex:1 1 calc(50% - 8px);
+      }
+      .patient-tabs .patient-tab-back{
+        margin-left:0;
+      }
+    }
+
     /* Colores específicos para pestañas del cuidador */
     .care-tabs .tabbtn{
       color:var(--text);
@@ -1190,12 +1262,12 @@
 
               <!-- L1/L2: FULL -->
               <div id="patientFull" class="hidden show-l1-l2 calm-hide" style="margin-top:12px">
-                <div class="tabs" role="tablist" aria-label="Secciones del paciente">
-                  <button class="tabbtn active" data-ptab="routine" role="tab" aria-selected="true">Rutina</button>
-                  <button class="tabbtn" data-ptab="reminders" role="tab" aria-selected="false">Recordatorios</button>
-                  <button class="tabbtn" data-ptab="album" role="tab" aria-selected="false" data-i18n="album">Álbum</button>
-                  <button class="tabbtn" data-ptab="cognitive" role="tab" aria-selected="false">Actividades</button>
-                  <button class="tabbtn only-l2" id="btnPatientLess" role="tab" aria-selected="false">Volver</button>
+                <div class="tabs patient-tabs" role="tablist" aria-label="Secciones del paciente">
+                  <button class="tabbtn patient-tab-routine active" data-ptab="routine" role="tab" aria-selected="true">Rutina</button>
+                  <button class="tabbtn patient-tab-reminders" data-ptab="reminders" role="tab" aria-selected="false">Recordatorios</button>
+                  <button class="tabbtn patient-tab-album" data-ptab="album" role="tab" aria-selected="false" data-i18n="album">Álbum</button>
+                  <button class="tabbtn patient-tab-activities" data-ptab="cognitive" role="tab" aria-selected="false">Actividades</button>
+                  <button class="tabbtn patient-tab-back only-l2" id="btnPatientLess" role="tab" aria-selected="false">Volver</button>
                 </div>
 
                 <div style="margin-top:12px">
