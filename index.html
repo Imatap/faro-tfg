@@ -1002,6 +1002,15 @@
                   <button class="btn danger giant help-primary" id="btnPatientMainHelp" data-i18n="necesitaAyuda">Necesito ayuda</button>
                 </div>
 
+                <!-- Botón SOS familiar - aparece si el cuidador lo activa -->
+                <div id="sosAlertBlock" class="hidden l3-hide" style="margin-top:10px">
+                  <button class="btn giant" id="btnSosAlert"
+                    style="width:100%;background:linear-gradient(180deg,rgba(255,80,80,.55),rgba(200,30,30,.40));border:1px solid rgba(255,100,100,.5);font-size:18px;font-weight:800;letter-spacing:.04em;padding:18px;"
+                    data-i18n="sosAvisar">
+                    🆘 Avisar a mi familia
+                  </button>
+                </div>
+
                 <div class="who calm-focus l3-hide" id="trustedPersonCard">
                   <div class="avatar" id="whoAvatar" aria-hidden="true">👤</div>
                   <div>
@@ -1010,6 +1019,7 @@
                     <div class="desc" id="trustedDesc">—</div>
                     <div class="btnrow">
                       <button class="btn primary" id="btnSpeakWho" data-i18n="escuchar">Escuchar</button>
+                      <button class="btn ghost" id="btnCallCaregiver" data-i18n="llamar">Llamar</button>
                     </div>
                   </div>
                 </div>
@@ -1045,6 +1055,9 @@
                   <button class="btn big" id="btnPatientMore">Más opciones</button>
                 </div>
 
+                <div class="btnrow hidden" style="margin-top:10px">
+                  <button class="btn big" id="btnPatientMoreL2">Más opciones</button>
+                </div>
               </div>
 
               <!-- L1/L2: FULL -->
@@ -1142,6 +1155,9 @@
                   </div>
                 </div>
 
+                <div class="btnrow" style="margin-top:12px">
+                  <button class="btn danger big" id="btnFullHelp" data-i18n="necesitaAyuda">Necesito ayuda</button>
+                </div>
               </div>
 
               <!-- L3: CONTENCIÓN -->
@@ -1173,20 +1189,45 @@
             </div>
           </div>
 
-          <!-- Calma (L1/L2): una única acción, sin duplicar ayuda ni lectura del día -->
+          <!-- Ayuda rápida (L1/L2) -->
           <div class="card show-l1-l2 hidden" id="quickHelpCard">
             <div class="hd">
-              <h2>Calma</h2>
-              <span class="badge ok">Respira</span>
+              <h2 data-i18n="ayudaRapida">Ayuda rápida</h2>
+              <span class="badge ok" id="safetyBadge" data-i18n="seguro">Seguro</span>
             </div>
             <div class="bd">
-              <div class="item">
-                <div class="meta">
-                  <div class="k">Respirar</div>
-                  <div class="v">Un minuto de calma</div>
-                  <div class="s">FARO te guía despacio para inhalar y exhalar.</div>
+              <div class="list">
+                <div class="item">
+                  <div class="meta">
+                    <div class="k">Respirar</div>
+                    <div class="v">1 minuto de calma</div>
+                    <div class="s">Te guío con una voz suave: inhalar, exhalar.</div>
+                  </div>
+                  <button class="btn small primary" id="btnBreath">Empezar</button>
                 </div>
-                <button class="btn primary" id="btnBreath">Empezar</button>
+
+                <div class="item calm-hide">
+                  <div class="meta">
+                    <div class="k">Mensaje</div>
+                    <div class="v">Estoy bien / necesito ayuda</div>
+                    <div class="s">Envía un aviso (se guarda en el panel del cuidador).</div>
+                  </div>
+                  <button class="btn small" id="btnImOk">Estoy bien</button>
+                  <button class="btn small danger" id="btnNeedHelp">Necesito ayuda</button>
+                </div>
+
+                <div class="item calm-hide">
+                  <div class="meta">
+                    <div class="k">Asistente</div>
+                    <div class="v">Hablar y escuchar</div>
+                    <div class="s">Puede leer recordatorios y rutina en voz alta.</div>
+                  </div>
+                  <button class="btn small" id="btnSpeakToday">Leer hoy</button>
+                </div>
+
+                <div class="note calm-hide">
+                  <strong>Nota:</strong> prototipo. En una app real integrarías llamadas reales, geolocalización y notificaciones del sistema.
+                </div>
               </div>
             </div>
           </div>
@@ -1254,7 +1295,7 @@
                 <button class="tabbtn care-tab-plan active" data-ctab="plan" role="tab" aria-selected="true">Plan</button>
                 <button class="tabbtn care-tab-diary" data-ctab="diary" role="tab" aria-selected="false">Diario</button>
                 <button class="tabbtn care-tab-patient" data-ctab="patient" role="tab" aria-selected="false">Paciente</button>
-                <button class="tabbtn care-tab-games" data-ctab="games" role="tab" aria-selected="false">Actividades</button>
+                <button class="tabbtn care-tab-games" data-ctab="games" role="tab" aria-selected="false">Ejercicios</button>
                 <button class="tabbtn care-tab-knowledge" data-ctab="knowledge" role="tab" aria-selected="false">Recursos</button>
               </div>
 
@@ -1263,7 +1304,7 @@
                 <div id="ctab_plan">
                   <div class="note" data-i18n="anyadeMed">Añade medicación, citas y rutinas. El paciente lo verá adaptado a su perfil.</div>
 
-                  <div class="card" style="margin-top:10px;box-shadow:none">
+                  <div style="margin-top:10px" class="card" style="box-shadow:none">
                     <div class="bd">
                       <div class="split">
                         <div class="field">
@@ -1288,7 +1329,7 @@
                     </div>
                   </div>
 
-                  <div class="card" style="margin-top:12px;box-shadow:none">
+                  <div style="margin-top:12px" class="card" style="box-shadow:none">
                     <div class="bd">
                       <div class="split">
                         <div class="field">
@@ -1317,7 +1358,7 @@
                     </div>
                   </div>
 
-                  <div class="card" style="margin-top:12px;box-shadow:none">
+                  <div style="margin-top:12px" class="card" style="box-shadow:none">
                     <div class="bd">
                       <div class="field">
                         <label data-i18n="labelRutina">Rutina (un paso por línea)</label>
@@ -1376,7 +1417,7 @@
                     Ajustes del paciente (solo cuidador). Aquí cambias el perfil, la persona de confianza, el álbum y ejercicios.
                   </div>
 
-                  <div class="card" style="margin-top:10px;box-shadow:none">
+                  <div style="margin-top:10px" class="card" style="box-shadow:none">
                     <div class="bd">
                       <div class="split">
                         <div class="field">
@@ -1458,11 +1499,12 @@
 
                       <div class="btnrow">
                         <button class="btn primary" id="btnSaveTrusted" data-i18n="guardar">Guardar</button>
+                        <button class="btn" id="btnResetTrusted" data-i18n="restablecer">Restablecer</button>
                       </div>
                     </div>
                   </div>
 
-                  <div class="card" style="margin-top:12px;box-shadow:none">
+                  <div style="margin-top:12px" class="card" style="box-shadow:none">
                     <div class="bd">
                       <div class="split">
                         <div class="field">
@@ -1485,49 +1527,16 @@
                     </div>
                   </div>
 
-                  <div style="margin-top:12px" class="card">
-                    <div class="bd">
-                      <div class="meta">
-                        <div class="k">Copia de seguridad</div>
-                        <div class="v">Guardar o recuperar la configuración de FARO</div>
-                        <div class="s">Exporta rutinas, citas, medicación, ajustes y recuerdos a un archivo JSON.</div>
-                      </div>
-                      <div class="btnrow" style="margin-top:12px">
-                        <button class="btn primary" id="btnExport">Exportar copia</button>
-                        <button class="btn" id="btnImport">Importar copia</button>
-                        <input id="importFile" type="file" accept="application/json,.json" class="hidden" />
-                      </div>
-                    </div>
-                  </div>
-
                 </div>
 
 
-                <!-- Actividades adaptadas -->
+                <!-- Ejercicios -->
                 <div id="ctab_games" class="hidden">
-                  <div class="note">Las actividades se muestran dentro de FARO y cambian automáticamente según el nivel de apoyo. No se abren webs externas.</div>
-                  <div class="list" style="margin-top:12px">
-                    <div class="item">
-                      <div class="meta">
-                        <div class="k">L1 — Mayor autonomía</div>
-                        <div class="v">Atención, planificación y vida cotidiana</div>
-                        <div class="s">8 cartas, secuencias de 4 pasos y situaciones funcionales como preparar una cita o una compra.</div>
-                      </div>
-                    </div>
-                    <div class="item">
-                      <div class="meta">
-                        <div class="k">L2 — Apoyo intermedio</div>
-                        <div class="v">Atención y asociación guiadas</div>
-                        <div class="s">6 cartas, secuencias de 3 pasos y clasificación sencilla.</div>
-                      </div>
-                    </div>
-                    <div class="item">
-                      <div class="meta">
-                        <div class="k">L3 — Apoyo elevado</div>
-                        <div class="v">Sin juegos</div>
-                        <div class="s">Se priorizan orientación, tranquilidad, voz familiar y vídeo de recuerdos.</div>
-                      </div>
-                    </div>
+                  <div class="note">Juegos externos de memoria. Pulsa para abrirlos.</div>
+                  <div style="margin-top:12px; display:flex; flex-direction:column; gap:10px;">
+                    <a class="btn primary giant" href="https://www.memo-juegos.com/juegos-de-memoria-online/para-todos/memory-con-emoticones" target="_blank" rel="noopener noreferrer">🧩 Memory con emoticonos</a>
+                    <a class="btn primary giant" href="https://www.memo-juegos.com/juegos-de-memoria-online/para-todos/erramientas-de-bricolaje" target="_blank" rel="noopener noreferrer">🔧 Herramientas de bricolaje</a>
+                    <a class="btn primary giant" href="https://poki.com/es/g/connect-puzzle" target="_blank" rel="noopener noreferrer">🔗 Connect Puzzle</a>
                   </div>
                 </div>
 
@@ -1595,28 +1604,41 @@
 
           <div class="card">
             <div class="hd">
-              <h2>Comprobación rápida</h2>
-              <span class="badge ok">Coherente</span>
+              <h2 data-i18n="revisionRapida">Revisión rápida</h2>
+              <span class="badge ok" data-i18n="recomendado">Recomendado</span>
             </div>
             <div class="bd">
               <div class="list">
                 <div class="item">
                   <div class="meta">
-                    <div class="k">Necesito ayuda</div>
-                    <div class="v">Llamada a la persona de confianza</div>
-                    <div class="s">En L1 y L2 hay un único botón de ayuda. Al pulsarlo se inicia la llamada al contacto configurado.</div>
+                    <div class="k" data-i18n="kBtnLlamada">Botón de llamada</div>
+                    <div class="v" data-i18n="vBtnLlamada">Llamada de emergencia al familiar</div>
+                    <div class="s" data-i18n="sBtnLlamada">Si está activado, el paciente verá el botón 🆘 y al pulsarlo llamará al teléfono configurado.</div>
                   </div>
+                  <button class="btn small" id="btnToggleCall">Activar</button>
                 </div>
                 <div class="item">
                   <div class="meta">
-                    <div class="k">L3</div>
-                    <div class="v">Sin alertas visibles</div>
-                    <div class="s">Se reducen decisiones y se priorizan audio familiar y vídeo de recuerdos.</div>
+                    <div class="k" data-i18n="kBtnSms">Botón de SMS</div>
+                    <div class="v" data-i18n="vBtnSms">Mensaje de aviso al familiar</div>
+                    <div class="s" data-i18n="sBtnSms">Si está activado, el paciente verá el botón 🆘 y al pulsarlo enviará un SMS de aviso.</div>
                   </div>
+                  <button class="btn small" id="btnToggleSms">Activar</button>
+                </div>
+                <div class="item">
+                  <div class="meta">
+                    <div class="k" data-i18n="kVoz">Voz</div>
+                    <div class="v" data-i18n="vVoz">Lectura en voz alta</div>
+                    <div class="s" data-i18n="sVoz">Usa la voz del dispositivo (Web Speech API).</div>
+                  </div>
+                  <button class="btn small hidden" id="btnTestVoice">Probar voz</button>
+                </div>
+                <div class="note">
+                  <span data-i18n="recPractica">Recomendación práctica: deja el perfil en </span><strong>L2</strong><span data-i18n="recPractica2">. Usa </span><strong>L3</strong><span data-i18n="recPractica3"> en días malos o si prima seguridad.</span>
                 </div>
               </div>
             </div>
-          </div>>
+          </div>
 
         </div>
       </section>
@@ -1714,16 +1736,7 @@
     }
     let state = loadState();
     document.body.dataset.mode = state.mode || "patient";
-    function saveState(){
-      try{
-        localStorage.setItem(KEY, JSON.stringify(state));
-        return true;
-      }catch(err){
-        console.error("No se pudo guardar FARO:", err);
-        toast("No se pudo guardar: los archivos pueden ser demasiado grandes.");
-        return false;
-      }
-    }
+    function saveState(){ localStorage.setItem(KEY, JSON.stringify(state)); }
 
     /* ==========
        UI helpers
@@ -1809,6 +1822,24 @@
       document.addEventListener("visibilitychange", () => {
         if(document.hidden) window.speechSynthesis.cancel();
       });
+    }
+
+    /* ===== Notificaciones ===== */
+    async function ensureNotifications(){
+      if(!("Notification" in window)){
+        toast("Notificaciones no disponibles aquí.");
+        return false;
+      }
+      if(Notification.permission === "granted") return true;
+      const p = await Notification.requestPermission();
+      if(p === "granted"){ toast("Notificaciones activadas."); return true; }
+      toast("Permiso denegado.");
+      return false;
+    }
+    async function notify(title, body){
+      const ok = await ensureNotifications();
+      if(!ok) return;
+      try{ new Notification(title, {body}); }catch{}
     }
 
     /* ===== Uso local ===== */
@@ -2026,7 +2057,7 @@
         panelCuidador: "Panel del cuidador",
         ayudaRapida: "Ayuda rápida", revisionRapida: "Revisión rápida",
         plan: "Plan", diario: "Diario", paciente: "Paciente",
-        ejercicios: "Actividades", recursos: "Recursos",
+        ejercicios: "Ejercicios", recursos: "Recursos",
         cambiaSegun: "Cambia el nivel según el día. Si hay confusión o ansiedad, baja a ",
         contencion: "Contención",
         entrarFaro: "Entrar", accesoFamiliar: "Área familiar",
@@ -2100,7 +2131,7 @@
         panelCuidador: "Caregiver panel",
         ayudaRapida: "Quick help", revisionRapida: "Quick review",
         plan: "Plan", diario: "Diary", paciente: "Patient",
-        ejercicios: "Activities", recursos: "Resources",
+        ejercicios: "Exercises", recursos: "Resources",
         cambiaSegun: "Change the level depending on the day. If confused or anxious, switch to ",
         contencion: "Containment",
         entrarFaro: "Enter", accesoFamiliar: "Family area",
@@ -2188,9 +2219,13 @@
       // Persona de confianza
       tq(".who .title", "personaConfianza");
       tx("#btnSpeakWho", "escuchar");
+      tx("#btnCallCaregiver", "llamar");
 
       // Botones ayuda paciente
       tx("#btnPatientMainHelp", "necesitaAyuda");
+      tx("#btnFullHelp", "necesitaAyuda");
+      tx("#btnSosAlert", "sosAvisar");
+      tx("#btnSosAlertL3", "sosAvisar");
 
       // Rutina
       tx("#btnRoutineNext", "siguiente");
@@ -2223,6 +2258,7 @@
 
       // Guardar / Restablecer
       tx("#btnSaveTrusted", "guardar");
+      tx("#btnResetTrusted", "restablecer");
 
       // Grabación
       if($("#btnStartRec") && !$("#btnStartRec").disabled) tx("#btnStartRec","grabar");
@@ -2232,8 +2268,10 @@
       if(recSt && (recSt.textContent==="Sin grabación"||recSt.textContent==="No recording")) recSt.textContent=t("sinGrabacion");
 
       // Badges
+      tx("#safetyBadge","seguro");
 
       // Llamar ahora L3
+      tAll(".btn.danger.giant.help-primary","necesitaAyuda");
 
       // data-i18n fallback
       document.querySelectorAll("[data-i18n]").forEach(el=>{
@@ -2258,19 +2296,478 @@
       applyTranslations();
     });
 
+    // ===== Toggles de llamada y SMS =====
+    function renderSosToggles(){
+      const btnCall = $("#btnToggleCall");
+      const btnSms  = $("#btnToggleSms");
+      if(btnCall){
+        btnCall.textContent = state.allowCall ? t("desactivar") : t("activar");
+        btnCall.classList.toggle("primary", state.allowCall);
+      }
+      if(btnSms){
+        btnSms.textContent = state.allowSms ? t("desactivar") : t("activar");
+        btnSms.classList.toggle("primary", state.allowSms);
+      }
+      // Mostrar/ocultar botón SOS en pantalla paciente
+      const sosVisible = state.allowCall || state.allowSms;
+      ["#sosAlertBlock","#sosAlertBlockL3"].forEach(id=>{
+        const el = $(id);
+        if(el) el.classList.toggle("hidden", !sosVisible);
+      });
+    }
+
+    $("#btnToggleCall")?.addEventListener("click", ()=>{
+      state.allowCall = !state.allowCall;
+      saveState(); renderSosToggles();
+      toast(state.allowCall ? (currentLang==="es" ? "Botón de llamada activado." : "Call button enabled.") : (currentLang==="es" ? "Botón de llamada desactivado." : "Call button disabled."));
+    });
+    $("#btnToggleSms")?.addEventListener("click", ()=>{
+      state.allowSms = !state.allowSms;
+      saveState(); renderSosToggles();
+      toast(state.allowSms ? (currentLang==="es" ? "Botón de SMS activado." : "SMS button enabled.") : (currentLang==="es" ? "Botón de SMS desactivado." : "SMS button disabled."));
+    });
+
+    function buildSmsUrl(phone, message){
+      const cleanPhone = String(phone || "").replace(/[\s().-]/g, "");
+      const encoded = encodeURIComponent(message);
+      const isiOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+      return `sms:${cleanPhone}${isiOS ? "&" : "?"}body=${encoded}`;
+    }
+
+    function openPreparedHelpSms({speakFirst=true} = {}){
+      const phone = (state.trusted?.phone || "").trim();
+      const trustedName = (state.trusted?.name || "mi persona de confianza").trim();
+      const patientName = (state.patientName || "La persona usuaria").trim();
+
+      if(!phone){
+        toast("No hay un teléfono de contacto configurado.");
+        if(speakFirst) speak("Estoy contigo. No hay un teléfono de ayuda configurado.");
+        return false;
+      }
+
+      const message = `🆘 ${patientName} necesita ayuda. Por favor, contacta con él o ella.`;
+      if(speakFirst){
+        speak(`Estoy contigo. Vamos a avisar a ${trustedName}. Cuando se abra Mensajes, pulsa enviar.`);
+      }
+      toast(`Se abrirá Mensajes para avisar a ${trustedName}. Pulsa Enviar.`);
+      window.location.href = buildSmsUrl(phone, message);
+      return true;
+    }
+
+    function handleSosAlert(){
+      openPreparedHelpSms({speakFirst:true});
+    }
+
+    $("#btnSosAlert")?.addEventListener("click", ()=>{
+      bumpUsage("patient_action:sos_alert");
+      handleSosAlert();
+    });
+    $("#btnSosAlertL3")?.addEventListener("click", ()=>{
+      bumpUsage("patient_action:sos_alert_l3");
+      handleSosAlert();
+    });
+
+    /* ===== Reloj ===== */
+    function tick(){
+      $("#clock").textContent = fmtTime();
+      $("#dateLine").textContent = capitalize(fmtDate());
+      $("#placeName").textContent = state.place || "Casa";
+      setTimeout(tick, 1000);
+    }
+
+    function getMomentOfDay(){
+      const h = new Date().getHours();
+      const es = currentLang === "es";
+      const hasRoutine = (state.routine || []).length > 0;
+
+      let title;
+      if(h < 6) title = es ? "De madrugada" : "Early morning";
+      else if(h < 12) title = es ? "Por la mañana" : "Morning";
+      else if(h < 15) title = es ? "Al mediodía" : "Midday";
+      else if(h < 20) title = es ? "Por la tarde" : "Afternoon";
+      else title = es ? "Por la noche" : "Evening";
+
+      if(!hasRoutine){
+        return {
+          title,
+          text: es ? "No tienes ninguna actividad preparada ahora." : "You do not have an activity planned right now."
+        };
+      }
+
+      return {
+        title,
+        text: es ? "Puedes seguir tu rutina con calma." : "You can continue your routine calmly."
+      };
+    }
+
+    function getNextSupportItem(){
+      const now = new Date();
+      const today = toDateInputValue(now);
+      const currentMinutes = now.getHours()*60 + now.getMinutes();
+      const candidates = [];
+      const es = currentLang === "es";
+
+      (state.meds || []).forEach(m => {
+        if(!m.time) return;
+        const [hh, mm] = m.time.split(":").map(Number);
+        const minutes = (hh||0)*60 + (mm||0);
+        candidates.push({
+          when: minutes,
+          title: es ? `Medicación: ${m.name}` : `Medication: ${m.name}`,
+          text: es
+            ? `Previsto para las ${m.time}. ${m.note || ""}`.trim()
+            : `Scheduled for ${m.time}. ${m.note || ""}`.trim()
+        });
+      });
+
+      (state.appts || []).filter(a => !a.date || a.date === today).forEach(a => {
+        const time = a.time || "";
+        const [hh, mm] = time.split(":").map(Number);
+        const minutes = time ? (hh||0)*60 + (mm||0) : 9999;
+        candidates.push({
+          when: minutes,
+          title: es ? `Cita: ${a.title}` : `Appointment: ${a.title}`,
+          text: time
+            ? (es ? `Previsto para las ${time}. ${a.note || ""}`.trim() : `Scheduled for ${time}. ${a.note || ""}`.trim())
+            : (a.note || (es ? "Hora pendiente de confirmar." : "Time to be confirmed."))
+        });
+      });
+
+      const next = candidates.filter(c => c.when >= currentMinutes).sort((a,b)=>a.when-b.when)[0];
+      if(next) return next;
+
+      return {
+        title: es ? "No hay nada pendiente" : "Nothing pending",
+        text: es ? "Puedes continuar con calma." : "You can continue calmly."
+      };
+    }
+
+    function renderPatientOrientation(){
+      const moment = getMomentOfDay();
+      $("#currentMomentTitle").textContent = moment.title;
+      $("#currentMomentText").textContent = moment.text;
+
+      const next = getNextSupportItem();
+      $("#nextEventTitle").textContent = next.title;
+      $("#nextEventText").textContent = next.text;
+      if(state.profile === "L3") renderContainment();
+    }
+
+    /* =====================
+       Persona de confianza
+       ===================== */
+    function buildWhoText(){
+      const t = state.trusted;
+      return `Hola. Soy ${t.name || "tu persona de confianza"}. ${t.rel ? "Soy " + t.rel + "." : ""} ${t.msg || ""}`;
+    }
+    function trustedAudioCandidates(){
+      const current = state?.trusted?.memoryAudioDataUrl || "";
+      return [current].filter(Boolean);
+    }
+
+    function trustedVideoCandidates(){
+      const current = state?.trusted?.memoryVideoDataUrl || "";
+      return [current].filter(Boolean);
+    }
+
+    function playTrustedAudio(){
+      const audioEl = $("#l3AudioPlayer");
+      const candidates = trustedAudioCandidates();
+
+      if(audioEl){
+        const source = audioEl.querySelector("source");
+        if(source){ source.src = candidates[0]; }
+        audioEl.src = candidates[0];
+        audioEl.load();
+        audioEl.currentTime = 0;
+        return audioEl.play().then(()=>true).catch(async ()=>{
+          for(const src of candidates.slice(1)){
+            try{
+              audioEl.src = src;
+              if(source){ source.src = src; }
+              audioEl.load();
+              audioEl.currentTime = 0;
+              await audioEl.play();
+              return true;
+            }catch(e){}
+          }
+          throw new Error("audio");
+        });
+      }
+
+      return new Promise(async (resolve, reject)=>{
+        for(const src of candidates){
+          try{
+            const a = new Audio(src);
+            a.preload = "auto";
+            a.currentTime = 0;
+            await a.play();
+            window.__faroTrustedAudio = a;
+            resolve(true);
+            return;
+          }catch(e){}
+        }
+        reject(new Error("audio"));
+      });
+    }
+
+    $("#btnSpeakWho")?.addEventListener("click", ()=>{
+      bumpUsage("patient_action:speak_who");
+      playTrustedAudio().catch(()=>speak(buildWhoText()));
+    });
+    $("#btnCallCaregiver")?.addEventListener("click", ()=>{
+      bumpUsage("patient_action:call");
+      const phone = (state.trusted.phone || "").trim();
+      speak("Voy a avisar a tu persona de confianza.");
+      state.signals.last = { type:"call_request", text:"Solicitud de llamada", at: nowISO() };
+      saveState(); renderCarePanel();
+      if(phone){
+        window.location.href = "tel:" + phone;
+      }else{
+        toast("Añade un teléfono en modo cuidador.");
+      }
+    });
+    $("#btnReassure")?.addEventListener("click", ()=>{
+      bumpUsage("patient_action:reassure");
+      if(state.profile !== "L3"){
+        state.patientView = "simple";
+      }
+      setCalmMode(true);
+      $("#orientationBadge").textContent = "Acompañado";
+      $("#orientationBadge").className = "badge warn";
+      speak(state.trusted.msg || "Estoy contigo. Todo está bien.");
+      toast("Mensaje calmante.");
+      saveState();
+      renderPatientView();
+      renderContainment();
+    });
+
+    /* ======================
+       Vista paciente
+       ====================== */
+    function renderPatientView(){
+      const p = state.profile;
+      if(p === "L3"){
+        $("#patientViewName").textContent = "Contención";
+        $("#orientationBadge").textContent = "Acompañado";
+        $("#orientationBadge").className = "badge warn";
+        $("#orientationBadge").removeAttribute("data-i18n");
+        $("#patientSimple").classList.add("hidden");
+        $("#patientFull").classList.add("hidden");
+        $("#quickHelpCard").classList.add("hidden");
+        renderContainment();
+        return;
+      }
+      $("#orientationBadge").setAttribute("data-i18n","pasoPaso");
+      const view = state.patientView === "full" ? "full" : "simple";
+      state.patientView = view;
+      $("#patientViewName").textContent = (view === "full") ? "Completo" : "Simple";
+
+      const simple = view !== "full";
+      $("#patientSimple").classList.toggle("hidden", !simple);
+      $("#patientFull").classList.toggle("hidden", simple);
+      $("#quickHelpCard").classList.toggle("hidden", simple);
+
+      const rules = PROFILE_RULES[p] || PROFILE_RULES.L2;
+      if(simple && rules.calmDefault) setCalmMode(true);
+      if(!simple) setCalmMode(false);
+
+      renderSimpleStep();
+      renderPatientOrientation();
+      configureActivitiesForProfile();
+      saveState();
+    }
+
+    $("#btnPatientMore")?.addEventListener("click", ()=>{
+      bumpUsage("patient_action:more");
+      if(state.profile === "L3") return;
+      state.patientView = "full";
+      setCalmMode(false);
+      renderPatientView();
+      toast("Vista completa.");
+    });
+    $("#btnPatientMoreL2")?.addEventListener("click", ()=>{
+      bumpUsage("patient_action:more");
+      if(state.profile === "L3") return;
+      state.patientView = "full";
+      setCalmMode(false);
+      renderPatientView();
+      toast("Vista completa.");
+    });
+    $("#btnPatientLess")?.addEventListener("click", ()=>{
+      bumpUsage("patient_action:less");
+      if(state.profile === "L3") return;
+      state.patientView = "simple";
+      setCalmMode(true);
+      renderPatientView();
+      toast("Vista simple.");
+    });
+
+    /* ===== Tabs paciente ===== */
+    function openPatientTab(tab){
+      if(state.profile === "L3") return;
+      $$(".tabbtn[data-ptab]").forEach(b=>{
+        const active = b.dataset.ptab === tab;
+        b.classList.toggle("active", active);
+        b.setAttribute("aria-selected", active ? "true" : "false");
+      });
+      ["routine","reminders","album","cognitive"].forEach(k=>{
+        $("#ptab_"+k)?.classList.toggle("hidden", k!==tab);
+      });
+      if(tab === "cognitive") showActivityChooser();
+      bumpUsage("patient_tab:" + tab);
+    }
+
+    $$(".tabbtn[data-ptab]").forEach(btn=>{
+      btn.addEventListener("click", ()=> openPatientTab(btn.dataset.ptab));
+    });
+
+    $("#btnPatientActivities")?.addEventListener("click", ()=>{
+      if(state.profile === "L3") return;
+      state.patientView = "full";
+      setCalmMode(false);
+      renderPatientView();
+      openPatientTab("cognitive");
+      bumpUsage("patient_action:activities");
+    });
+
+    /* ===== Tabs cuidador ===== */
+    function openCareTab(tab){
+      if("speechSynthesis" in window) window.speechSynthesis.cancel();
+      $$(".tabbtn[data-ctab]").forEach(b=>{
+        const active = b.dataset.ctab === tab;
+        b.classList.toggle("active", active);
+        b.setAttribute("aria-selected", active ? "true":"false");
+      });
+      ["plan","diary","patient","games","knowledge"].forEach(k=>{
+        $("#ctab_"+k).classList.toggle("hidden", k!==tab);
+      });
+      bumpUsage("care_tab:" + tab);
+    }
+    $$(".tabbtn[data-ctab]").forEach(btn=>{
+      btn.addEventListener("click", ()=> openCareTab(btn.dataset.ctab));
+    });
+
+    /* ======================
+       Rutina
+       ====================== */
+    function speakCurrentRoutine(){
+      const step = state.routine[state.routineIndex];
+      if(!step) return;
+      speak(`Ahora: ${step.title}. ${step.hint || ""}`);
+    }
+    function renderRoutine(){
+      const steps = state.routine || [];
+      const n = steps.length;
+      const es = currentLang === "es";
+      const actions = $("#routineStepActions");
+
+      if(!n){
+        $("#routineStepTitle").textContent = es ? "No hay una rutina preparada" : "No routine has been prepared";
+        $("#routineStepHint").textContent = es ? "Tu familiar puede prepararla desde el Área familiar." : "Your family can prepare one from the Family area.";
+        $("#routineProgress").textContent = "";
+        actions?.classList.add("hidden");
+        return;
+      }
+
+      actions?.classList.remove("hidden");
+      const idx = Math.min(state.routineIndex || 0, n-1);
+      state.routineIndex = idx;
+      const step = steps[idx];
+      $("#routineStepTitle").textContent = step.title || (es ? "Paso" : "Step");
+      $("#routineStepHint").textContent = step.hint || (es ? "Hazlo con calma." : "Take your time.");
+      $("#routineProgress").textContent = `${idx+1}/${n}`;
+      saveState();
+    }
+
+    function renderSimpleStep(){
+      const steps = state.routine || [];
+      const n = steps.length;
+      const es = currentLang === "es";
+      const actions = $("#simpleStepActions");
+      const nextRow = $("#simpleNextRow");
+
+      if(!n){
+        $("#simpleStepTitle").textContent = es ? "No hay una rutina preparada" : "No routine has been prepared";
+        $("#simpleStepHint").textContent = es ? "Tu familiar puede prepararla desde el Área familiar." : "Your family can prepare one from the Family area.";
+        $("#simpleProgress").textContent = "";
+        actions?.classList.add("hidden");
+        nextRow?.classList.add("hidden");
+        return;
+      }
+
+      actions?.classList.remove("hidden");
+      nextRow?.classList.remove("hidden");
+      const idx = Math.min(state.routineIndex || 0, n-1);
+      const step = steps[idx];
+      $("#simpleStepTitle").textContent = step.title || (es ? "Paso" : "Step");
+      $("#simpleStepHint").textContent = step.hint || (es ? "Hazlo con calma." : "Take your time.");
+      $("#simpleProgress").textContent = `${idx+1}/${n}`;
+    }
+    function nextRoutine(){
+      const n = state.routine?.length || 0;
+      if(!n){ toast("No hay rutina guardada."); return; }
+      state.routineIndex = (state.routineIndex + 1) % n;
+      saveState();
+      renderRoutine();
+      renderSimpleStep();
+    }
+    $("#btnRoutineNext")?.addEventListener("click", ()=>{
+      bumpUsage("patient_action:routine_next");
+      nextRoutine();
+      speakCurrentRoutine();
+    });
+    $("#btnRoutineRepeat")?.addEventListener("click", ()=>{
+      bumpUsage("patient_action:routine_repeat");
+      speakCurrentRoutine();
+    });
+    $("#btnSimpleNextStep")?.addEventListener("click", ()=>{
+      bumpUsage("patient_action:simple_next");
+      nextRoutine();
+      speakCurrentRoutine();
+      toast("Siguiente paso.");
+    });
+    $("#btnSimpleRepeat")?.addEventListener("click", ()=>{
+      bumpUsage("patient_action:simple_repeat");
+      speakCurrentRoutine();
+    });
+
+    /* ======================
+       Señales / ayuda
+       ====================== */
+    function sendSignal(type, text){
+      state.signals.last = { type, text, at: nowISO() };
+      saveState();
+      renderCarePanel();
+    }
+
+    $("#btnImOk")?.addEventListener("click", ()=>{
+      bumpUsage("patient_action:im_ok");
+      sendSignal("ok","Estoy bien");
+      toast("Aviso enviado.");
+      speak("Perfecto. Gracias por avisar.");
+    });
+    $("#btnNeedHelp")?.addEventListener("click", ()=>{
+      bumpUsage("patient_action:need_help");
+      sendSignal("help","Necesito ayuda");
+      openPreparedHelpSms({speakFirst:true});
+    });
+    if($("#btnSimpleHelp")) $("#btnSimpleHelp").addEventListener("click", ()=>{
+      bumpUsage("patient_action:simple_help");
+      sendSignal("help","Necesito ayuda");
+      setCalmMode(true);
+      openPreparedHelpSms({speakFirst:true});
+    });
     $("#btnPatientMainHelp")?.addEventListener("click", ()=>{
       bumpUsage("patient_action:main_help");
       sendSignal("help","Necesito ayuda");
       setCalmMode(true);
-      const phone = (state.trusted?.phone || "").trim();
-      const trustedName = capitalize((state.trusted?.name || "tu persona de confianza").trim());
-      if(!phone){
-        toast("No hay un teléfono de contacto configurado.");
-        speak("Estoy contigo. No hay un teléfono de ayuda configurado.");
-        return;
-      }
-      speak(`Voy a llamar a ${trustedName}.`);
-      window.location.href = "tel:" + phone;
+      openPreparedHelpSms({speakFirst:true});
+    });
+    $("#btnFullHelp")?.addEventListener("click", ()=>{
+      bumpUsage("patient_action:full_help");
+      sendSignal("help","Necesito ayuda");
+      openPreparedHelpSms({speakFirst:true});
     });
 
     function doBreath(){
@@ -2280,8 +2777,14 @@
       toast("Respiración guiada.");
     }
     $("#btnBreath")?.addEventListener("click", ()=>{ bumpUsage("patient_action:breath"); doBreath(); });
+    $("#btnL3Breath")?.addEventListener("click", ()=>{ bumpUsage("patient_action:l3_breath"); doBreath(); });
 
     /* ===== Leer “hoy” ===== */
+    $("#btnSpeakToday")?.addEventListener("click", ()=>{
+      bumpUsage("patient_action:speak_today");
+      speak(compilePatientToday());
+      toast("Leyendo recordatorios.");
+    });
     $("#btnPatientReadToday")?.addEventListener("click", ()=>{
       bumpUsage("patient_action:read_today_home");
       speak(compilePatientToday());
@@ -2291,7 +2794,11 @@
       bumpUsage("patient_action:family_access");
       setMode("care");
     });
-
+    $("#btnL3ListenToday")?.addEventListener("click", ()=>{
+      bumpUsage("patient_action:l3_listen");
+      speak(buildWhoText());
+      toast("Escuchando.");
+    });
 
     /* ======================
        Recordatorios
@@ -2300,23 +2807,18 @@
       return (state.meds||[]).slice().sort((a,b)=>(a.time||"").localeCompare(b.time||""));
     }
     function upcomingAppts(){
-      const today = toDateInputValue(new Date());
-      return (state.appts||[])
-        .filter(a => !a.date || a.date >= today)
-        .slice()
-        .sort((a,b)=>{
-          const da = (a.date||"") + " " + (a.time||"");
-          const db = (b.date||"") + " " + (b.time||"");
-          return da.localeCompare(db);
-        });
+      return (state.appts||[]).slice().sort((a,b)=>{
+        const da = (a.date||"") + " " + (a.time||"");
+        const db = (b.date||"") + " " + (b.time||"");
+        return da.localeCompare(db);
+      });
     }
     function compilePatientToday(){
       const es = currentLang === "es";
       const meds = upcomingMedsToday().slice(0,4).map(m=>
         es ? `Medicación: ${m.name} a las ${m.time}. ${m.note || ""}` : `Medication: ${m.name} at ${m.time}. ${m.note || ""}`
       );
-      const today = toDateInputValue(new Date());
-      const appts = upcomingAppts().filter(a => a.date === today).slice(0,3).map(a=>
+      const appts = upcomingAppts().slice(0,3).map(a=>
         es ? `Cita: ${a.title} el ${a.date} a las ${a.time || ""}. ${a.note || ""}` : `Appointment: ${a.title} on ${a.date} at ${a.time || ""}. ${a.note || ""}`
       );
       const r = state.routine?.[state.routineIndex];
@@ -3119,11 +3621,7 @@
     }
 
     $("#btnSaveTrusted")?.addEventListener("click", async ()=>{
-      const nextProfile = $("#profileSelect").value || "L2";
-      if(nextProfile !== state.profile){
-        state.patientView = PROFILE_RULES[nextProfile]?.defaultView || "simple";
-      }
-      state.profile = nextProfile;
+      state.profile = $("#profileSelect").value || "L2";
       const carePinCandidate = ($("#carePinInput").value || "").trim();
       if(!validCarePin(carePinCandidate)){
         alert("El PIN del Área familiar debe tener exactamente 4 cifras.");
@@ -3156,7 +3654,15 @@
       toast("Guardado.");
     });
 
-
+    $("#btnResetTrusted")?.addEventListener("click", ()=>{
+      if(!confirm("¿Restablecer datos?")) return;
+      localStorage.removeItem(KEY);
+      state = loadState();
+      saveState();
+      applyProfile();
+      renderAll();
+      toast("Restablecido.");
+    });
 
     $("#btnAddAlbum")?.addEventListener("click", async ()=>{
       const name = $("#albumName").value.trim();
@@ -3176,6 +3682,8 @@
        ====================== */
     $("#btnExport")?.addEventListener("click", ()=>{
       const txt = JSON.stringify(state, null, 2);
+      $("#exportBox").textContent = txt;
+
       const blob = new Blob([txt], {type:"application/json"});
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -3205,7 +3713,15 @@
       }
     });
 
-
+    $("#btnWipe")?.addEventListener("click", ()=>{
+      if(!confirm("¿Borrar TODOS los datos locales?")) return;
+      localStorage.removeItem(KEY);
+      state = loadState();
+      saveState();
+      applyProfile();
+      renderAll();
+      toast("Datos borrados.");
+    });
 
     /* ======================
        Panel cuidador
@@ -3258,9 +3774,7 @@
       if(q) q.value = state.profile || "L2";
     }
     $("#profileSelectQuick")?.addEventListener("change", ()=>{
-      const nextProfile = $("#profileSelectQuick").value || "L2";
-      state.profile = nextProfile;
-      state.patientView = PROFILE_RULES[nextProfile]?.defaultView || "simple";
+      state.profile = $("#profileSelectQuick").value || "L2";
       saveState();
       applyProfile();
       toast("Perfil actualizado.");
@@ -3281,6 +3795,60 @@
     const DEMO_L3_VIDEO = "archivos/dia de la madre.mp4";
     function getL3VideoSrc(){
       return state?.trusted?.memoryVideoDataUrl || DEMO_L3_VIDEO;
+    }
+
+    function playTrustedVideoIn(player, poster=null, auto=false){
+      if(!player) return Promise.reject(new Error("video"));
+      const candidates = trustedVideoCandidates();
+      const source = player.querySelector("source");
+
+      const tryPlay = async (src, muted)=>{
+        if(source){ source.src = src; }
+        player.src = src;
+        player.style.display = "block";
+        player.muted = !!muted;
+        player.currentTime = 0;
+        player.load();
+        poster && (poster.style.display = "none");
+        await player.play();
+        return true;
+      };
+
+      return tryPlay(candidates[0], auto).catch(async ()=>{
+        for(const src of candidates.slice(1)){
+          try{
+            return await tryPlay(src, auto);
+          }catch(e){}
+        }
+        throw new Error("video");
+      });
+    }
+
+    function playL3Memory(auto=false){
+      const video = $("#l3VideoPlayer") || $("#l3MemoryBox video");
+      const audio = $("#l3AudioPlayer") || $("#l3MemoryBox audio");
+      const poster = $("#memoryPoster");
+
+      if(video){
+        playTrustedVideoIn(video, poster, auto).catch(()=>{
+          if(!auto && audio){
+            playTrustedAudio().catch(()=>toast("No se pudo reproducir el vídeo ni el audio."));
+            return;
+          }
+          if(!auto){
+            toast("No se pudo reproducir el vídeo.");
+          }
+        });
+        return true;
+      }
+      if(!auto && audio){
+        playTrustedAudio().catch(()=>toast("No se pudo reproducir el audio."));
+        return true;
+      }
+      if(!auto){
+        speak(buildWhoText());
+      }
+      return false;
     }
 
     function renderContainment(){
@@ -3358,6 +3926,26 @@
       player.currentTime = 0;
     });
 
+    $("#btnContainmentCall")?.addEventListener("click", ()=>{
+      bumpUsage("patient_action:l3_call");
+      const phone = (state.trusted.phone || "").trim();
+      speak("Voy a avisar ahora.");
+      state.signals.last = { type:"call_request", text:"Solicitud de llamada (L3)", at: nowISO() };
+      saveState();
+      renderCarePanel();
+      if(phone){
+        window.location.href = "tel:" + phone;
+      }else{
+        toast("Añade un teléfono en modo familiar.");
+      }
+    });
+
+    /* ===== Checklist ===== */
+    $("#btnAskNotif")?.addEventListener("click", ensureNotifications);
+    $("#btnTestVoice")?.addEventListener("click", ()=>{
+      speak("Hola. Esta es una prueba de voz de Faro.");
+      toast("Prueba de voz.");
+    });
 
 
     const btnKnowledgeSummary = document.getElementById("btnKnowledgeSummary");
@@ -3380,10 +3968,12 @@
       renderCarePanel();
       fillPatientSettingsForm();
       $("#routineEditor").value = (state.routine||[]).map((s,i)=> `${i+1}) ${s.title}`).join("\n");
+      if($("#exportBox")) $("#exportBox").textContent = "—";
       renderPatientOrientation();
       renderPatientView();
       renderContainment();
       syncQuickProfileUI();
+      renderSosToggles();
       applyTranslations();
     }
     $("#apptDate").value = toDateInputValue(new Date());
@@ -3451,13 +4041,14 @@
 
       state.patientName = patientName;
       state.profile = profile;
-      state.patientView = PROFILE_RULES[profile]?.defaultView || "simple";
       state.carePin = pin;
       state.careRecoveryCode = generateRecoveryCode();
       state.trusted.name = trustedName;
       state.trusted.phone = phoneRaw;
       if(!state.trusted.rel) state.trusted.rel = "Persona de confianza";
       if(!state.trusted.msg) state.trusted.msg = "Estoy contigo. Vamos paso a paso.";
+      state.allowCall = true;
+      state.allowSms = true;
       state.setupComplete = true;
       state.mode = "patient";
       saveState();
@@ -3469,6 +4060,9 @@
     }
 
     function init(){
+      $("#safetyBadge").textContent = "Seguro";
+      $("#safetyBadge").className = "badge ok";
+
       tick();
       applyProfile();
       renderAll();
