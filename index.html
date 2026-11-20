@@ -280,6 +280,40 @@
     .care-tabs .tabbtn.care-tab-games.active{background:linear-gradient(180deg, rgba(255, 184, 107, .44), rgba(255, 184, 107, .24)); border-color:rgba(255, 184, 107, .52);}
     .care-tabs .tabbtn.care-tab-knowledge.active{background:linear-gradient(180deg, rgba(186, 132, 255, .44), rgba(186, 132, 255, .24)); border-color:rgba(186, 132, 255, .52);}
     .tabbtn:focus{outline:none; box-shadow:var(--focus)}
+
+    /* ===== Seguimiento del cuidador ===== */
+    .tracking-layout{display:grid;grid-template-columns:minmax(300px,.9fr) minmax(340px,1.1fr);gap:12px;margin-top:12px}
+    @media (max-width:900px){.tracking-layout{grid-template-columns:1fr}}
+    .tracking-card{border:1px solid var(--line);background:rgba(0,0,0,.12);border-radius:18px;padding:12px}
+    .tracking-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+    .tracking-head strong{font-size:15px}
+    .calendar-nav{display:flex;gap:6px}
+    .calendar-nav .btn{padding:8px 10px}
+    .calendar-week,.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+    .calendar-week div{text-align:center;font-size:11px;color:var(--muted);font-weight:800;padding:4px 0}
+    .calendar-day{
+      min-height:54px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.04);
+      color:var(--text);padding:6px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px
+    }
+    .calendar-day:hover{filter:brightness(1.08)}
+    .calendar-day.muted{opacity:.28}
+    .calendar-day.today{border-color:rgba(255,212,122,.55)}
+    .calendar-day.selected{background:rgba(255,212,122,.16);border-color:rgba(255,212,122,.62);box-shadow:var(--focus)}
+    .calendar-dots{display:flex;gap:3px;min-height:6px}
+    .calendar-dot{width:5px;height:5px;border-radius:999px;background:rgba(246,251,255,.55)}
+    .calendar-dot.observation{background:#9cc8ff}
+    .calendar-dot.completed{background:#7dffb6}
+    .calendar-dot.help{background:#ff8d8d}
+    .calendar-dot.planned{background:#ffd47a}
+    .tracking-summary{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 12px}
+    .tracking-chip{font-size:11px;padding:6px 9px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.05)}
+    .timeline{display:flex;flex-direction:column;gap:8px}
+    .timeline-entry{display:grid;grid-template-columns:34px 1fr;gap:10px;padding:10px;border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.045)}
+    .timeline-icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:rgba(255,255,255,.07)}
+    .timeline-entry .time{font-size:11px;color:var(--muted);font-weight:800}
+    .timeline-entry .title{font-size:14px;font-weight:850;margin-top:2px}
+    .timeline-entry .detail{font-size:12px;color:rgba(246,251,255,.80);margin-top:3px;line-height:1.4}
+    .tracking-form{margin-top:12px;border-top:1px solid var(--line);padding-top:12px}
     .hidden{display:none !important}
     body[data-mode="patient"] .care-only{display:none !important}
     body[data-mode="care"] .patient-only{display:none !important}
@@ -1375,7 +1409,7 @@
 
               <div class="tabs care-tabs" role="tablist" aria-label="Secciones del cuidador">
                 <button class="tabbtn care-tab-plan active" data-ctab="plan" role="tab" aria-selected="true">Plan</button>
-                <button class="tabbtn care-tab-diary" data-ctab="diary" role="tab" aria-selected="false">Diario</button>
+                <button class="tabbtn care-tab-diary" data-ctab="diary" role="tab" aria-selected="false">Seguimiento</button>
                 <button class="tabbtn care-tab-patient" data-ctab="patient" role="tab" aria-selected="false">Paciente</button>
                 <button class="tabbtn care-tab-games" data-ctab="games" role="tab" aria-selected="false">Ejercicios</button>
                 <button class="tabbtn care-tab-knowledge" data-ctab="knowledge" role="tab" aria-selected="false">Recursos</button>
@@ -1460,37 +1494,69 @@
                   </div>
                 </div>
 
-                <!-- Diario -->
+                <!-- Seguimiento -->
                 <div id="ctab_diary" class="hidden">
-                  <div class="note">Registro rápido para compartir con el médico (guardado localmente).</div>
-                  <div class="split" style="margin-top:10px">
-                    <div class="field">
-                      <label>Sueño</label>
-                      <select id="sleepSel">
-                        <option value="bien">Bien</option>
-                        <option value="regular">Regular</option>
-                        <option value="mal">Mal</option>
-                      </select>
+                  <div class="note">
+                    Seguimiento diario del paciente. Se separa lo <strong>previsto</strong> de lo que realmente se ha <strong>confirmado</strong> o anotado.
+                  </div>
+
+                  <div class="tracking-layout">
+                    <div class="tracking-card">
+                      <div class="tracking-head">
+                        <button class="btn small" id="btnTrackPrevMonth" aria-label="Mes anterior">‹</button>
+                        <strong id="trackingMonthLabel">—</strong>
+                        <button class="btn small" id="btnTrackNextMonth" aria-label="Mes siguiente">›</button>
+                      </div>
+                      <div class="calendar-week">
+                        <div>L</div><div>M</div><div>X</div><div>J</div><div>V</div><div>S</div><div>D</div>
+                      </div>
+                      <div class="calendar-grid" id="trackingCalendar"></div>
                     </div>
-                    <div class="field">
-                      <label>Ánimo</label>
-                      <select id="moodSel">
-                        <option value="tranquilo">Tranquilo</option>
-                        <option value="ansioso">Ansioso</option>
-                        <option value="triste">Triste</option>
-                        <option value="irritable">Irritable</option>
-                      </select>
+
+                    <div class="tracking-card">
+                      <div class="tracking-head">
+                        <div>
+                          <div class="k">Día seleccionado</div>
+                          <strong id="trackingDayLabel">—</strong>
+                        </div>
+                        <button class="btn small" id="btnTrackToday">Hoy</button>
+                      </div>
+
+                      <div class="tracking-summary" id="trackingSummary"></div>
+                      <div class="timeline" id="trackingTimeline"></div>
+
+                      <div class="tracking-form">
+                        <div class="k">Añadir observación</div>
+                        <div class="split" style="margin-top:10px">
+                          <div class="field">
+                            <label>Estado</label>
+                            <select id="trackingStateSel">
+                              <option value="tranquilo">Tranquilo</option>
+                              <option value="desorientado">Desorientado</option>
+                              <option value="ansioso">Ansioso</option>
+                              <option value="irritable">Irritable</option>
+                              <option value="decaido">Decaído</option>
+                            </select>
+                          </div>
+                          <div class="field">
+                            <label>Sueño</label>
+                            <select id="trackingSleepSel">
+                              <option value="bien">Bien</option>
+                              <option value="regular">Regular</option>
+                              <option value="mal">Mal</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div class="field" style="margin-top:10px">
+                          <label>Nota</label>
+                          <textarea id="trackingNote" placeholder="Ej: esta mañana ha estado muy perdido; mejoró después de comer."></textarea>
+                        </div>
+                        <div class="btnrow">
+                          <button class="btn primary" id="btnAddTrackingObservation">Guardar observación</button>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                  <div class="field" style="margin-top:10px">
-                    <label>Notas</label>
-                    <textarea id="diaryNote" placeholder="Ej: se desorientó por la tarde, mejor con música."></textarea>
-                  </div>
-                  <div class="btnrow">
-                    <button class="btn primary" id="btnAddDiary">Guardar entrada</button>
-                    <button class="btn" id="btnClearDiary">Borrar todo</button>
-                  </div>
-                  <div class="list" id="diaryList" style="margin-top:10px"></div>
                 </div>
 
                 <!-- Paciente -->
@@ -1794,6 +1860,7 @@
       allowSms: false,
       usage: { date: toDateInputValue(new Date()), opens: 0, sections: {} },
       diary: [],
+      history: [],
       location: {
         enabled: false,
         source: "none",
@@ -2142,7 +2209,7 @@
         pulsarVideo: "▶ Pulsar para ver el vídeo",
         panelCuidador: "Panel del cuidador",
         ayudaRapida: "Ayuda rápida", revisionRapida: "Revisión rápida",
-        plan: "Plan", diario: "Diario", paciente: "Paciente",
+        plan: "Plan", diario: "Seguimiento", paciente: "Paciente",
         ejercicios: "Ejercicios", recursos: "Recursos",
         cambiaSegun: "Cambia el nivel según el día. Si hay confusión o ansiedad, baja a ",
         contencion: "Contención",
@@ -2729,6 +2796,7 @@
       ["plan","diary","patient","games","knowledge"].forEach(k=>{
         $("#ctab_"+k).classList.toggle("hidden", k!==tab);
       });
+      if(tab === "diary") renderTracking();
       bumpUsage("care_tab:" + tab);
     }
     $$(".tabbtn[data-ctab]").forEach(btn=>{
@@ -2801,6 +2869,8 @@
     }
     $("#btnRoutineNext")?.addEventListener("click", ()=>{
       bumpUsage("patient_action:routine_next");
+      const completed = state.routine?.[state.routineIndex];
+      if(completed) historyAdd("routine_completed", completed.title || "Paso de rutina", "Marcado como completado por el paciente.");
       nextRoutine();
       speakCurrentRoutine();
     });
@@ -2810,6 +2880,8 @@
     });
     $("#btnSimpleNextStep")?.addEventListener("click", ()=>{
       bumpUsage("patient_action:simple_next");
+      const completed = state.routine?.[state.routineIndex];
+      if(completed) historyAdd("routine_completed", completed.title || "Paso de rutina", "Marcado como completado por el paciente.");
       nextRoutine();
       speakCurrentRoutine();
       toast("Siguiente paso.");
@@ -2830,12 +2902,14 @@
 
     if($("#btnSimpleHelp")) $("#btnSimpleHelp").addEventListener("click", ()=>{
       bumpUsage("patient_action:simple_help");
+      historyAdd("help","Solicitud de ayuda","El paciente pulsó “Necesito ayuda”.");
       sendSignal("help","Necesito ayuda");
       setCalmMode(true);
       openPreparedHelpSms({speakFirst:true});
     });
     $("#btnPatientMainHelp")?.addEventListener("click", ()=>{
       bumpUsage("patient_action:main_help");
+      historyAdd("help","Solicitud de ayuda","El paciente pulsó “Necesito ayuda”.");
       sendSignal("help","Necesito ayuda");
       setCalmMode(true);
       openPreparedHelpSms({speakFirst:true});
@@ -3522,59 +3596,213 @@
     });
 
     /* ======================
-       Diario
+       Seguimiento
        ====================== */
-    function renderDiary(){
-      const list = $("#diaryList");
-      list.innerHTML = "";
-      const items = state.diary || [];
-      if(!items.length){
-        list.appendChild(makeNoteItem("No hay entradas aún."));
-        return;
-      }
-      items.slice(0,20).forEach(e=>{
-        const d = new Date(e.at);
-        const el = document.createElement("div");
-        el.className="item";
-        el.innerHTML = `
-          <div class="meta">
-            <div class="k">${escapeHtml(d.toLocaleString())}</div>
-            <div class="v">Sueño: ${escapeHtml(e.sleep)} · Ánimo: ${escapeHtml(e.mood)}</div>
-            <div class="s">${escapeHtml(e.note || "—")}</div>
-          </div>
-          <button class="btn small danger" data-deldiary="${e.id}">Borrar</button>
-        `;
-        list.appendChild(el);
+    let trackingSelectedDate = toDateInputValue(new Date());
+    let trackingMonthCursor = new Date();
+    trackingMonthCursor = new Date(trackingMonthCursor.getFullYear(), trackingMonthCursor.getMonth(), 1);
+
+    function historyAdd(type, title, detail="", at=nowISO()){
+      state.history = state.history || [];
+      state.history.unshift({
+        id: cryptoRandomId(),
+        type,
+        title,
+        detail,
+        at
       });
-      $$("[data-deldiary]").forEach(btn=>{
-        btn.addEventListener("click", ()=>{
-          const id = btn.dataset.deldiary;
-          state.diary = (state.diary||[]).filter(x=>x.id!==id);
-          saveState(); renderDiary();
-          toast("Entrada borrada.");
+      saveState();
+      if(state.mode === "care") renderTracking();
+    }
+
+    function localDateKeyFromISO(iso){
+      const d = new Date(iso);
+      if(Number.isNaN(d.getTime())) return "";
+      return toDateInputValue(d);
+    }
+
+    function trackingEventsForDate(dateKey){
+      const events = [];
+
+      // Observaciones antiguas y nuevas del diario.
+      (state.diary || []).forEach(e=>{
+        if(localDateKeyFromISO(e.at) !== dateKey) return;
+        const stateText = e.mood || e.state || "sin especificar";
+        const sleepText = e.sleep || "sin especificar";
+        events.push({
+          type:"observation",
+          at:e.at,
+          title:"Observación del cuidador",
+          detail:`Estado: ${stateText} · Sueño: ${sleepText}${e.note ? " · " + e.note : ""}`
         });
       });
+
+      // Acciones realmente confirmadas.
+      (state.history || []).forEach(e=>{
+        if(localDateKeyFromISO(e.at) !== dateKey) return;
+        events.push({type:e.type, at:e.at, title:e.title, detail:e.detail || ""});
+      });
+
+      // Elementos previstos: no se confunden con realizados.
+      (state.meds || []).forEach(m=>{
+        events.push({
+          type:"planned",
+          at:`${dateKey}T${m.time || "12:00"}:00`,
+          title:`Medicación prevista: ${m.name}`,
+          detail:m.time ? `Hora prevista: ${m.time}${m.note ? " · " + m.note : ""}` : (m.note || "Sin hora")
+        });
+      });
+
+      (state.appts || []).forEach(a=>{
+        if(a.date !== dateKey) return;
+        events.push({
+          type:"planned",
+          at:`${a.date}T${a.time || "12:00"}:00`,
+          title:`Cita prevista: ${a.title}`,
+          detail:a.time ? `${a.time}${a.note ? " · " + a.note : ""}` : (a.note || "Hora por confirmar")
+        });
+      });
+
+      return events.sort((a,b)=>new Date(a.at)-new Date(b.at));
     }
-    $("#btnAddDiary")?.addEventListener("click", ()=>{
-      const entry = {
-        id: cryptoRandomId(),
-        at: nowISO(),
-        sleep: $("#sleepSel").value,
-        mood: $("#moodSel").value,
-        note: $("#diaryNote").value.trim()
+
+    function trackingTypeMeta(type){
+      if(type === "routine_completed") return {icon:"✓", label:"Completado", dot:"completed"};
+      if(type === "help") return {icon:"🆘", label:"Ayuda", dot:"help"};
+      if(type === "medication_confirmed") return {icon:"💊", label:"Medicación", dot:"completed"};
+      if(type === "observation") return {icon:"📝", label:"Observación", dot:"observation"};
+      return {icon:"○", label:"Previsto", dot:"planned"};
+    }
+
+    function renderTrackingCalendar(){
+      const box = $("#trackingCalendar");
+      if(!box) return;
+      box.innerHTML = "";
+
+      const year = trackingMonthCursor.getFullYear();
+      const month = trackingMonthCursor.getMonth();
+      $("#trackingMonthLabel").textContent = trackingMonthCursor.toLocaleDateString("es-ES",{month:"long",year:"numeric"});
+
+      const first = new Date(year,month,1);
+      const startOffset = (first.getDay()+6)%7;
+      const gridStart = new Date(year,month,1-startOffset);
+      const todayKey = toDateInputValue(new Date());
+
+      for(let i=0;i<42;i++){
+        const d = new Date(gridStart);
+        d.setDate(gridStart.getDate()+i);
+        const key = toDateInputValue(d);
+        const events = trackingEventsForDate(key);
+        const types = [...new Set(events.map(e=>trackingTypeMeta(e.type).dot))].slice(0,4);
+
+        const btn=document.createElement("button");
+        btn.type="button";
+        btn.className="calendar-day";
+        if(d.getMonth()!==month) btn.classList.add("muted");
+        if(key===todayKey) btn.classList.add("today");
+        if(key===trackingSelectedDate) btn.classList.add("selected");
+        btn.innerHTML = `<span>${d.getDate()}</span><span class="calendar-dots">${types.map(t=>`<i class="calendar-dot ${t}"></i>`).join("")}</span>`;
+        btn.addEventListener("click",()=>{
+          trackingSelectedDate=key;
+          if(d.getMonth()!==trackingMonthCursor.getMonth()){
+            trackingMonthCursor=new Date(d.getFullYear(),d.getMonth(),1);
+          }
+          renderTracking();
+        });
+        box.appendChild(btn);
+      }
+    }
+
+    function renderTrackingDay(){
+      const label=$("#trackingDayLabel");
+      const timeline=$("#trackingTimeline");
+      const summary=$("#trackingSummary");
+      if(!label || !timeline || !summary) return;
+
+      const selected = new Date(trackingSelectedDate+"T12:00:00");
+      label.textContent = selected.toLocaleDateString("es-ES",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+      timeline.innerHTML="";
+      summary.innerHTML="";
+
+      const events=trackingEventsForDate(trackingSelectedDate);
+      const counts={
+        planned:events.filter(e=>e.type==="planned").length,
+        completed:events.filter(e=>e.type==="routine_completed" || e.type==="medication_confirmed").length,
+        observation:events.filter(e=>e.type==="observation").length,
+        help:events.filter(e=>e.type==="help").length
       };
-      state.diary.unshift(entry);
-      $("#diaryNote").value="";
-      saveState();
-      renderDiary();
-      toast("Entrada guardada.");
+
+      [
+        ["Previstos",counts.planned],
+        ["Confirmados",counts.completed],
+        ["Observaciones",counts.observation],
+        ["Ayuda",counts.help]
+      ].forEach(([name,count])=>{
+        const chip=document.createElement("span");
+        chip.className="tracking-chip";
+        chip.textContent=`${name}: ${count}`;
+        summary.appendChild(chip);
+      });
+
+      if(!events.length){
+        timeline.appendChild(makeNoteItem("No hay registros para este día."));
+        return;
+      }
+
+      events.forEach(e=>{
+        const meta=trackingTypeMeta(e.type);
+        const d=new Date(e.at);
+        const item=document.createElement("div");
+        item.className="timeline-entry";
+        item.innerHTML=`
+          <div class="timeline-icon">${meta.icon}</div>
+          <div>
+            <div class="time">${Number.isNaN(d.getTime()) ? "" : d.toLocaleTimeString("es-ES",{hour:"2-digit",minute:"2-digit"})} · ${meta.label}</div>
+            <div class="title">${escapeHtml(e.title)}</div>
+            <div class="detail">${escapeHtml(e.detail || "")}</div>
+          </div>
+        `;
+        timeline.appendChild(item);
+      });
+    }
+
+    function renderTracking(){
+      renderTrackingCalendar();
+      renderTrackingDay();
+    }
+
+    $("#btnTrackPrevMonth")?.addEventListener("click",()=>{
+      trackingMonthCursor=new Date(trackingMonthCursor.getFullYear(),trackingMonthCursor.getMonth()-1,1);
+      renderTracking();
     });
-    $("#btnClearDiary")?.addEventListener("click", ()=>{
-      if(!confirm("¿Borrar todo el diario?")) return;
-      state.diary = [];
+    $("#btnTrackNextMonth")?.addEventListener("click",()=>{
+      trackingMonthCursor=new Date(trackingMonthCursor.getFullYear(),trackingMonthCursor.getMonth()+1,1);
+      renderTracking();
+    });
+    $("#btnTrackToday")?.addEventListener("click",()=>{
+      const now=new Date();
+      trackingSelectedDate=toDateInputValue(now);
+      trackingMonthCursor=new Date(now.getFullYear(),now.getMonth(),1);
+      renderTracking();
+    });
+
+    $("#btnAddTrackingObservation")?.addEventListener("click",()=>{
+      const note=$("#trackingNote").value.trim();
+      const entry={
+        id:cryptoRandomId(),
+        at:nowISO(),
+        sleep:$("#trackingSleepSel").value,
+        mood:$("#trackingStateSel").value,
+        note
+      };
+      state.diary = state.diary || [];
+      state.diary.unshift(entry);
+      trackingSelectedDate=toDateInputValue(new Date());
+      trackingMonthCursor=new Date(new Date().getFullYear(),new Date().getMonth(),1);
+      $("#trackingNote").value="";
       saveState();
-      renderDiary();
-      toast("Diario borrado.");
+      renderTracking();
+      toast("Observación guardada.");
     });
 
     /* ======================
@@ -4041,7 +4269,7 @@
       renderPatientReminders();
       renderAlbum();
       renderAlbumAdmin();
-      renderDiary();
+      renderTracking();
       renderCarePanel();
       fillPatientSettingsForm();
       $("#routineEditor").value = (state.routine||[]).map((s,i)=> `${i+1}) ${s.title}`).join("\n");
