@@ -282,10 +282,9 @@
     .tabbtn:focus{outline:none; box-shadow:var(--focus)}
 
     /* ===== Seguimiento del cuidador ===== */
-    .tracking-layout{display:grid;grid-template-columns:minmax(300px,.9fr) minmax(340px,1.1fr);gap:12px;margin-top:12px}
-    @media (max-width:900px){.tracking-layout{grid-template-columns:1fr}}
-    .tracking-card{border:1px solid var(--line);background:rgba(0,0,0,.12);border-radius:18px;padding:12px}
-    .tracking-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+    .tracking-layout{display:grid;grid-template-columns:1fr;gap:12px;margin-top:12px;min-width:0}
+    .tracking-card{border:1px solid var(--line);background:rgba(0,0,0,.12);border-radius:18px;padding:12px;min-width:0;overflow:hidden}
+    .tracking-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;min-width:0;flex-wrap:wrap}
     .tracking-head strong{font-size:15px}
     .calendar-nav{display:flex;gap:6px}
     .calendar-nav .btn{padding:8px 10px}
@@ -305,7 +304,7 @@
     .calendar-dot.completed{background:#7dffb6}
     .calendar-dot.help{background:#ff8d8d}
     .calendar-dot.planned{background:#ffd47a}
-    .tracking-summary{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 12px}
+    .tracking-summary{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 12px;min-width:0}
     .tracking-chip{font-size:11px;padding:6px 9px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.05)}
     .timeline{display:flex;flex-direction:column;gap:8px}
     .timeline-entry{display:grid;grid-template-columns:34px 1fr;gap:10px;padding:10px;border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.045)}
