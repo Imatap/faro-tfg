@@ -288,6 +288,76 @@
     .patient-big-help{margin-top:12px}
     .patient-simple-step{margin-top:12px}
 
+    /* ===== L2: guía paso a paso ===== */
+    body[data-profile="L2"][data-mode="patient"] .patient-home-stack{
+      display:none !important;
+    }
+    body[data-profile="L2"][data-mode="patient"] #patientSimple{
+      margin-top:0;
+    }
+    body[data-profile="L2"][data-mode="patient"] #patientSimple .l2-guided{
+      padding:20px 16px;
+      border-radius:22px;
+      border:1px solid rgba(255,212,122,.32);
+      background:linear-gradient(180deg,rgba(255,212,122,.11),rgba(0,0,0,.10));
+    }
+    body[data-profile="L2"][data-mode="patient"] #patientSimple .l2-eyebrow{
+      text-align:center;
+      text-transform:uppercase;
+      letter-spacing:.10em;
+      font-size:12px;
+      font-weight:900;
+      color:rgba(246,251,255,.72);
+      margin-bottom:8px;
+    }
+    body[data-profile="L2"][data-mode="patient"] #patientSimple #simpleStepTitle{
+      font-size:26px;
+      line-height:1.2;
+      text-align:center;
+      font-weight:900;
+    }
+    body[data-profile="L2"][data-mode="patient"] #patientSimple #simpleStepHint{
+      font-size:17px;
+      line-height:1.5;
+      text-align:center;
+      margin-top:8px;
+    }
+    body[data-profile="L2"][data-mode="patient"] #simpleStepActions{
+      align-items:center !important;
+      margin-top:14px;
+    }
+    body[data-profile="L2"][data-mode="patient"] #btnSimpleRepeat{
+      min-width:180px;
+      min-height:52px;
+      font-size:16px;
+    }
+    body[data-profile="L2"][data-mode="patient"] #btnSimpleNextStep{
+      width:100%;
+      min-height:68px;
+      font-size:19px;
+      font-weight:900;
+    }
+    .l2-secondary-actions{display:none}
+    body[data-profile="L2"][data-mode="patient"] .l2-secondary-actions{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-top:12px;
+    }
+    body[data-profile="L2"][data-mode="patient"] .l2-secondary-actions .btn{
+      min-height:58px;
+    }
+    body[data-profile="L2"][data-mode="patient"] #btnPatientMore{
+      width:100%;
+      margin-top:2px;
+      opacity:.82;
+    }
+    @media (max-width:520px){
+      body[data-profile="L2"][data-mode="patient"] .l2-secondary-actions{
+        grid-template-columns:1fr;
+      }
+    }
+
     /* ===== Ajustes finales pensando en el uso real del paciente ===== */
     body[data-mode="patient"] .wrap{max-width:760px}
     body[data-mode="patient"] header{
@@ -1024,30 +1094,34 @@
                 </div>
               </div>
 
-              <!-- L1/L2: SIMPLE -->
+              <!-- L2: GUÍA PASO A PASO -->
               <div id="patientSimple" class="show-l1-l2 patient-simple-step">
-                <div class="item calm-focus l3-hide">
-                  <div class="meta">
-                    <div class="k">Mi siguiente paso</div>
-                    <div class="v" id="simpleStepTitle">—</div>
-                    <div class="s" id="simpleStepHint">—</div>
+                <div class="l2-guided">
+                  <div class="l2-eyebrow">Ahora</div>
+
+                  <div class="item calm-focus">
+                    <div class="meta" style="width:100%">
+                      <div class="v" id="simpleStepTitle">—</div>
+                      <div class="s" id="simpleStepHint">—</div>
+                    </div>
+                    <div id="simpleStepActions" style="display:flex;flex-direction:column;gap:10px;align-items:center">
+                      <span class="badge" id="simpleProgress">0/0</span>
+                      <button class="btn" id="btnSimpleRepeat">🔊 Escuchar</button>
+                    </div>
                   </div>
-                  <div id="simpleStepActions" style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
-                    <span class="badge" id="simpleProgress">0/0</span>
-                    <button class="btn small" id="btnSimpleRepeat">Repetir</button>
+
+                  <div class="btnrow" id="simpleNextRow" style="margin-top:12px">
+                    <button class="btn primary big" id="btnSimpleNextStep">✓ Ya está, siguiente</button>
                   </div>
                 </div>
 
-                <div class="btnrow" id="simpleNextRow" style="margin-top:10px">
-                  <button class="btn primary big" id="btnSimpleNextStep">Hecho, siguiente</button>
+                <div class="l2-secondary-actions">
+                  <button class="btn big primary" id="btnSimpleActivities">🧩 Actividades</button>
+                  <button class="btn big danger" id="btnSimpleHelp">Necesito ayuda</button>
                 </div>
 
-                <div class="btnrow show-l1-l2" style="margin-top:10px">
-                  <button class="btn big" id="btnPatientMore">Más opciones</button>
-                </div>
-
-                <div class="btnrow hidden" style="margin-top:10px">
-                  <button class="btn big" id="btnPatientMoreL2">Más opciones</button>
+                <div class="btnrow" style="margin-top:10px">
+                  <button class="btn" id="btnPatientMore">Más opciones</button>
                 </div>
               </div>
 
@@ -1058,7 +1132,7 @@
                   <button class="tabbtn" data-ptab="reminders" role="tab" aria-selected="false">Recordatorios</button>
                   <button class="tabbtn" data-ptab="album" role="tab" aria-selected="false" data-i18n="album">Álbum</button>
                   <button class="tabbtn" data-ptab="cognitive" role="tab" aria-selected="false">Actividades</button>
-                  <button class="tabbtn" id="btnPatientLess" role="tab" aria-selected="false">Volver</button>
+                  <button class="tabbtn only-l2" id="btnPatientLess" role="tab" aria-selected="false">Volver</button>
                 </div>
 
                 <div style="margin-top:12px">
@@ -2558,27 +2632,19 @@
 
     $("#btnPatientMore")?.addEventListener("click", ()=>{
       bumpUsage("patient_action:more");
-      if(state.profile === "L3") return;
+      if(state.profile !== "L2") return;
       state.patientView = "full";
       setCalmMode(false);
       renderPatientView();
-      toast("Vista completa.");
-    });
-    $("#btnPatientMoreL2")?.addEventListener("click", ()=>{
-      bumpUsage("patient_action:more");
-      if(state.profile === "L3") return;
-      state.patientView = "full";
-      setCalmMode(false);
-      renderPatientView();
-      toast("Vista completa.");
+      toast("Más opciones.");
     });
     $("#btnPatientLess")?.addEventListener("click", ()=>{
       bumpUsage("patient_action:less");
-      if(state.profile === "L3") return;
+      if(state.profile !== "L2") return;
       state.patientView = "simple";
       setCalmMode(true);
       renderPatientView();
-      toast("Vista simple.");
+      toast("Volvemos al paso actual.");
     });
 
     /* ===== Tabs paciente ===== */
@@ -2607,6 +2673,15 @@
       renderPatientView();
       openPatientTab("cognitive");
       bumpUsage("patient_action:activities");
+    });
+
+    $("#btnSimpleActivities")?.addEventListener("click", ()=>{
+      if(state.profile !== "L2") return;
+      state.patientView = "full";
+      setCalmMode(false);
+      renderPatientView();
+      openPatientTab("cognitive");
+      bumpUsage("patient_action:l2_activities");
     });
 
     /* ===== Tabs cuidador ===== */
@@ -3583,7 +3658,11 @@
     }
 
     $("#btnSaveTrusted")?.addEventListener("click", async ()=>{
-      state.profile = $("#profileSelect").value || "L2";
+      const nextProfile = $("#profileSelect").value || "L2";
+      if(nextProfile !== state.profile){
+        state.patientView = PROFILE_RULES[nextProfile]?.defaultView || "simple";
+      }
+      state.profile = nextProfile;
       const carePinCandidate = ($("#carePinInput").value || "").trim();
       if(!validCarePin(carePinCandidate)){
         alert("El PIN del Área familiar debe tener exactamente 4 cifras.");
@@ -3736,7 +3815,9 @@
       if(q) q.value = state.profile || "L2";
     }
     $("#profileSelectQuick")?.addEventListener("change", ()=>{
-      state.profile = $("#profileSelectQuick").value || "L2";
+      const nextProfile = $("#profileSelectQuick").value || "L2";
+      state.profile = nextProfile;
+      state.patientView = PROFILE_RULES[nextProfile]?.defaultView || "simple";
       saveState();
       applyProfile();
       toast("Perfil actualizado.");
