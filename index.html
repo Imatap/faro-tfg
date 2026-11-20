@@ -4544,7 +4544,7 @@
 
       if(logTransition && prevInside && !step.inside){
         historyAdd("location_exit","Salida de zona segura",`Ubicación simulada: ${step.label}. Radio configurado: ${loc.safeRadiusM} m.`);
-        if(Notification.permission === "granted"){
+        if("Notification" in window && Notification.permission === "granted"){
           try{ new Notification("FARO · Aviso de ubicación",{body:"El dispositivo simulado ha salido de la zona segura."}); }catch{}
         }
       }else if(logTransition && !prevInside && step.inside){
